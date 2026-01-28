@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="(주)대교에이스 - 전기 설비 자재 전문 기업. 벽체박스 및 다양한 전기 설비 제품을 제공합니다.">
+    <title>(주)대교에이스 - DAEKYO ACE</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- 헤더 -->
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img src="images/logo.png" alt="(주)대교에이스 로고" class="logo-image">
+            </a>
+
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="index.html" class="active">홈</a></li>
+                    <li><a href="products.html">제품</a></li>
+                    <li><a href="resources.html">자료실</a></li>
+                    <li><a href="about.html">회사소개</a></li>
+                    <li><a href="contact.html">문의하기</a></li>
+                </ul>
+            </nav>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        </div>
+    </header>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2>보이지 않는 곳에서 빛나는 대교에이스의 기술력</h2>
+            <p>제품의 정교함부터 물류의 신속함까지, 우리는 제조 그 이상의 가치를 전달합니다.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                <a href="products.html" class="btn">제품 보기</a>
+                <a href="contact.html" class="btn btn-outline">문의하기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 주요 제품 섹션 -->
+    <section class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>주요 제품</h2>
+                <p>대교에이스의 대표 제품을 만나보세요</p>
+            </div>
+
+            <div class="card-grid">
+                <div class="card" onclick="location.href='product-detail.html?id=1'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="20" y="20" width="80" height="80" rx="4" fill="#FF8C00" opacity="0.2" />
+                            <rect x="30" y="30" width="60" height="60" rx="2" stroke="#FF8C00" stroke-width="3" />
+                            <circle cx="45" cy="45" r="5" fill="#FF8C00" />
+                            <circle cx="75" cy="45" r="5" fill="#FF8C00" />
+                            <circle cx="45" cy="75" r="5" fill="#FF8C00" />
+                            <circle cx="75" cy="75" r="5" fill="#FF8C00" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge">인기 제품</span>
+                        <h3 class="card-title">4구 벽체박스</h3>
+                        <p class="card-description">고품질 난연성 소재로 제작된 4구 벽체박스입니다. 안전하고 내구성이 뛰어납니다.</p>
+                    </div>
+                </div>
+
+                <div class="card" onclick="location.href='product-detail.html?id=2'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="25" y="30" width="70" height="60" rx="4" fill="#FF8C00" opacity="0.2" />
+                            <rect x="35" y="40" width="50" height="40" rx="2" stroke="#FF8C00" stroke-width="3" />
+                            <circle cx="50" cy="55" r="5" fill="#FF8C00" />
+                            <circle cx="70" cy="55" r="5" fill="#FF8C00" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge">신제품</span>
+                        <h3 class="card-title">2구 벽체박스</h3>
+                        <p class="card-description">컴팩트한 디자인의 2구 벽체박스로 공간 활용도가 높습니다.</p>
+                    </div>
+                </div>
+
+                <div class="card" onclick="location.href='product-detail.html?id=3'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="15" y="15" width="90" height="90" rx="4" fill="#FF8C00" opacity="0.2" />
+                            <rect x="25" y="25" width="70" height="70" rx="2" stroke="#FF8C00" stroke-width="3" />
+                            <circle cx="40" cy="40" r="4" fill="#FF8C00" />
+                            <circle cx="60" cy="40" r="4" fill="#FF8C00" />
+                            <circle cx="80" cy="40" r="4" fill="#FF8C00" />
+                            <circle cx="40" cy="60" r="4" fill="#FF8C00" />
+                            <circle cx="60" cy="60" r="4" fill="#FF8C00" />
+                            <circle cx="80" cy="60" r="4" fill="#FF8C00" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge">베스트</span>
+                        <h3 class="card-title">6구 벽체박스</h3>
+                        <p class="card-description">대용량 설치가 필요한 곳에 최적화된 6구 벽체박스입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="products.html" class="btn">전체 제품 보기 →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 회사 소개 섹션 -->
+    <section class="section bg-light">
+        <div class="container">
+            <div class="section-title">
+                <h2>대교에이스를 선택해야 하는 이유</h2>
+                <p>고객 만족을 최우선으로 생각합니다</p>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-image" style="background: linear-gradient(135deg, #FF8C00, #FFA500);">
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M40 10L50 30H70L54 42L60 62L40 50L20 62L26 42L10 30H30L40 10Z" fill="white" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">최고의 품질</h3>
+                        <p class="card-description">엄격한 품질 관리 시스템을 통해 최상의 제품만을 공급합니다.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-image" style="background: linear-gradient(135deg, #00A86B, #00C878);">
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="40" cy="40" r="25" stroke="white" stroke-width="4" />
+                            <path d="M30 40L36 46L50 32" stroke="white" stroke-width="4" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">각종 인증</h3>
+                        <p class="card-description">KC, ISO 등 다양한 국내외 인증을 보유하고 있습니다.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-image" style="background: linear-gradient(135deg, #4A90E2, #5BA3F5);">
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="20" y="25" width="40" height="30" rx="2" stroke="white" stroke-width="3" />
+                            <path d="M30 25V20C30 15 35 10 40 10C45 10 50 15 50 20V25" stroke="white"
+                                stroke-width="3" />
+                            <circle cx="40" cy="40" r="4" fill="white" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">풍부한 경험</h3>
+                        <p class="card-description">수십 년간 축적된 노하우로 고객을 만족시킵니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 최신 자료 섹션 -->
+    <section class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>최신 자료</h2>
+                <p>카탈로그 및 기술 자료를 다운로드하세요</p>
+            </div>
+
+            <div class="resource-list" style="max-width: 800px; margin: 0 auto;">
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <div class="resource-icon">📄</div>
+                        <div class="resource-details">
+                            <h3>2023 제품 카탈로그</h3>
+                            <p>전체 제품 라인업 및 상세 스펙 (PDF, 15.2MB)</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn">다운로드</a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <div class="resource-icon">📋</div>
+                        <div class="resource-details">
+                            <h3>벽체박스 시방서</h3>
+                            <p>벽체박스 제품군 기술 시방서 (PDF, 3.8MB)</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn">다운로드</a>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-info">
+                        <div class="resource-icon">🏆</div>
+                        <div class="resource-details">
+                            <h3>인증서 모음</h3>
+                            <p>KC, ISO 등 각종 인증서 (PDF, 5.1MB)</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn">다운로드</a>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="resources.html" class="btn btn-outline"
+                    style="color: var(--primary-orange); border-color: var(--primary-orange);">전체 자료 보기 →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA 섹션 -->
+    <section class="section bg-light">
+        <div class="container text-center">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">제품 문의가 필요하신가요?</h2>
+            <p style="font-size: 1.2rem; color: var(--dark-gray); margin-bottom: 2rem;">
+                전문 상담원이 친절하게 안내해드립니다
+            </p>
+            <a href="contact.html" class="btn" style="font-size: 1.1rem; padding: 1.2rem 2.5rem;">
+                지금 문의하기 →
+            </a>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <img src="images/logo.png" alt="(주)대교에이스 로고" class="footer-logo">
+                <span class="footer-company-name">(주)대교에이스</span>
+                <p>
+                    사업자등록번호: 124-86-32990<br>
+                    대표이사: 구자왕<br>
+                    주소: 세종특별자치시 소정면 소정산단동로 27
+                </p>
+            </div>
+
+            <div class="footer-section">
+                <h3>바로가기</h3>
+                <ul class="footer-links">
+                    <li><a href="products.html">제품</a></li>
+                    <li><a href="resources.html">자료실</a></li>
+                    <li><a href="about.html">회사소개</a></li>
+                    <li><a href="contact.html">문의하기</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>고객센터</h3>
+                <p>
+                    전화: 044-865-4337<br>
+                    팩스: 044-865-4338<br>
+                    이메일: dk4337@hanmail.net
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 (주)대교에이스. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>

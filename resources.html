@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="대교에이스 자료실 - 카탈로그, 시방서, 인증서 다운로드">
+    <title>자료실 - (주)대교에이스</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- 헤더 -->
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img src="images/logo.png" alt="(주)대교에이스 로고" class="logo-image">
+            </a>
+
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="products.html">제품</a></li>
+                    <li><a href="resources.html" class="active">자료실</a></li>
+                    <li><a href="about.html">회사소개</a></li>
+                    <li><a href="contact.html">문의하기</a></li>
+                </ul>
+            </nav>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        </div>
+    </header>
+
+    <!-- 페이지 헤더 -->
+    <section class="hero" style="padding: 3rem 2rem;">
+        <div class="hero-content">
+            <h2>자료실</h2>
+            <p>카탈로그, 시방서, 인증서 등 다양한 자료를 다운로드하세요</p>
+        </div>
+    </section>
+
+    <!-- 자료실 -->
+    <section class="section">
+        <div class="container">
+            <!-- 브레드크럼 -->
+            <div class="breadcrumb">
+                <a href="index.html">홈</a>
+                <span>›</span>
+                <span>자료실</span>
+            </div>
+
+            <!-- 카테고리 필터 -->
+            <div class="category-nav">
+                <button class="category-btn active" data-type="all">전체</button>
+                <button class="category-btn" data-type="catalog">카탈로그</button>
+                <button class="category-btn" data-type="spec">시방서</button>
+                <button class="category-btn" data-type="cert">인증서</button>
+                <button class="category-btn" data-type="manual">매뉴얼</button>
+            </div>
+
+            <!-- 카탈로그 섹션 -->
+            <div class="section-title" style="margin-top: 3rem;">
+                <h2>📄 카탈로그</h2>
+                <p>제품 카탈로그를 다운로드하세요</p>
+            </div>
+
+            <div class="resource-list">
+                <div class="resource-item" data-type="catalog">
+                    <div class="resource-info">
+                        <div class="resource-icon">📄</div>
+                        <div class="resource-details">
+                            <h3>2025 대교에이스 카탈로그</h3>
+                            <p>전체 제품 라인업 및 상세 스펙, 지명원 포함 | PDF | 2025.01.28</p>
+                        </div>
+                    </div>
+                    <a href="files/daekyo_ace_catalog_2025.pdf" class="download-btn" download>다운로드</a>
+                </div>
+            </div>
+
+            <!-- 시방서 섹션 -->
+            <div class="section-title" style="margin-top: 3rem;">
+                <h2>📋 기술 시방서</h2>
+                <p>제품 기술 시방서를 다운로드하세요</p>
+            </div>
+
+            <div class="resource-list">
+                <div class="resource-item" data-type="spec">
+                    <div class="resource-info">
+                        <div class="resource-icon">📋</div>
+                        <div class="resource-details">
+                            <h3>벽체박스 표준형 시방서</h3>
+                            <p>표준형 벽체박스 기술 시방서 | PDF, 3.8MB | 2023.01.10</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+
+                <div class="resource-item" data-type="spec">
+                    <div class="resource-info">
+                        <div class="resource-icon">📋</div>
+                        <div class="resource-details">
+                            <h3>벽체박스 깊은형 시방서</h3>
+                            <p>깊은형 벽체박스 기술 시방서 | PDF, 3.5MB | 2023.01.10</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+
+                <div class="resource-item" data-type="spec">
+                    <div class="resource-info">
+                        <div class="resource-icon">📋</div>
+                        <div class="resource-details">
+                            <h3>정션박스 시방서</h3>
+                            <p>정션박스 기술 시방서 | PDF, 2.9MB | 2023.02.05</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+
+                <div class="resource-item" data-type="spec">
+                    <div class="resource-info">
+                        <div class="resource-icon">📋</div>
+                        <div class="resource-details">
+                            <h3>스위치/콘센트 시방서</h3>
+                            <p>스위치 및 콘센트 기술 시방서 | PDF, 4.2MB | 2023.03.01</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+            </div>
+
+            <!-- 인증서 섹션 -->
+            <div class="section-title" style="margin-top: 3rem;">
+                <h2>🏆 인증서</h2>
+                <p>각종 인증서를 확인하세요</p>
+            </div>
+
+            <div class="resource-list">
+                <div class="resource-item" data-type="cert">
+                    <div class="resource-info">
+                        <div class="resource-icon">🏆</div>
+                        <div class="resource-details">
+                            <h3>KC 인증서 (전기용품안전인증)</h3>
+                            <p>벽체박스 KC 인증서 | PDF, 1.2MB | 유효기간: 2026.12.31</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+
+                <div class="resource-item" data-type="cert">
+                    <div class="resource-info">
+                        <div class="resource-icon">🏆</div>
+                        <div class="resource-details">
+                            <h3>KS 인증서 (한국산업표준)</h3>
+                            <p>KS C 8321 인증서 | PDF, 1.5MB | 유효기간: 2027.06.30</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+
+                <div class="resource-item" data-type="cert">
+                    <div class="resource-info">
+                        <div class="resource-icon">🏆</div>
+                        <div class="resource-details">
+                            <h3>ISO 9001 인증서 (품질경영시스템)</h3>
+                            <p>ISO 9001:2015 인증서 | PDF, 0.8MB | 유효기간: 2026.03.15</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+
+                <div class="resource-item" data-type="cert">
+                    <div class="resource-info">
+                        <div class="resource-icon">🏆</div>
+                        <div class="resource-details">
+                            <h3>ISO 14001 인증서 (환경경영시스템)</h3>
+                            <p>ISO 14001:2015 인증서 | PDF, 0.9MB | 유효기간: 2026.03.15</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+
+                <div class="resource-item" data-type="cert">
+                    <div class="resource-info">
+                        <div class="resource-icon">🏆</div>
+                        <div class="resource-details">
+                            <h3>우수제품 인증서 (NEP)</h3>
+                            <p>신제품 인증서 | PDF, 1.1MB | 2023.05.20</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+            </div>
+
+            <!-- 매뉴얼 섹션 -->
+            <div class="section-title" style="margin-top: 3rem;">
+                <h2>📖 설치 매뉴얼</h2>
+                <p>제품 설치 및 사용 매뉴얼을 다운로드하세요</p>
+            </div>
+
+            <div class="resource-list">
+                <div class="resource-item" data-type="manual">
+                    <div class="resource-info">
+                        <div class="resource-icon">📖</div>
+                        <div class="resource-details">
+                            <h3>벽체박스 설치 가이드</h3>
+                            <p>벽체박스 설치 방법 상세 안내 | PDF, 6.2MB | 2023.01.05</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+
+                <div class="resource-item" data-type="manual">
+                    <div class="resource-info">
+                        <div class="resource-icon">📖</div>
+                        <div class="resource-details">
+                            <h3>안전 사용 매뉴얼</h3>
+                            <p>전기 설비 안전 사용 가이드 | PDF, 3.7MB | 2023.02.01</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+
+                <div class="resource-item" data-type="manual">
+                    <div class="resource-info">
+                        <div class="resource-icon">📖</div>
+                        <div class="resource-details">
+                            <h3>유지보수 가이드</h3>
+                            <p>제품 유지보수 및 관리 방법 | PDF, 2.5MB | 2023.03.10</p>
+                        </div>
+                    </div>
+                    <a href="#" class="download-btn"
+                        onclick="alert('다운로드 기능은 실제 파일 업로드 후 활성화됩니다.'); return false;">다운로드</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA 섹션 -->
+    <section class="section bg-light">
+        <div class="container text-center">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">필요한 자료를 찾지 못하셨나요?</h2>
+            <p style="font-size: 1.2rem; color: var(--dark-gray); margin-bottom: 2rem;">
+                문의하시면 필요한 자료를 제공해드리겠습니다
+            </p>
+            <a href="contact.html" class="btn" style="font-size: 1.1rem; padding: 1.2rem 2.5rem;">
+                문의하기 →
+            </a>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <img src="images/logo.png" alt="(주)대교에이스 로고" class="footer-logo">
+                <span class="footer-company-name">(주)대교에이스</span>
+                <p>
+                    사업자등록번호: 124-86-32990<br>
+                    대표이사: 구자왕<br>
+                    주소: 세종특별자치시 소정면 소정산단동로 27
+                </p>
+            </div>
+
+            <div class="footer-section">
+                <h3>바로가기</h3>
+                <ul class="footer-links">
+                    <li><a href="products.html">제품</a></li>
+                    <li><a href="resources.html">자료실</a></li>
+                    <li><a href="about.html">회사소개</a></li>
+                    <li><a href="contact.html">문의하기</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>고객센터</h3>
+                <p>
+                    전화: 044-865-4337<br>
+                    팩스: 044-865-4338<br>
+                    이메일: dk4337@hanmail.net
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 (주)대교에이스. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>

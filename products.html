@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="대교에이스 제품 목록 - 벽체박스 및 전기 설비 자재">
+    <title>제품 목록 - (주)대교에이스</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- 헤더 -->
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img src="images/logo.png" alt="(주)대교에이스 로고" class="logo-image">
+            </a>
+
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="products.html" class="active">제품</a></li>
+                    <li><a href="resources.html">자료실</a></li>
+                    <li><a href="about.html">회사소개</a></li>
+                    <li><a href="contact.html">문의하기</a></li>
+                </ul>
+            </nav>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        </div>
+    </header>
+
+    <!-- 페이지 헤더 -->
+    <section class="hero" style="padding: 3rem 2rem;">
+        <div class="hero-content">
+            <h2>제품</h2>
+            <p>대교에이스의 다양한 제품을 만나보세요</p>
+        </div>
+    </section>
+
+    <!-- 제품 목록 -->
+    <section class="section">
+        <div class="container">
+            <!-- 브레드크럼 -->
+            <div class="breadcrumb">
+                <a href="index.html">홈</a>
+                <span>›</span>
+                <a href="products.html" style="text-decoration: none; color: inherit;">제품</a>
+            </div>
+
+            <!-- 대분류 카테고리 -->
+            <div class="section-title">
+                <h2>제품 카테고리</h2>
+                <p>원하는 카테고리를 선택하세요</p>
+            </div>
+
+            <!-- 대분류 카테고리 카드 -->
+            <div id="mainCategoryCards" class="card-grid" style="margin-bottom: 3rem;">
+                <!-- JavaScript로 동적 생성 -->
+            </div>
+
+            <!-- 선택된 카테고리 표시 -->
+            <div id="selectedCategoryPath"
+                style="display: none; margin-bottom: 2rem; padding: 1rem; background-color: var(--light-gray); border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <span style="color: var(--dark-gray);">선택된 카테고리:</span>
+                    <span id="categoryPath" style="color: var(--primary-orange); font-weight: 600;"></span>
+                    <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+                        <button id="resetCategory" class="btn btn-outline"
+                            style="padding: 0.5rem 1rem; font-size: 0.9rem; color: var(--primary-orange); border-color: var(--primary-orange);">
+                            필터 초기화
+                        </button>
+                        <button onclick="location.href='products.html'" class="btn"
+                            style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            목록으로
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 중분류 카테고리 -->
+            <div id="subCategoryNav" class="category-nav" style="margin-bottom: 2rem; display: none;">
+                <!-- JavaScript로 동적 생성 -->
+            </div>
+
+            <!-- 소분류 카테고리 -->
+            <div id="detailCategoryNav" class="category-nav" style="margin-bottom: 2rem; display: none;">
+                <!-- JavaScript로 동적 생성 -->
+            </div>
+
+            <!-- 제품 그리드 -->
+            <div class="card-grid" id="productGrid" style="margin-top: 3rem;">
+                <!-- 벽체박스 제품들 -->
+                <div class="card product-card" data-category="wall-box" data-subcategory="standard" data-detail="1gang"
+                    onclick="location.href='product-detail.html?id=1'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="35" y="35" width="50" height="50" rx="4" fill="#FF8C00" opacity="0.2" />
+                            <rect x="40" y="40" width="40" height="40" rx="2" stroke="#FF8C00" stroke-width="3" />
+                            <circle cx="60" cy="60" r="5" fill="#FF8C00" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge">표준형</span>
+                        <h3 class="card-title">1구 벽체박스</h3>
+                        <p class="card-description">단일 스위치 또는 콘센트 설치용 표준형 벽체박스</p>
+                        <p style="color: var(--primary-orange); font-weight: 600; margin-top: 0.5rem;">
+                            규격: 86×86×50mm
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card product-card" data-category="wall-box" data-subcategory="standard" data-detail="2gang"
+                    onclick="location.href='product-detail.html?id=2'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="25" y="30" width="70" height="60" rx="4" fill="#FF8C00" opacity="0.2" />
+                            <rect x="35" y="40" width="50" height="40" rx="2" stroke="#FF8C00" stroke-width="3" />
+                            <circle cx="50" cy="55" r="5" fill="#FF8C00" />
+                            <circle cx="70" cy="55" r="5" fill="#FF8C00" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge">표준형</span>
+                        <h3 class="card-title">2구 벽체박스</h3>
+                        <p class="card-description">2개의 스위치/콘센트 설치용 표준형 벽체박스</p>
+                        <p style="color: var(--primary-orange); font-weight: 600; margin-top: 0.5rem;">
+                            규격: 120×86×50mm
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card product-card" data-category="wall-box" data-subcategory="standard" data-detail="3gang"
+                    onclick="location.href='product-detail.html?id=3'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="20" y="30" width="80" height="60" rx="4" fill="#FF8C00" opacity="0.2" />
+                            <rect x="30" y="40" width="60" height="40" rx="2" stroke="#FF8C00" stroke-width="3" />
+                            <circle cx="45" cy="55" r="4" fill="#FF8C00" />
+                            <circle cx="60" cy="55" r="4" fill="#FF8C00" />
+                            <circle cx="75" cy="55" r="4" fill="#FF8C00" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge">표준형</span>
+                        <h3 class="card-title">3구 벽체박스</h3>
+                        <p class="card-description">3개의 스위치/콘센트 설치용 표준형 벽체박스</p>
+                        <p style="color: var(--primary-orange); font-weight: 600; margin-top: 0.5rem;">
+                            규격: 154×86×50mm
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card product-card" data-category="wall-box" data-subcategory="standard" data-detail="4gang"
+                    onclick="location.href='product-detail.html?id=4'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="20" y="20" width="80" height="80" rx="4" fill="#FF8C00" opacity="0.2" />
+                            <rect x="30" y="30" width="60" height="60" rx="2" stroke="#FF8C00" stroke-width="3" />
+                            <circle cx="45" cy="45" r="5" fill="#FF8C00" />
+                            <circle cx="75" cy="45" r="5" fill="#FF8C00" />
+                            <circle cx="45" cy="75" r="5" fill="#FF8C00" />
+                            <circle cx="75" cy="75" r="5" fill="#FF8C00" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge">인기</span>
+                        <h3 class="card-title">4구 벽체박스</h3>
+                        <p class="card-description">4개의 스위치/콘센트 설치용 표준형 벽체박스</p>
+                        <p style="color: var(--primary-orange); font-weight: 600; margin-top: 0.5rem;">
+                            규격: 188×86×50mm
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card product-card" data-category="wall-box" data-subcategory="standard" data-detail="6gang"
+                    onclick="location.href='product-detail.html?id=5'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="15" y="15" width="90" height="90" rx="4" fill="#FF8C00" opacity="0.2" />
+                            <rect x="25" y="25" width="70" height="70" rx="2" stroke="#FF8C00" stroke-width="3" />
+                            <circle cx="40" cy="40" r="4" fill="#FF8C00" />
+                            <circle cx="60" cy="40" r="4" fill="#FF8C00" />
+                            <circle cx="80" cy="40" r="4" fill="#FF8C00" />
+                            <circle cx="40" cy="60" r="4" fill="#FF8C00" />
+                            <circle cx="60" cy="60" r="4" fill="#FF8C00" />
+                            <circle cx="80" cy="60" r="4" fill="#FF8C00" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge">표준형</span>
+                        <h3 class="card-title">6구 벽체박스</h3>
+                        <p class="card-description">6개의 스위치/콘센트 설치용 표준형 벽체박스</p>
+                        <p style="color: var(--primary-orange); font-weight: 600; margin-top: 0.5rem;">
+                            규격: 256×86×50mm
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 깊은형 제품들 -->
+                <div class="card product-card" data-category="wall-box" data-subcategory="deep" data-detail="2gang"
+                    onclick="location.href='product-detail.html?id=6'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="25" y="25" width="70" height="70" rx="4" fill="#00A86B" opacity="0.2" />
+                            <rect x="35" y="35" width="50" height="50" rx="2" stroke="#00A86B" stroke-width="3" />
+                            <circle cx="50" cy="50" r="5" fill="#00A86B" />
+                            <circle cx="70" cy="50" r="5" fill="#00A86B" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge" style="background-color: var(--accent-green);">깊은형</span>
+                        <h3 class="card-title">2구 깊은형 벽체박스</h3>
+                        <p class="card-description">배선 공간이 넉넉한 깊은형 벽체박스</p>
+                        <p style="color: var(--accent-green); font-weight: 600; margin-top: 0.5rem;">
+                            규격: 120×86×65mm
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card product-card" data-category="wall-box" data-subcategory="deep" data-detail="4gang"
+                    onclick="location.href='product-detail.html?id=7'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="20" y="20" width="80" height="80" rx="4" fill="#00A86B" opacity="0.2" />
+                            <rect x="30" y="30" width="60" height="60" rx="2" stroke="#00A86B" stroke-width="3" />
+                            <circle cx="45" cy="45" r="5" fill="#00A86B" />
+                            <circle cx="75" cy="45" r="5" fill="#00A86B" />
+                            <circle cx="45" cy="75" r="5" fill="#00A86B" />
+                            <circle cx="75" cy="75" r="5" fill="#00A86B" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge" style="background-color: var(--accent-green);">깊은형</span>
+                        <h3 class="card-title">4구 깊은형 벽체박스</h3>
+                        <p class="card-description">대용량 배선 설치에 최적화된 깊은형 벽체박스</p>
+                        <p style="color: var(--accent-green); font-weight: 600; margin-top: 0.5rem;">
+                            규격: 188×86×65mm
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 정션박스 제품들 -->
+                <div class="card product-card" data-category="junction-box"
+                    onclick="location.href='product-detail.html?id=8'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="30" y="30" width="60" height="60" rx="4" fill="#4A90E2" opacity="0.2" />
+                            <rect x="35" y="35" width="50" height="50" rx="2" stroke="#4A90E2" stroke-width="3" />
+                            <line x1="60" y1="35" x2="60" y2="85" stroke="#4A90E2" stroke-width="2" />
+                            <line x1="35" y1="60" x2="85" y2="60" stroke="#4A90E2" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge" style="background-color: #4A90E2;">정션박스</span>
+                        <h3 class="card-title">사각 정션박스</h3>
+                        <p class="card-description">배선 분기용 사각 정션박스</p>
+                        <p style="color: #4A90E2; font-weight: 600; margin-top: 0.5rem;">
+                            규격: 100×100×50mm
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 스위치류 제품들 -->
+                <div class="card product-card" data-category="switch"
+                    onclick="location.href='product-detail.html?id=9'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="40" y="30" width="40" height="60" rx="4" fill="#9B59B6" opacity="0.2" />
+                            <rect x="45" y="35" width="30" height="25" rx="2" fill="#9B59B6" />
+                            <rect x="45" y="65" width="30" height="25" rx="2" stroke="#9B59B6" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge" style="background-color: #9B59B6;">스위치</span>
+                        <h3 class="card-title">1구 스위치</h3>
+                        <p class="card-description">고급형 1구 스위치</p>
+                        <p style="color: #9B59B6; font-weight: 600; margin-top: 0.5rem;">
+                            규격: 86×86mm
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 콘센트류 제품들 -->
+                <div class="card product-card" data-category="outlet"
+                    onclick="location.href='product-detail.html?id=10'">
+                    <div class="card-image">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect x="35" y="35" width="50" height="50" rx="4" fill="#E74C3C" opacity="0.2" />
+                            <rect x="40" y="40" width="40" height="40" rx="2" stroke="#E74C3C" stroke-width="3" />
+                            <circle cx="55" cy="55" r="3" fill="#E74C3C" />
+                            <circle cx="65" cy="55" r="3" fill="#E74C3C" />
+                            <rect x="55" y="65" width="10" height="5" rx="1" fill="#E74C3C" />
+                        </svg>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-badge" style="background-color: #E74C3C;">콘센트</span>
+                        <h3 class="card-title">접지형 콘센트</h3>
+                        <p class="card-description">안전 접지형 콘센트</p>
+                        <p style="color: #E74C3C; font-weight: 600; margin-top: 0.5rem;">
+                            규격: 86×86mm
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 제품이 없을 때 메시지 -->
+            <div id="noProducts" style="display: none; text-align: center; padding: 4rem 2rem;">
+                <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    style="margin: 0 auto 2rem;">
+                    <circle cx="60" cy="60" r="50" stroke="#E0E0E0" stroke-width="3" />
+                    <path d="M45 50L55 60L45 70M75 50L65 60L75 70" stroke="#E0E0E0" stroke-width="3"
+                        stroke-linecap="round" />
+                </svg>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--dark-gray);">
+                    해당 카테고리에 제품이 없습니다
+                </h3>
+                <p style="color: var(--dark-gray);">다른 카테고리를 선택해주세요</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <img src="images/logo.png" alt="(주)대교에이스 로고" class="footer-logo">
+                <span class="footer-company-name">(주)대교에이스</span>
+                <p>
+                    사업자등록번호: 124-86-32990<br>
+                    대표이사: 구자왕<br>
+                    주소: 세종특별자치시 소정면 소정산단동로 27
+                </p>
+            </div>
+
+            <div class="footer-section">
+                <h3>바로가기</h3>
+                <ul class="footer-links">
+                    <li><a href="products.html">제품</a></li>
+                    <li><a href="resources.html">자료실</a></li>
+                    <li><a href="about.html">회사소개</a></li>
+                    <li><a href="contact.html">문의하기</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>고객센터</h3>
+                <p>
+                    전화: 044-865-4337<br>
+                    팩스: 044-865-4338<br>
+                    이메일: dk4337@hanmail.net
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 (주)대교에이스. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/products-data.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

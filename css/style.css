@@ -835,8 +835,20 @@ footer {
    ========================================== */
 
 @media (max-width: 768px) {
+
+    /* 모바일에서는 여백을 더 타이트하게 조정 */
+    :root {
+        --spacing-lg: 2rem;
+        --spacing-xl: 3rem;
+    }
+
     .header-container {
-        padding: 1rem;
+        padding: 0.8rem 1.2rem;
+    }
+
+    .logo-image {
+        height: 38px;
+        /* 로고 크기 축소 */
     }
 
     nav {
@@ -851,6 +863,7 @@ footer {
         right: 0;
         background-color: var(--white);
         box-shadow: var(--shadow-md);
+        z-index: 1001;
     }
 
     nav.mobile-active ul {
@@ -860,44 +873,111 @@ footer {
 
     nav.mobile-active a {
         display: block;
-        padding: 1rem;
+        padding: 1.2rem;
         border-bottom: 1px solid var(--medium-gray);
+        font-size: 1.1rem;
     }
 
     .mobile-menu-btn {
         display: block;
     }
 
+    /* 홈 배너(Hero) 모바일 최적화: 넓이와 폰트를 획기적으로 축소 */
+    .hero {
+        padding: 1.5rem 1rem;
+        /* 상하 여백 대폭 축소 */
+    }
+
     .hero h2 {
-        font-size: 2rem;
+        font-size: 1.4rem;
+        /* 폰트 크기 축소 */
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
     }
 
     .hero p {
-        font-size: 1rem;
+        font-size: 0.9rem;
+        /* 설명글 크기 축소 */
+        margin-bottom: 1.2rem;
+        padding: 0 1rem;
+    }
+
+    .btn {
+        padding: 0.7rem 1.4rem;
+        font-size: 0.9rem;
     }
 
     .section-title h2 {
-        font-size: 2rem;
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
     }
 
+    .section-title p {
+        font-size: 0.95rem;
+    }
+
+    /* 제품 목록 모바일 2열 배치: 너무 크지 않게 조정 */
     .card-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        /* 1열에서 2열로 변경 */
+        gap: 0.8rem;
+        /* 간격 좁게 */
+    }
+
+    .card-content {
+        padding: 1rem 0.8rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-description {
+        font-size: 0.85rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        /* 모바일에서는 설명을 2줄로 제한해 높이 맞춤 */
+    }
+
+    .card-image {
+        height: 150px;
+        /* 이미지 높이 축소 */
     }
 
     .product-detail {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .product-image-main {
+        height: 300px;
     }
 
     .contact-grid {
         grid-template-columns: 1fr;
+        gap: 2rem;
     }
 
     .footer-content {
         grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+    }
+
+    .footer-logo {
+        margin: 0 auto 1.5rem;
     }
 
     .certificate-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        /* 인증서도 2열로 */
+        gap: 0.8rem;
+    }
+
+    .certificate-image {
+        height: 180px;
     }
 }
 

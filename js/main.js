@@ -3,19 +3,19 @@
 // ==========================================
 
 // DOM이 로드되면 실행
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // 모바일 메뉴 토글
     initMobileMenu();
-    
+
     // 제품 필터링
     initProductFilters();
-    
+
     // 자료실 필터링
     initResourceFilters();
-    
+
     // 문의 폼 처리
     initContactForm();
-    
+
     // 스크롤 애니메이션
     initScrollAnimations();
 });
@@ -26,11 +26,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function initMobileMenu() {
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mainNav = document.getElementById('mainNav');
-    
+
     if (mobileMenuBtn && mainNav) {
-        mobileMenuBtn.addEventListener('click', function() {
+        mobileMenuBtn.addEventListener('click', function () {
             mainNav.classList.toggle('mobile-active');
-            
+
             // 아이콘 변경
             if (mainNav.classList.contains('mobile-active')) {
                 mobileMenuBtn.textContent = '✕';
@@ -38,11 +38,11 @@ function initMobileMenu() {
                 mobileMenuBtn.textContent = '☰';
             }
         });
-        
+
         // 메뉴 항목 클릭 시 모바일 메뉴 닫기
         const navLinks = mainNav.querySelectorAll('a');
         navLinks.forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 if (window.innerWidth <= 768) {
                     mainNav.classList.remove('mobile-active');
                     mobileMenuBtn.textContent = '☰';
@@ -63,22 +63,22 @@ function initProductFilters() {
     const subCategoryDiv = document.getElementById('subCategory');
     const detailCategoryDiv = document.getElementById('detailCategory');
     const noProductsDiv = document.getElementById('noProducts');
-    
+
     let selectedCategory = 'all';
     let selectedSubCategory = 'all';
     let selectedDetail = 'all';
-    
+
     // 대분류 카테고리 필터
     categoryBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             // 활성 버튼 변경
             categoryBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            
+
             selectedCategory = this.dataset.category;
             selectedSubCategory = 'all';
             selectedDetail = 'all';
-            
+
             // 중분류 표시/숨김
             if (selectedCategory === 'wall-box') {
                 subCategoryDiv.style.display = 'flex';
@@ -86,75 +86,75 @@ function initProductFilters() {
                 subCategoryDiv.style.display = 'none';
                 detailCategoryDiv.style.display = 'none';
             }
-            
+
             // 중분류, 소분류 버튼 초기화
             subCategoryBtns.forEach(b => b.classList.remove('active'));
             detailCategoryBtns.forEach(b => b.classList.remove('active'));
-            
+
             filterProducts();
         });
     });
-    
+
     // 중분류 카테고리 필터
     subCategoryBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             subCategoryBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            
+
             selectedSubCategory = this.dataset.subcategory;
             selectedDetail = 'all';
-            
+
             // 소분류 표시
             if (selectedSubCategory === 'standard') {
                 detailCategoryDiv.style.display = 'flex';
             } else {
                 detailCategoryDiv.style.display = 'none';
             }
-            
+
             detailCategoryBtns.forEach(b => b.classList.remove('active'));
-            
+
             filterProducts();
         });
     });
-    
+
     // 소분류 카테고리 필터
     detailCategoryBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             detailCategoryBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            
+
             selectedDetail = this.dataset.detail;
-            
+
             filterProducts();
         });
     });
-    
+
     // 제품 필터링 함수
     function filterProducts() {
         let visibleCount = 0;
-        
+
         productCards.forEach(card => {
             const cardCategory = card.dataset.category;
             const cardSubCategory = card.dataset.subcategory;
             const cardDetail = card.dataset.detail;
-            
+
             let shouldShow = true;
-            
+
             // 대분류 필터
             if (selectedCategory !== 'all' && cardCategory !== selectedCategory) {
                 shouldShow = false;
             }
-            
+
             // 중분류 필터
             if (selectedSubCategory !== 'all' && cardSubCategory !== selectedSubCategory) {
                 shouldShow = false;
             }
-            
+
             // 소분류 필터
             if (selectedDetail !== 'all' && cardDetail !== selectedDetail) {
                 shouldShow = false;
             }
-            
+
             if (shouldShow) {
                 card.style.display = 'block';
                 visibleCount++;
@@ -171,7 +171,7 @@ function initProductFilters() {
                 }, 300);
             }
         });
-        
+
         // 제품이 없을 때 메시지 표시
         if (noProductsDiv) {
             if (visibleCount === 0) {
@@ -181,7 +181,7 @@ function initProductFilters() {
             }
         }
     }
-    
+
     // 초기 스타일 설정
     productCards.forEach(card => {
         card.style.transition = 'all 0.3s ease';
@@ -194,21 +194,21 @@ function initProductFilters() {
 function initResourceFilters() {
     const resourceTypeBtns = document.querySelectorAll('.category-btn[data-type]');
     const resourceItems = document.querySelectorAll('.resource-item[data-type]');
-    
+
     if (resourceTypeBtns.length === 0) return;
-    
+
     resourceTypeBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             // 활성 버튼 변경
             resourceTypeBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            
+
             const selectedType = this.dataset.type;
-            
+
             // 자료 필터링
             resourceItems.forEach(item => {
                 const itemType = item.dataset.type;
-                
+
                 if (selectedType === 'all' || itemType === selectedType) {
                     item.style.display = 'flex';
                     setTimeout(() => {
@@ -225,7 +225,7 @@ function initResourceFilters() {
             });
         });
     });
-    
+
     // 초기 스타일 설정
     resourceItems.forEach(item => {
         item.style.transition = 'all 0.3s ease';
@@ -238,11 +238,11 @@ function initResourceFilters() {
 function initContactForm() {
     const contactForm = document.getElementById('contactForm');
     const successMessage = document.getElementById('successMessage');
-    
+
     if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
+        contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
-            
+
             // 폼 데이터 수집
             const formData = {
                 name: document.getElementById('name').value,
@@ -254,23 +254,23 @@ function initContactForm() {
                 message: document.getElementById('message').value,
                 privacy: document.getElementById('privacy').checked
             };
-            
+
             // 유효성 검사
             if (!formData.privacy) {
                 alert('개인정보 수집 및 이용에 동의해주세요.');
                 return;
             }
-            
+
             // 실제 서버로 전송하는 코드는 여기에 추가
             // 예: fetch('/api/contact', { method: 'POST', body: JSON.stringify(formData) })
-            
+
             // 임시로 콘솔에 출력
             console.log('문의 내용:', formData);
-            
+
             // 성공 메시지 표시
             contactForm.style.display = 'none';
             successMessage.style.display = 'block';
-            
+
             // 3초 후 폼 초기화
             setTimeout(() => {
                 contactForm.reset();
@@ -290,8 +290,8 @@ function initScrollAnimations() {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-    
-    const observer = new IntersectionObserver(function(entries) {
+
+    const observer = new IntersectionObserver(function (entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('fade-in');
@@ -299,14 +299,15 @@ function initScrollAnimations() {
             }
         });
     }, observerOptions);
-    
+
     // 애니메이션 대상 요소 선택
-    const animateElements = document.querySelectorAll('.card, .timeline-item, .certificate-item');
-    
-    animateElements.forEach(el => {
+    const animateElements = document.querySelectorAll('.card, .timeline-item, .certificate-item, .section-title, .contact-info, .resource-item');
+
+    animateElements.forEach((el, index) => {
         el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'all 0.6s ease';
+        el.style.transform = 'translateY(40px)';
+        el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+        el.style.transitionDelay = (index % 3) * 0.1 + 's'; // 시차 효과 추가
         observer.observe(el);
     });
 }

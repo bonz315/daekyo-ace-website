@@ -47,6 +47,39 @@ body {
     color: var(--text-dark);
     line-height: 1.6;
     background-color: var(--white);
+    opacity: 0;
+    /* 초기 상태 투명 */
+    animation: pageFadeIn 0.8s ease forwards;
+    /* 페이지 로드 시 페이드 인 */
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    opacity: 0;
+    animation: fadeInUp 0.8s ease forwards;
 }
 
 /* ==========================================
@@ -165,18 +198,23 @@ nav a.active {
     z-index: 1;
 }
 
+.hero p {
+    font-size: 1.1rem;
+    /* 기존 1.25rem에서 축소 */
+    margin-bottom: 1.50rem;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease forwards 0.4s;
+    /* 지연 실행 */
+}
+
 .hero h2 {
     font-size: 2.2rem;
     /* 기존 3rem에서 축소 */
     margin-bottom: 0.8rem;
     font-weight: 700;
-}
-
-.hero p {
-    font-size: 1.1rem;
-    /* 기존 1.25rem에서 축소 */
-    margin-bottom: 1.50rem;
-    opacity: 0.95;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease forwards 0.2s;
+    /* 지연 실행 */
 }
 
 .btn {
@@ -272,8 +310,12 @@ nav a.active {
 }
 
 .card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-12px) scale(1.02);
     box-shadow: var(--shadow-lg);
+}
+
+.card:active {
+    transform: translateY(-8px) scale(1.0);
 }
 
 .card-image {

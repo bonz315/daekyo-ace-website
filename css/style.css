@@ -884,21 +884,21 @@ footer {
 
     /* 홈 배너(Hero) 모바일 최적화: 넓이와 폰트를 획기적으로 축소 */
     .hero {
-        padding: 1.5rem 1rem;
-        /* 상하 여백 대폭 축소 */
+        padding: 1rem 0.5rem;
+        /* 상하 여백을 더 극단적으로 축소 */
     }
 
     .hero h2 {
-        font-size: 1.4rem;
-        /* 폰트 크기 축소 */
-        margin-bottom: 0.5rem;
-        line-height: 1.3;
+        font-size: 1.2rem;
+        /* 1.4rem에서 더 축소 */
+        margin-bottom: 0.3rem;
+        line-height: 1.2;
     }
 
     .hero p {
-        font-size: 0.9rem;
-        /* 설명글 크기 축소 */
-        margin-bottom: 1.2rem;
+        font-size: 0.8rem;
+        /* 0.9rem에서 더 축소 */
+        margin-bottom: 0.8rem;
         padding: 0 1rem;
     }
 

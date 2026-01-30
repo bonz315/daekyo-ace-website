@@ -178,6 +178,23 @@ const products = [
         image: 'images/products/4ob.jpg'
     },
     {
+        id: 8,
+        name: '매입 사각가로(4OB)',
+        mainCategory: 'wall',
+        subCategory: 'private',
+        detailCategory: null,
+        description: '',
+        specs: {
+            name: '민영 매입 사각가로(4OB)',
+            size: '102 X 102 X 85 (가로 X 세로 X 깊이)',
+            material: '합성수지제',
+            color: '블랙',
+            certification: 'KS C 8436'
+        },
+        badge: null,
+        image: 'images/products/4ob-landscape.png'
+    },
+    {
         id: 7,
         name: '매입 연용 (4OB 2G)',
         mainCategory: 'wall',

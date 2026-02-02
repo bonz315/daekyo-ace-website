@@ -443,14 +443,20 @@ nav a.active {
 
 @media (max-width: 992px) {
     .overlay-section {
-        min-height: auto;
+        min-height: 500px;
+        /* 모바일에서도 배경 이미지가 보일 수 있는 높이 확보 */
         background-attachment: scroll;
     }
 
     .overlay-panel {
         width: 100%;
-        padding: 4rem 1.5rem;
-        background: rgba(255, 255, 255, 0.9);
+        padding: 3rem 1.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        /* 배경 사진이 80% 보이도록 투명도 조정 */
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: none;
+        /* 모바일에서는 그림자 제거하여 깔끔하게 표시 */
     }
 }
 

@@ -19,8 +19,14 @@ function initializeProductPage() {
     // URL 파라미터 확인하여 자동 선택
     const urlParams = new URLSearchParams(window.location.search);
     const categoryId = urlParams.get('category');
+    const subId = urlParams.get('sub');
+
     if (categoryId) {
-        selectMainCategory(categoryId, false); // false: 히스토리에 중복 추가 방지
+        if (subId) {
+            selectMainAndSubCategory(categoryId, subId, false);
+        } else {
+            selectMainCategory(categoryId, false);
+        }
     }
 }
 
@@ -40,10 +46,23 @@ function renderMainCategories() {
     container.innerHTML = '';
 
     mainCategories.forEach(category => {
+        const subCats = getSubCategories(category.id);
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'card category-card';
         card.style.cursor = 'pointer';
-        card.onclick = () => selectMainCategory(category.id);
+
+        // 전체 카드 클릭 시 대분류 선택
+        card.onclick = (e) => {
+            // 중분류 클릭 시와 겹치지 않게 처리
+            if (e.target.closest('.sub-cat-item')) return;
+            selectMainCategory(category.id);
+        };
+
+        const subCatsHtml = subCats.map(sub => `
+            <div class="sub-cat-item" onclick="event.stopPropagation(); selectMainAndSubCategory('${category.id}', '${sub.id}')">
+                ${sub.name}
+            </div>
+        `).join('');
 
         card.innerHTML = `
             <div class="card-image" style="background-color: #ffffff; padding: 1rem;">
@@ -51,11 +70,42 @@ function renderMainCategories() {
             </div>
             <div class="card-content">
                 <h3 class="card-title">${category.name}</h3>
+                <div class="sub-category-hover-list">
+                    ${subCatsHtml}
+                </div>
             </div>
         `;
 
         container.appendChild(card);
     });
+}
+
+// 대분류와 중분류 동시 선택 (호버 리스트용)
+function selectMainAndSubCategory(mainId, subId, updateHistory = true) {
+    selectedMainCategory = mainId;
+    selectedSubCategory = subId;
+    selectedDetailCategory = null;
+
+    // URL 및 히스토리 업데이트
+    if (updateHistory) {
+        const newUrl = window.location.pathname + '?category=' + mainId + '&sub=' + subId;
+        window.history.pushState({ categoryId: mainId, subId: subId }, '', newUrl);
+    }
+
+    // 경로 및 네비게이션 업데이트
+    updateCategoryPath();
+    renderSubCategories(mainId);
+    renderDetailCategories(mainId, subId);
+
+    // 제품 표시
+    renderProducts();
+
+    // UI 전환
+    const mainCards = document.getElementById('mainCategoryCards');
+    const categoryPath = document.getElementById('selectedCategoryPath');
+
+    if (mainCards) mainCards.style.display = 'none';
+    if (categoryPath) categoryPath.style.display = 'block';
 }
 
 // 대분류 선택

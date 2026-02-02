@@ -10,18 +10,18 @@ const mainCategories = [
         image: 'images/category-wall.jpg'
     },
     {
-        id: 'slab',
-        name: '슬라브(천장,바닥)',
-        icon: '📐',
-        color: '#00A86B',
-        image: 'images/category-slab.jpg'
-    },
-    {
         id: 'masonry',
         name: '조적,경량',
         icon: '🏗️',
         color: '#4A90E2',
         image: 'images/category-masonry.jpg'
+    },
+    {
+        id: 'slab',
+        name: '슬라브(천장,바닥)',
+        icon: '📐',
+        color: '#00A86B',
+        image: 'images/category-slab.jpg'
     },
     {
         id: 'european',

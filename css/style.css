@@ -318,6 +318,71 @@ nav a.active {
     transform: translateY(-8px) scale(1.0);
 }
 
+/* 대분류 카드 전용 스타일 */
+.category-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.category-card .card-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+}
+
+/* 중분류 호버 리스트 */
+.sub-category-hover-list {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.category-card:hover .sub-category-hover-list {
+    max-height: 400px;
+    opacity: 1;
+    margin-top: 1.2rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--medium-gray);
+}
+
+.sub-cat-item {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    transition: var(--transition);
+    background: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sub-cat-item::after {
+    content: '→';
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: var(--transition);
+}
+
+.sub-cat-item:hover {
+    background-color: var(--primary-orange);
+    color: var(--white);
+    transform: translateX(5px);
+}
+
+.sub-cat-item:hover::after {
+    opacity: 1;
+    transform: translateX(0);
+}
+
 .card-image {
     width: 100%;
     height: 200px;

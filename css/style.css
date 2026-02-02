@@ -269,20 +269,6 @@ nav a.active {
     font-size: 2.5rem;
     color: var(--text-dark);
     margin-bottom: var(--spacing-sm);
-    position: relative;
-    display: inline-block;
-}
-
-.section-title h2::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 4px;
-    background-color: var(--primary-orange);
-    border-radius: 2px;
 }
 
 .section-title p {

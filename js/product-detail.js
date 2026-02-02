@@ -72,11 +72,7 @@ function renderProductImage(product) {
     if (!container) return;
 
     if (product.image) {
-        container.innerHTML = `
-            <div style="width: 100%; height: 400px; background-color: #ffffff; border-radius: 12px; border: 1px solid var(--medium-gray); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 20px;">
-                <img src="${product.image}" alt="${product.name}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
-        `;
+        container.innerHTML = `<img src="${product.image}" alt="${product.name}">`;
     } else {
         const mainCat = getMainCategory(product.mainCategory);
         const color = mainCat ? mainCat.color : '#FF8C00';

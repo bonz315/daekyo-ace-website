@@ -298,6 +298,7 @@ nav a.active {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: var(--spacing-md);
+    align-items: start;
 }
 
 .card {
@@ -319,16 +320,17 @@ nav a.active {
 }
 
 /* 대분류 카드 전용 스타일 */
-#mainCategoryCards {
-    align-items: start;
-    /* 호버 시 다른 카드가 같이 늘어나지 않도록 설정 */
-}
-
 .category-card {
     position: relative;
     display: flex;
     flex-direction: column;
-    /* height: 100% 제거: 호버 시 해당 카드만 늘어나게 함 */
+    height: 100%;
+    overflow: visible !important;
+    z-index: 1;
+}
+
+.category-card:hover {
+    z-index: 100;
 }
 
 .category-card .card-content {
@@ -340,34 +342,30 @@ nav a.active {
 
 /* 중분류 호버 리스트 */
 .sub-category-hover-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: var(--white);
     max-height: 0;
     opacity: 0;
     overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     margin-top: 0;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+    z-index: 100;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 12px 12px;
+    padding: 0 1.5rem;
 }
 
-/* 데스크톱 호버 효과 */
-@media (hover: hover) {
-    .category-card:hover .sub-category-hover-list {
-        max-height: 400px;
-        opacity: 1;
-        margin-top: 1.2rem;
-        padding-top: 0.5rem;
-        border-top: 1px solid var(--medium-gray);
-    }
-}
-
-/* 모바일 터치 및 활성화 상태 효과 */
-.category-card.active .sub-category-hover-list {
-    max-height: 400px;
+.category-card:hover .sub-category-hover-list {
+    max-height: 500px;
     opacity: 1;
-    margin-top: 1.2rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--medium-gray);
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    border-top: 1px solid var(--light-gray);
 }
 
 .sub-cat-item {
@@ -1024,6 +1022,7 @@ footer {
         font-size: 0.85rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         /* 모바일에서는 설명을 2줄로 제한해 높이 맞춤 */

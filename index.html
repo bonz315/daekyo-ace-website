@@ -51,8 +51,71 @@
         </div>
     </section>
 
+    <!-- 회사 소개 섹션 (비대칭 레이아웃) -->
+    <section class="section bg-light" id="whyUs">
+        <div class="container">
+            <div class="split-layout">
+                <!-- 좌측: 큰 공장 전경 이미지 -->
+                <div class="split-image reveal-left">
+                    <img src="images/factory-view.png" alt="대교에이스 공장 전경">
+                </div>
+
+                <!-- 우측: 텍스트 및 특장점 -->
+                <div class="split-content">
+                    <div class="section-title text-left reveal-right">
+                        <h2>대교에이스가<br>신뢰받는 이유</h2>
+                        <p>단순한 제조를 넘어, 고객의 현장을 이해하는 품질과 노하우를 제공합니다.</p>
+                    </div>
+
+                    <div class="feature-item reveal-right" style="transition-delay: 0.1s;">
+                        <div class="feature-icon-small" style="background: linear-gradient(135deg, #FF8C00, #FFA500);">
+                            <svg width="30" height="30" viewBox="0 0 80 80" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M40 10L50 30H70L54 42L60 62L40 50L20 62L26 42L10 30H30L40 10Z" fill="white" />
+                            </svg>
+                        </div>
+                        <div class="feature-text">
+                            <h3>최고의 품질과 정밀함</h3>
+                            <p>엄격한 품질 관리 시스템을 통해 오차 없는 최상의 제품만을 공급합니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item reveal-right" style="transition-delay: 0.2s;">
+                        <div class="feature-icon-small" style="background: linear-gradient(135deg, #00A86B, #00C878);">
+                            <svg width="30" height="30" viewBox="0 0 80 80" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="40" cy="40" r="25" stroke="white" stroke-width="4" />
+                                <path d="M30 40L36 46L50 32" stroke="white" stroke-width="4" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <div class="feature-text">
+                            <h3>검증된 신뢰, 각종 인증 보유</h3>
+                            <p>KC, ISO 등 다양한 국내외 인증을 통해 제품의 안전성과 성능을 보장합니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item reveal-right" style="transition-delay: 0.3s;">
+                        <div class="feature-icon-small" style="background: linear-gradient(135deg, #4A90E2, #5BA3F5);">
+                            <svg width="30" height="30" viewBox="0 0 80 80" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <rect x="20" y="25" width="40" height="30" rx="2" stroke="white" stroke-width="3" />
+                                <path d="M30 25V20C30 15 35 10 40 10C45 10 50 15 50 20V25" stroke="white"
+                                    stroke-width="3" />
+                                <circle cx="40" cy="40" r="4" fill="white" />
+                            </svg>
+                        </div>
+                        <div class="feature-text">
+                            <h3>20년 이상의 축적된 제작 노하우</h3>
+                            <p>수십 년간 현장에서 검증된 기술력으로 어떤 요구사항도 완벽히 대응합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- 주요 제품 섹션 -->
-    <section class="section">
+    <section class="section reveal-up">
         <div class="container">
             <div class="section-title">
                 <h2>주요 제품</h2>
@@ -60,7 +123,8 @@
             </div>
 
             <div class="card-grid">
-                <div class="card" onclick="location.href='product-detail.html?id=1'">
+                <div class="card reveal-up" onclick="location.href='product-detail.html?id=1'"
+                    style="transition-delay: 0.1s;">
                     <div class="card-image" style="background-color: #ffffff; padding: 10px;">
                         <img src="images/products/wall-switch-box.jpg" alt="매입 스위치"
                             style="width: 100%; height: 100%; object-fit: contain;">
@@ -73,7 +137,8 @@
                     </div>
                 </div>
 
-                <div class="card" onclick="location.href='product-detail.html?id=6'">
+                <div class="card reveal-up" onclick="location.href='product-detail.html?id=6'"
+                    style="transition-delay: 0.2s;">
                     <div class="card-image" style="background-color: #ffffff; padding: 10px;">
                         <img src="images/products/4ob.jpg" alt="매입 사각"
                             style="width: 100%; height: 100%; object-fit: contain;">
@@ -86,7 +151,8 @@
                     </div>
                 </div>
 
-                <div class="card" onclick="location.href='product-detail.html?id=7'">
+                <div class="card reveal-up" onclick="location.href='product-detail.html?id=7'"
+                    style="transition-delay: 0.3s;">
                     <div class="card-image" style="background-color: #ffffff; padding: 10px;">
                         <img src="images/products/4ob-2g.png" alt="매입 연용"
                             style="width: 100%; height: 100%; object-fit: contain;">
@@ -102,58 +168,6 @@
 
             <div style="text-align: center; margin-top: 3rem;">
                 <a href="products.html" class="btn">전체 제품 보기 →</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- 회사 소개 섹션 -->
-    <section class="section bg-light">
-        <div class="container">
-            <div class="section-title">
-                <h2>대교에이스를 선택해야 하는 이유</h2>
-                <p>고객 만족을 최우선으로 생각합니다</p>
-            </div>
-
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-image" style="background: linear-gradient(135deg, #FF8C00, #FFA500);">
-                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M40 10L50 30H70L54 42L60 62L40 50L20 62L26 42L10 30H30L40 10Z" fill="white" />
-                        </svg>
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">최고의 품질</h3>
-                        <p class="card-description">엄격한 품질 관리 시스템을 통해 최상의 제품만을 공급합니다.</p>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-image" style="background: linear-gradient(135deg, #00A86B, #00C878);">
-                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="40" cy="40" r="25" stroke="white" stroke-width="4" />
-                            <path d="M30 40L36 46L50 32" stroke="white" stroke-width="4" stroke-linecap="round" />
-                        </svg>
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">각종 인증</h3>
-                        <p class="card-description">KC, ISO 등 다양한 국내외 인증을 보유하고 있습니다.</p>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-image" style="background: linear-gradient(135deg, #4A90E2, #5BA3F5);">
-                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="20" y="25" width="40" height="30" rx="2" stroke="white" stroke-width="3" />
-                            <path d="M30 25V20C30 15 35 10 40 10C45 10 50 15 50 20V25" stroke="white"
-                                stroke-width="3" />
-                            <circle cx="40" cy="40" r="4" fill="white" />
-                        </svg>
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">풍부한 경험</h3>
-                        <p class="card-description">수십 년간 축적된 노하우로 고객을 만족시킵니다.</p>
-                    </div>
-                </div>
             </div>
         </div>
     </section>

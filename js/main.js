@@ -282,45 +282,27 @@ function initContactForm() {
 }
 
 // ==========================================
-// 스크롤 애니메이션
+// 스크롤 애니메이션 (Reveal Effect)
 // ==========================================
 function initScrollAnimations() {
-    // Intersection Observer 설정
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
 
-    const observer = new IntersectionObserver(function (entries) {
+    const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('fade-in');
+                entry.target.classList.add('active');
                 observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
 
-    // 애니메이션 대상 요소 선택
-    const animateElements = document.querySelectorAll('.card, .timeline-item, .certificate-item, .section-title, .contact-info, .resource-item');
-
-    animateElements.forEach((el, index) => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(40px)';
-        el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
-        el.style.transitionDelay = (index % 3) * 0.1 + 's'; // 시차 효과 추가
-        observer.observe(el);
-    });
+    // CSS에 정의된 reveal 클래스들을 가진 모든 요소 감시
+    const revealElements = document.querySelectorAll('[class*="reveal-"]');
+    revealElements.forEach(el => observer.observe(el));
 }
-
-// fade-in 클래스 스타일 추가
-const style = document.createElement('style');
-style.textContent = `
-    .fade-in {
-        opacity: 1 !important;
-        transform: translateY(0) !important;
-    }
-`;
-document.head.appendChild(style);
 
 // ==========================================
 // 유틸리티 함수

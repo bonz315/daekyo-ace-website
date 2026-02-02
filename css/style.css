@@ -340,9 +340,9 @@ nav a.active {
 
 .overlay-panel {
     width: 45%;
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     padding: 5rem 4rem;
     display: flex;
     flex-direction: column;

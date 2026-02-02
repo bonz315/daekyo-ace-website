@@ -61,15 +61,7 @@ function renderMainCategories() {
 // 대분류 선택
 function selectMainCategory(categoryId, updateHistory = true) {
     selectedMainCategory = categoryId;
-
-    // 중분류 정보 가져오기 및 첫 번째 중분류 자동 선택
-    const subCats = getSubCategories(categoryId);
-    if (subCats && subCats.length > 0) {
-        selectedSubCategory = subCats[0].id;
-    } else {
-        selectedSubCategory = null;
-    }
-
+    selectedSubCategory = null; // 초기에는 전체 제품 표시
     selectedDetailCategory = null;
 
     // URL 업데이트 (뒤로가기 시 상태 유지용)
@@ -84,13 +76,9 @@ function selectMainCategory(categoryId, updateHistory = true) {
     // 중분류 렌더링
     renderSubCategories(categoryId);
 
-    // 첫 번째 중분류를 자동 선택했으므로 소분류도 렌더링
-    if (selectedSubCategory) {
-        renderDetailCategories(categoryId, selectedSubCategory);
-    } else {
-        const detailNav = document.getElementById('detailCategoryNav');
-        if (detailNav) detailNav.style.display = 'none';
-    }
+    // 소분류 숨기기
+    const detailNav = document.getElementById('detailCategoryNav');
+    if (detailNav) detailNav.style.display = 'none';
 
     // 제품 표시
     renderProducts();
@@ -132,6 +120,13 @@ function renderSubCategories(mainCategoryId) {
 
     container.innerHTML = '';
     container.style.display = 'flex';
+
+    // '전체' 버튼 추가
+    const allBtn = document.createElement('button');
+    allBtn.className = 'category-btn' + (selectedSubCategory === null ? ' active' : '');
+    allBtn.textContent = '전체';
+    allBtn.onclick = () => selectSubCategory(null);
+    container.appendChild(allBtn);
 
     subCats.forEach(subCat => {
         const button = document.createElement('button');

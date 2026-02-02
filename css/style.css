@@ -211,8 +211,8 @@ nav a.active {
 .hero {
     background: linear-gradient(135deg, var(--primary-orange-light) 0%, var(--primary-orange) 100%);
     color: var(--white);
-    padding: 2.5rem var(--spacing-md);
-    /* 기존 4rem에서 2.5rem으로 축소 */
+    padding: 1.5rem var(--spacing-md);
+    /* 불필요하게 컸던 배너 사이즈를 슬림하게 조정 */
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -396,19 +396,24 @@ nav a.active {
     flex-shrink: 0;
     width: 64px;
     height: 64px;
-    background: var(--white);
-    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 18px;
+    /* 완전한 원보다 세련된 라운드 스퀘어 */
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.8);
     transition: var(--transition);
 }
 
 .feature-item-modern:hover .feature-icon-circle {
-    background: var(--primary-orange);
-    color: var(--white);
-    transform: rotate(10deg);
+    background: var(--white);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(255, 140, 0, 0.15);
+    border-color: var(--primary-orange);
 }
 
 .feature-item-modern:hover .feature-icon-circle svg path,

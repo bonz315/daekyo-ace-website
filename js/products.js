@@ -55,6 +55,21 @@ function renderMainCategories() {
         card.onclick = (e) => {
             // 중분류 클릭 시와 겹치지 않게 처리
             if (e.target.closest('.sub-cat-item')) return;
+
+            // 터치 디바이스(호버 지원 안 함) 대응
+            if (window.matchMedia("(hover: none)").matches) {
+                const isActive = card.classList.contains('active');
+
+                // 모든 카드 비활성화
+                document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+
+                // 비활성 상태면 펼치기만 함
+                if (!isActive) {
+                    card.classList.add('active');
+                    return;
+                }
+            }
+
             selectMainCategory(category.id);
         };
 

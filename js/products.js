@@ -348,11 +348,9 @@ function createProductCard(product) {
             ${imageHTML}
         </div>
         <div class="card-content">
-            ${product.badge ? `<span class="card-badge" style="background-color: ${color};">${product.badge}</span>` : ''}
             <h3 class="card-title">${product.name}</h3>
-            ${product.description ? `<p class="card-description">${product.description}</p>` : ''}
             ${product.specs && product.specs.size ? `
-                <p style="color: ${color}; font-weight: 600; margin-top: 0.5rem;">
+                <p style="color: var(--dark-gray); margin-top: 0.5rem; font-size: 0.9rem;">
                     규격: ${product.specs.size}
                 </p>
             ` : ''}

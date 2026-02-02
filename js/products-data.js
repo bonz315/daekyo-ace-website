@@ -75,9 +75,8 @@ const detailCategories = {
     // 향후 소분류가 필요한 경우 여기에 추가
 };
 
-// 제품 데이터 (샘플)
+// 제품 데이터
 const products = [
-    // 벽체 - 민영 제품 샘플
     {
         id: 1,
         name: '매입 스위치 (CSW1SS)',
@@ -94,71 +93,6 @@ const products = [
         },
         badge: null,
         image: 'images/products/wall-switch-box.jpg'
-    },
-    {
-        id: 2,
-        name: 'LH 2구 벽체박스',
-        mainCategory: 'wall',
-        subCategory: 'lh',
-        detailCategory: null,
-        description: 'LH 아파트용 2구 벽체박스',
-        specs: {
-            size: '120×86×50mm',
-            material: '난연성 PVC',
-            color: '화이트/아이보리',
-            certification: 'KC, KS'
-        },
-        badge: 'LH',
-        image: null
-    },
-    {
-        id: 3,
-        name: '통합박스',
-        mainCategory: 'wall',
-        subCategory: 'integrated',
-        detailCategory: null,
-        description: '멀티미디어 통합박스',
-        specs: {
-            size: '300×200×80mm',
-            material: '난연성 PVC',
-            color: '화이트',
-            certification: 'KC, KS'
-        },
-        badge: '통합',
-        image: null
-    },
-    // 슬라브 제품 샘플
-    {
-        id: 4,
-        name: '8CB 슬라브박스',
-        mainCategory: 'slab',
-        subCategory: '8cb',
-        detailCategory: null,
-        description: '8CB 슬라브용 박스',
-        specs: {
-            size: '100×100×50mm',
-            material: '난연성 PVC',
-            color: '블랙',
-            certification: 'KC'
-        },
-        badge: '8CB',
-        image: null
-    },
-    {
-        id: 5,
-        name: '4CB 슬라브박스',
-        mainCategory: 'slab',
-        subCategory: '4cb',
-        detailCategory: null,
-        description: '4CB 슬라브용 박스',
-        specs: {
-            size: '80×80×50mm',
-            material: '난연성 PVC',
-            color: '블랙',
-            certification: 'KC'
-        },
-        badge: '4CB',
-        image: null
     },
     {
         id: 6,
@@ -178,23 +112,6 @@ const products = [
         image: 'images/products/4ob.jpg'
     },
     {
-        id: 8,
-        name: '매입 사각가로(4OB)',
-        mainCategory: 'wall',
-        subCategory: 'private',
-        detailCategory: null,
-        description: '',
-        specs: {
-            name: '민영 매입 사각가로(4OB)',
-            size: '102 X 102 X 85 (가로 X 세로 X 깊이)',
-            material: '합성수지제',
-            color: '블랙',
-            certification: 'KS C 8436'
-        },
-        badge: null,
-        image: 'images/products/4ob-landscape.png'
-    },
-    {
         id: 7,
         name: '매입 연용 (4OB 2G)',
         mainCategory: 'wall',
@@ -210,6 +127,23 @@ const products = [
         },
         badge: null,
         image: 'images/products/4ob-2g.png'
+    },
+    {
+        id: 8,
+        name: '매입 사각가로(4OB)',
+        mainCategory: 'wall',
+        subCategory: 'private',
+        detailCategory: null,
+        description: '',
+        specs: {
+            name: '민영 매입 사각가로(4OB)',
+            size: '102 X 102 X 85 (가로 X 세로 X 깊이)',
+            material: '합성수지제',
+            color: '블랙',
+            certification: 'KS C 8436'
+        },
+        badge: null,
+        image: 'images/products/4ob-landscape.png'
     }
 ];
 

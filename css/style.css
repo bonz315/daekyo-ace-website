@@ -211,8 +211,8 @@ nav a.active {
 .hero {
     background: linear-gradient(135deg, var(--primary-orange-light) 0%, var(--primary-orange) 100%);
     color: var(--white);
-    padding: 1.5rem var(--spacing-md);
-    /* 불필요하게 컸던 배너 사이즈를 슬림하게 조정 */
+    padding: 1rem var(--spacing-md);
+    /* 배너 사이즈를 더욱 슬림하게 조정 */
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -238,21 +238,22 @@ nav a.active {
 
 .hero p {
     font-size: 1.1rem;
-    /* 기존 1.25rem에서 축소 */
-    margin-bottom: 1.50rem;
+    margin-bottom: 0.5rem;
     opacity: 0;
     animation: fadeInUp 0.8s ease forwards 0.4s;
-    /* 지연 실행 */
 }
 
 .hero h2 {
     font-size: 2.2rem;
-    /* 기존 3rem에서 축소 */
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.5rem;
     font-weight: 700;
     opacity: 0;
     animation: fadeInUp 0.8s ease forwards 0.2s;
-    /* 지연 실행 */
+}
+
+.hero .btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.95rem;
 }
 
 .btn {

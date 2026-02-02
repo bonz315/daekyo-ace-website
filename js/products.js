@@ -53,8 +53,23 @@ function renderMainCategories() {
 
         // 전체 카드 클릭 시 대분류 선택
         card.onclick = (e) => {
-            // 중분류 클릭 시와 겹치지 않게 처리
+            // 중분류 아이템 클릭 시와 겹치지 않게 처리
             if (e.target.closest('.sub-cat-item')) return;
+
+            // 모바일 환경 대응 (너비 768px 이하)
+            if (window.innerWidth <= 768) {
+                if (!card.classList.contains('active')) {
+                    // 다른 열려있는 카드 닫기
+                    document.querySelectorAll('.category-card.active').forEach(c => {
+                        if (c !== card) c.classList.remove('active');
+                    });
+                    // 현재 카드 목록 펼치기
+                    card.classList.add('active');
+                    return; // 첫 클릭 시에는 페이지 이동 방지
+                }
+            }
+
+            // PC 환경이거나 모바일에서 이미 활성화된 경우 페이지 이동
             selectMainCategory(category.id);
         };
 

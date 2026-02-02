@@ -504,7 +504,17 @@ nav a.active {
     gap: 0.4rem;
 }
 
-.category-card:hover .sub-category-hover-list {
+@media (hover: hover) {
+    .category-card:hover .sub-category-hover-list {
+        max-height: 500px;
+        opacity: 1;
+        margin-top: 1.2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--light-gray);
+    }
+}
+
+.category-card.active .sub-category-hover-list {
     max-height: 500px;
     opacity: 1;
     margin-top: 1.2rem;

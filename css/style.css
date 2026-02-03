@@ -213,6 +213,17 @@ nav a.active {
     overflow: hidden;
 }
 
+.hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-orange), #ffae42);
+    z-index: 2;
+}
+
 .hero::before {
     content: '';
     position: absolute;
@@ -514,6 +525,19 @@ nav a.active {
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
     cursor: pointer;
+    position: relative;
+    /* 시그니처 바를 위한 기준점 */
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-orange), #ffae42);
+    z-index: 2;
 }
 
 .card:hover {

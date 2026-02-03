@@ -49,6 +49,7 @@
             <div class="admin-tabs">
                 <button class="admin-tab active" data-tab="product">제품 관리</button>
                 <button class="admin-tab" data-tab="resource">자료실 관리</button>
+                <button class="admin-tab" data-tab="inquiry">문의 관리</button>
             </div>
 
             <!-- 제품 관리 탭 -->
@@ -82,32 +83,58 @@
 
             <!-- 자료실 관리 탭 -->
             <div id="resourceTab" class="tab-content">
-                <div class="admin-card">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2>자료실 파일 관리</h2>
-                        <button class="btn" onclick="openResourceModal()">+ 새 자료 등록</button>
-                    </div>
+                ... (기존 내용 유지) ...
+            </div>
 
+            <!-- 문의 관리 탭 (추가) -->
+            <div id="inquiryTab" class="tab-content">
+                <div class="admin-card">
+                    <h2>고객 문의 내역</h2>
                     <div class="admin-table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>유형</th>
+                                    <th>ID</th>
+                                    <th>이름(회사)</th>
                                     <th>제목</th>
-                                    <th>파일명</th>
-                                    <th>등록일</th>
+                                    <th>상태</th>
+                                    <th>접수일</th>
                                     <th>관리</th>
                                 </tr>
                             </thead>
-                            <tbody id="adminResourceList">
-                                <!-- 자료 리스트가 여기에 렌더링됨 -->
+                            <tbody id="adminInquiryList">
+                                <!-- 문의 리스트 렌더링 -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- 답변 등록 모달 -->
+    <div id="answerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>문의 답변하기</h3>
+                <span class="close" onclick="closeAnswerModal()">&times;</span>
+            </div>
+            <div id="inquiryDetailView"
+                style="margin-bottom:2rem; padding:1.5rem; background:#f9f9f9; border-radius:10px;">
+                <!-- 문의 상세 정보 -->
+            </div>
+            <form id="answerForm">
+                <input type="hidden" id="answerInqId">
+                <div class="form-group">
+                    <label>답변 내용 *</label>
+                    <textarea id="adminAnswerText" rows="6" required placeholder="고객님께 전달할 답변을 입력하세요."></textarea>
+                </div>
+                <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:flex-end;">
+                    <button type="button" class="btn-outline" onclick="closeAnswerModal()">취소</button>
+                    <button type="submit" class="btn">답변 등록하기</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- 제품 등록 모달 -->

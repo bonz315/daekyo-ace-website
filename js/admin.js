@@ -23,6 +23,7 @@ function initLogin() {
         loginSection.style.display = 'none';
         adminDashboard.style.display = 'block';
         renderAdminProductList();
+        renderAdminInquiryList();
     }
 
     loginForm.addEventListener('submit', function (e) {
@@ -35,6 +36,7 @@ function initLogin() {
             adminDashboard.style.display = 'block';
             loginError.style.display = 'none';
             renderAdminProductList();
+            renderAdminInquiryList();
         } else {
             loginError.style.display = 'block';
         }
@@ -58,6 +60,9 @@ function initTabs() {
 
             tab.classList.add('active');
             document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+
+            // 데이터 새로고침
+            if (tab.dataset.tab === 'inquiry') renderAdminInquiryList();
         });
     });
 }
@@ -159,61 +164,87 @@ function editProduct(id) {
     document.getElementById('productModal').style.display = 'block';
 }
 
-// 실제 저장 Logic (여기서는 결과 코드를 생성해 사용자에게 전달하는 시뮬레이션)
-function saveProduct() {
-    const id = document.getElementById('editId').value;
-    const name = document.getElementById('prodName').value;
-    const main = document.getElementById('prodMainCat').value;
-    const sub = document.getElementById('prodSubCat').value;
-    const image = document.getElementById('prodImage').value;
-    const specsRaw = document.getElementById('prodSpecs').value;
+// 4. 문의 관리 Logic
+function renderAdminInquiryList() {
+    const tbody = document.getElementById('adminInquiryList');
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-    // 스펙 파싱
-    const specs = {};
-    specsRaw.split('\n').forEach(line => {
-        const [key, ...val] = line.split(':');
-        if (key && val.length) {
-            specs[key.trim()] = val.join(':').trim();
-        }
+    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
+
+    inquiries.reverse().forEach(inq => {
+        const tr = document.createElement('tr');
+        const statusBadge = inq.status === 'answered'
+            ? '<span class="status-badge" style="background:#2ed573; color:white; padding:2px 8px; border-radius:12px; font-size:0.8rem;">답변완료</span>'
+            : '<span class="status-badge" style="background:#ffa502; color:white; padding:2px 8px; border-radius:12px; font-size:0.8rem;">대기중</span>';
+
+        tr.innerHTML = `
+            <td>${inq.id.substring(3, 8)}...</td>
+            <td>${inq.name}<br><small style="color:#999;">${inq.company || '-'}</small></td>
+            <td><strong>${inq.subject}</strong></td>
+            <td>${statusBadge}</td>
+            <td>${inq.date}</td>
+            <td>
+                <button class="btn-edit btn-sm" onclick="openAnswerModal('${inq.id}')">답변</button>
+                <button class="btn-delete btn-sm" onclick="deleteInquiry('${inq.id}')">삭제</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
     });
-
-    const newData = {
-        id: id ? parseInt(id) : products.length + 1,
-        name,
-        mainCategory: main,
-        subCategory: sub,
-        image,
-        specs
-    };
-
-    console.log("새로운 데이터가 생성되었습니다:", newData);
-
-    alert("데이터 저장이 완료되었습니다.\n\n[알림] 현재는 데모 모드입니다. 실제 웹사이트에 영구적으로 반영하려면 생성된 데이터를 AI에게 전달하여 수정을 요청해주세요.");
-
-    closeProductModal();
-    // 시뮬레이션을 위해 메모리상 데이터 업데이트 (새로고침 시 사라짐)
-    if (id) {
-        const index = products.findIndex(item => item.id === parseInt(id));
-        products[index] = newData;
-    } else {
-        products.push(newData);
-    }
-    renderAdminProductList();
 }
 
-function deleteProduct(id) {
-    if (confirm("정말로 이 제품을 삭제하시겠습니까?")) {
-        const index = products.findIndex(item => item.id === id);
-        products.splice(index, 1);
-        renderAdminProductList();
-        alert("삭제되었습니다.");
+window.openAnswerModal = function (id) {
+    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
+    const inq = inquiries.find(item => item.id === id);
+    if (!inq) return;
+
+    document.getElementById('answerInqId').value = inq.id;
+    document.getElementById('inquiryDetailView').innerHTML = `
+        <p><strong>작성자:</strong> ${inq.name} (${inq.phone})</p>
+        <p><strong>제목:</strong> ${inq.subject}</p>
+        <p style="margin-top:10px; border-top:1px solid #ddd; pt:10px;"><strong>내용:</strong><br>${inq.message}</p>
+    `;
+    document.getElementById('adminAnswerText').value = inq.answer || '';
+    document.getElementById('answerModal').style.display = 'block';
+};
+
+window.closeAnswerModal = function () {
+    document.getElementById('answerModal').style.display = 'none';
+};
+
+document.getElementById('answerForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const id = document.getElementById('answerInqId').value;
+    const answer = document.getElementById('adminAnswerText').value;
+
+    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
+    const index = inquiries.findIndex(item => item.id === id);
+
+    if (index !== -1) {
+        inquiries[index].answer = answer;
+        inquiries[index].status = 'answered';
+        localStorage.setItem('daekyoInquiries', JSON.stringify(inquiries));
+        alert("답변이 등록되었습니다.");
+        closeAnswerModal();
+        renderAdminInquiryList();
+    }
+});
+
+function deleteInquiry(id) {
+    if (confirm("이 문의 내역을 삭제하시겠습니까? (삭제된 내역은 복구할 수 없으며 고객도 볼 수 없게 됩니다.)")) {
+        let inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
+        inquiries = inquiries.filter(item => item.id !== id);
+        localStorage.setItem('daekyoInquiries', JSON.stringify(inquiries));
+        renderAdminInquiryList();
     }
 }
 
 // 창 바깥 클릭 시 모달 닫기
 window.onclick = function (event) {
-    const modal = document.getElementById('productModal');
-    if (event.target == modal) {
-        closeProductModal();
-    }
+    const pModal = document.getElementById('productModal');
+    const aModal = document.getElementById('answerModal');
+    const cModal = document.getElementById('checkInquiryModal');
+    if (event.target == pModal) closeProductModal();
+    if (event.target == aModal) closeAnswerModal();
+    if (event.target == cModal) closeCheckModal();
 }

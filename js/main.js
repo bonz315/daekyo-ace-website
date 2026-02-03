@@ -233,7 +233,7 @@ function initResourceFilters() {
 }
 
 // ==========================================
-// 문의 폼 처리
+// 문의 폼 처리 및 프라이빗 게시판 로직
 // ==========================================
 function initContactForm() {
     const contactForm = document.getElementById('contactForm');
@@ -243,8 +243,8 @@ function initContactForm() {
         contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // 폼 데이터 수집
             const formData = {
+                id: 'INQ' + Date.now(), // 고유 ID 생성
                 name: document.getElementById('name').value,
                 company: document.getElementById('company').value,
                 email: document.getElementById('email').value,
@@ -252,34 +252,100 @@ function initContactForm() {
                 category: document.getElementById('category').value,
                 subject: document.getElementById('subject').value,
                 message: document.getElementById('message').value,
-                privacy: document.getElementById('privacy').checked
+                date: new Date().toISOString().split('T')[0],
+                status: 'pending', // pending, answered
+                answer: null // 관리자 답변
             };
 
-            // 유효성 검사
-            if (!formData.privacy) {
+            if (!document.getElementById('privacy').checked) {
                 alert('개인정보 수집 및 이용에 동의해주세요.');
                 return;
             }
 
-            // 실제 서버로 전송하는 코드는 여기에 추가
-            // 예: fetch('/api/contact', { method: 'POST', body: JSON.stringify(formData) })
-
-            // 임시로 콘솔에 출력
-            console.log('문의 내용:', formData);
+            // DB 대용으로 로컬스토리지에 저장
+            const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
+            inquiries.push(formData);
+            localStorage.setItem('daekyoInquiries', JSON.stringify(inquiries));
 
             // 성공 메시지 표시
             contactForm.style.display = 'none';
             successMessage.style.display = 'block';
 
-            // 3초 후 폼 초기화
             setTimeout(() => {
                 contactForm.reset();
                 contactForm.style.display = 'block';
                 successMessage.style.display = 'none';
-            }, 5000);
+            }, 3000);
         });
     }
 }
+
+// 고객의 내역 조회 기능
+window.openCheckModal = function () {
+    document.getElementById('checkInquiryModal').style.display = 'block';
+    document.getElementById('checkInquiryStep1').style.display = 'block';
+    document.getElementById('inquiryResultArea').style.display = 'none';
+};
+
+window.closeCheckModal = function () {
+    document.getElementById('checkInquiryModal').style.display = 'none';
+};
+
+window.lookupInquiry = function () {
+    const name = document.getElementById('checkName').value;
+    const phone = document.getElementById('checkPhone').value;
+
+    if (!name || !phone) {
+        alert("이름과 연락처를 입력해주세요.");
+        return;
+    }
+
+    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
+    const results = inquiries.filter(inq => inq.name === name && inq.phone === phone);
+
+    const resultArea = document.getElementById('inquiryResultArea');
+    const step1 = document.getElementById('checkInquiryStep1');
+
+    step1.style.display = 'none';
+    resultArea.style.display = 'block';
+
+    if (results.length === 0) {
+        resultArea.innerHTML = `
+            <div style="text-align:center; padding: 2rem;">
+                <p style="color:#666;">등록된 문의 내역이 없습니다.</p>
+                <button class="btn-outline" onclick="openCheckModal()" style="margin-top:1rem;">다시 시도</button>
+            </div>`;
+        return;
+    }
+
+    let html = `<h4 style="margin-bottom:1.5rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">총 ${results.length}건의 문의가 발견되었습니다.</h4>`;
+
+    results.reverse().forEach(inq => {
+        html += `
+            <div style="background:#f9f9f9; padding:1.5rem; border-radius:10px; margin-bottom:1.5rem; border:1px solid #eee;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                    <span style="font-weight:bold; color:var(--primary-orange);">${inq.category === 'product' ? '제품문의' : '일반문의'}</span>
+                    <span style="font-size:0.85rem; color:#999;">접수일: ${inq.date}</span>
+                </div>
+                <h5 style="font-size:1.1rem; margin-bottom:0.5rem;">Q. ${inq.subject}</h5>
+                <p style="font-size:0.95rem; color:#666; white-space:pre-wrap; margin-bottom:1rem; background:white; padding:1rem; border-radius:5px;">${inq.message}</p>
+                
+                ${inq.answer ? `
+                    <div style="margin-top:1rem; padding:1rem; background:#fff3e0; border-left:4px solid var(--primary-orange); border-radius:5px;">
+                        <strong style="display:block; margin-bottom:0.5rem;">📢 관리자 답변</strong>
+                        <p style="font-size:0.95rem; line-height:1.6; white-space:pre-wrap;">${inq.answer}</p>
+                    </div>
+                ` : `
+                    <div style="text-align:center; padding:0.5rem; border:1px dashed #ccc; border-radius:5px; font-size:0.9rem; color:#999;">
+                        답변 대기 중입니다.
+                    </div>
+                `}
+            </div>
+        `;
+    });
+
+    resultArea.innerHTML = html;
+};
 
 // ==========================================
 // 스크롤 애니메이션 (Reveal Effect)

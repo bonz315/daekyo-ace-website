@@ -347,6 +347,18 @@ nav a.active {
     overflow: hidden;
     border-radius: 20px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.split-premium-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-orange), #ffae42);
+    z-index: 5;
 }
 
 .split-left-image {

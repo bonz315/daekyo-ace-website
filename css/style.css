@@ -327,8 +327,8 @@ nav a.active {
 .split-premium-section {
     display: flex;
     width: 100%;
-    min-height: 320px;
-    /* 더욱 슬림하게 상하 사이즈 축소 */
+    height: 300px;
+    /* 고정 높이로 대폭 축소 */
     background-color: #0d0d0d;
     overflow: hidden;
 }
@@ -350,11 +350,12 @@ nav a.active {
     flex: 0.8;
     background-color: #111111;
     /* 고급스러운 딥 블랙 복구 */
-    padding: 1.5rem 4rem;
-    /* 상하 패딩 추가 축소 및 상단 여백 제거 */
+    padding: 0.5rem 4rem 1.5rem;
+    /* 상단 여백 극단적 축소 */
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
+    /* 중앙 정렬 대신 위쪽부터 시작 */
     color: var(--pure-white, #ffffff);
     position: relative;
 }

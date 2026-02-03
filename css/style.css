@@ -1519,3 +1519,75 @@ footer {
         font-size: 1.6rem;
     }
 }
+
+/* ==========================================
+   회사소개 프리미엄 카드 (배경 이미지 적용)
+   ========================================== */
+.about-overview-card {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 5rem 4rem;
+    background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('../images/about-overview-bg.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 30px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.about-overview-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-orange), #ffae42);
+}
+
+.about-overview-card h4 {
+    color: var(--primary-orange);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.about-overview-card .overview-title {
+    font-size: 1.8rem;
+    line-height: 1.6;
+    color: #ffffff !important;
+    margin-bottom: 2.5rem;
+    font-weight: 700;
+}
+
+.about-overview-card .overview-title strong {
+    color: var(--primary-orange) !important;
+}
+
+.about-overview-card .overview-text {
+    font-size: 1.1rem;
+    line-height: 2;
+    color: rgba(255, 255, 255, 0.9) !important;
+    word-break: keep-all;
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .about-overview-card {
+        padding: 3rem 1.5rem;
+        border-radius: 20px;
+    }
+
+    .about-overview-card .overview-title {
+        font-size: 1.4rem;
+    }
+
+    .about-overview-card .overview-text {
+        font-size: 1rem;
+    }
+}

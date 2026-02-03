@@ -327,14 +327,15 @@ nav a.active {
 .split-premium-section {
     display: flex;
     width: 100%;
-    min-height: 480px;
-    /* 모든 콘텐츠가 보일 수 있는 최적의 슬림 높이 */
+    min-height: 380px;
+    /* 사진과 패널 전체 높이를 380px로 더욱 슬림하게 고정 */
     background-color: #0d0d0d;
     overflow: hidden;
 }
 
 .split-left-image {
-    flex: 1.2;
+    flex: 1;
+    /* 사진 가로 비율 축소하여 1:1로 맞춤 */
     position: relative;
     overflow: hidden;
 }
@@ -343,40 +344,43 @@ nav a.active {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center 25%;
+    /* 건물의 세련된 윗부분 강조 */
     display: block;
 }
 
 .split-right-content {
-    flex: 0.8;
+    flex: 1;
+    /* 텍스트 영역 가로 비율 확대하여 사진과 1:1 균형 */
     background-color: #111111;
     /* 고급스러운 딥 블랙 복구 */
-    padding: 1.5rem 4rem 2rem;
-    /* 상단 여백 제거 및 하단 밸런스 유지 */
+    padding: 1.2rem 3rem 1.5rem;
+    /* 좌우 여백을 줄여 전체적인 슬림함 유지 */
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    /* 콘텐츠를 위쪽으로 밀착 */
     color: var(--pure-white, #ffffff);
     position: relative;
 }
 
 /* 블랙 패널용 텍스트 스타일 */
 .split-right-content .section-title {
-    margin-bottom: 2rem;
-    /* 간격 축소 */
+    margin-bottom: 1.2rem;
+    /* 간격 대폭 축소 */
     text-align: left !important;
 }
 
 .split-right-content .section-title h2 {
-    font-size: 2.4rem;
-    /* 폰트 크기 약간 축소 */
+    font-size: 2rem;
+    /* 제목 크기 축소 */
     color: #ffffff;
     line-height: 1.2;
 }
 
 .split-right-content .section-title p {
     color: #aaaaaa;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
+    /* 설명글 크기 축소 */
 }
 
 .feature-list {
@@ -388,11 +392,11 @@ nav a.active {
 
 .feature-item-modern {
     display: flex;
-    gap: 1rem;
+    gap: 0.8rem;
     align-items: center;
-    padding: 0.8rem 1.2rem;
-    /* 상하 패딩 추가 축소 */
-    border-radius: 15px;
+    padding: 0.6rem 1rem;
+    /* 아이템별 패딩을 최소화하여 높이 확보 */
+    border-radius: 12px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: var(--transition);
@@ -406,12 +410,11 @@ nav a.active {
 
 .feature-icon-circle {
     flex-shrink: 0;
-    width: 48px;
-    /* 크기 축소 */
-    height: 48px;
-    /* 크기 축소 */
+    width: 40px;
+    /* 아이콘 박스 초소형화 */
+    height: 40px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -429,14 +432,16 @@ nav a.active {
 }
 
 .feature-text-modern h3 {
-    font-size: 1.2rem;
-    margin-bottom: 0.3rem;
+    font-size: 1.05rem;
+    /* 특징 제목 폰트 축소 */
+    margin-bottom: 0.15rem;
     color: #ffffff;
 }
 
 .feature-text-modern p {
     color: #999999;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    /* 특징 설명 폰트 축소 */
 }
 
 @media (max-width: 1024px) {

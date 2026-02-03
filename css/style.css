@@ -327,15 +327,15 @@ nav a.active {
 .split-premium-section {
     display: flex;
     width: 100%;
-    min-height: 380px;
-    /* 글자가 잘리지 않으면서도 한눈에 들어오는 최적의 높이 */
+    min-height: 320px;
+    /* 글자 크기를 보존하면서도 사진 부피를 줄인 최적의 높이 */
     background-color: #0d0d0d;
     overflow: hidden;
 }
 
 .split-left-image {
-    flex: 1;
-    /* 사진 가로 비율 축소하여 1:1로 맞춤 */
+    flex: 0.66;
+    /* 사진의 가로 폭을 현재의 2/3 사이즈로 축소 */
     position: relative;
     overflow: hidden;
 }
@@ -350,10 +350,11 @@ nav a.active {
 }
 
 .split-right-content {
-    flex: 1;
+    flex: 1.34;
+    /* 사진이 줄어든 만큼 텍스트 영역 확장 */
     background-color: #111111;
-    padding: 2rem 3rem 1rem;
-    /* 상단 여백은 유지하고 하단 여백만 최소화 */
+    padding: 1.5rem 3rem 1rem;
+    /* 여백 재최적화 */
     display: flex;
     flex-direction: column;
     justify-content: flex-start;

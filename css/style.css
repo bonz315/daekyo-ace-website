@@ -327,8 +327,8 @@ nav a.active {
 .split-premium-section {
     display: flex;
     width: 100%;
-    height: 300px;
-    /* 고정 높이로 대폭 축소 */
+    min-height: 480px;
+    /* 모든 콘텐츠가 보일 수 있는 최적의 슬림 높이 */
     background-color: #0d0d0d;
     overflow: hidden;
 }
@@ -350,12 +350,12 @@ nav a.active {
     flex: 0.8;
     background-color: #111111;
     /* 고급스러운 딥 블랙 복구 */
-    padding: 0.5rem 4rem 1.5rem;
-    /* 상단 여백 극단적 축소 */
+    padding: 1.5rem 4rem 2rem;
+    /* 상단 여백 제거 및 하단 밸런스 유지 */
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    /* 중앙 정렬 대신 위쪽부터 시작 */
+    /* 콘텐츠를 위쪽으로 밀착 */
     color: var(--pure-white, #ffffff);
     position: relative;
 }

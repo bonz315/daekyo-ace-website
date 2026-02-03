@@ -347,16 +347,17 @@ nav a.active {
 
 .split-right-content {
     flex: 0.8;
-    background-color: var(--white);
+    background-color: #111111;
+    /* 고급스러운 딥 블랙 복구 */
     padding: 5rem 4rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    color: var(--text-dark);
+    color: var(--pure-white, #ffffff);
     position: relative;
 }
 
-/* 텍스트 스타일 */
+/* 블랙 패널용 텍스트 스타일 */
 .split-right-content .section-title {
     margin-bottom: 3.5rem;
     text-align: left !important;
@@ -364,12 +365,12 @@ nav a.active {
 
 .split-right-content .section-title h2 {
     font-size: 2.8rem;
-    color: var(--text-dark);
+    color: #ffffff;
     line-height: 1.2;
 }
 
 .split-right-content .section-title p {
-    color: var(--dark-gray);
+    color: #aaaaaa;
     font-size: 1.15rem;
 }
 
@@ -385,28 +386,27 @@ nav a.active {
     align-items: center;
     padding: 1.2rem;
     border-radius: 20px;
-    background: var(--light-gray);
-    border: 1px solid var(--medium-gray);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     transition: var(--transition);
 }
 
 .feature-item-modern:hover {
     transform: translateX(10px);
-    background: var(--white);
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary-orange);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 140, 0, 0.3);
 }
 
 .feature-icon-circle {
     flex-shrink: 0;
     width: 60px;
     height: 60px;
-    background: var(--white);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--medium-gray);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     transition: var(--transition);
 }
 
@@ -416,17 +416,17 @@ nav a.active {
 }
 
 .feature-item-modern:hover .feature-icon-circle svg {
-    stroke: var(--white);
+    stroke: #ffffff;
 }
 
 .feature-text-modern h3 {
     font-size: 1.2rem;
     margin-bottom: 0.3rem;
-    color: var(--text-dark);
+    color: #ffffff;
 }
 
 .feature-text-modern p {
-    color: var(--dark-gray);
+    color: #999999;
     font-size: 0.95rem;
 }
 

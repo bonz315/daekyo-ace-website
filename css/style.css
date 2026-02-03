@@ -436,6 +436,11 @@ nav a.active {
     border-color: rgba(74, 144, 226, 0.2);
 }
 
+.feature-item-modern:nth-child(4) .feature-icon-circle {
+    background: linear-gradient(135deg, rgba(167, 116, 255, 0.2), rgba(167, 116, 255, 0.05));
+    border-color: rgba(167, 116, 255, 0.2);
+}
+
 .feature-item-modern:hover .feature-icon-circle {
     transform: scale(1.1) rotate(5deg);
     box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
@@ -447,6 +452,10 @@ nav a.active {
 
 .feature-item-modern:nth-child(3):hover .feature-icon-circle {
     box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+}
+
+.feature-item-modern:nth-child(4):hover .feature-icon-circle {
+    box-shadow: 0 0 20px rgba(167, 116, 255, 0.3);
 }
 
 .feature-text-modern h3 {

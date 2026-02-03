@@ -1521,17 +1521,17 @@ footer {
 }
 
 /* ==========================================
-   회사소개 프리미엄 카드 (밝은 테마 적용)
+   회사소개 프리미엄 카드 (배경 이미지 재적용)
    ========================================== */
 .about-overview-card {
     max-width: 1000px;
     margin: 0 auto;
     padding: 5rem 4rem;
-    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-    /* 밝고 세련된 메탈릭 화이트 그라데이션 */
-    border: 1px solid #e0e0e0;
+    background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('../images/about-overview-bg.png');
+    background-size: cover;
+    background-position: center;
     border-radius: 30px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
     position: relative;
     overflow: hidden;
     text-align: center;
@@ -1544,8 +1544,8 @@ footer {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #dcdcdc, #f5f5f5);
-    /* 상단 라인도 은은한 라이트 그레이로 */
+    background: linear-gradient(90deg, var(--primary-orange), #ffae42);
+    /* 오렌지 그라데이션 복구 */
 }
 
 .about-overview-card h4 {
@@ -1559,22 +1559,21 @@ footer {
 .about-overview-card .overview-title {
     font-size: 1.8rem;
     line-height: 1.6;
-    color: #1a1a1a !important;
-    /* 어두운 텍스트로 변경 */
+    color: #ffffff !important;
+    /* 다시 화이트로 */
     margin-bottom: 2.5rem;
     font-weight: 700;
 }
 
 .about-overview-card .overview-title strong {
     color: inherit !important;
-    /* 주황색 제거: 일반 글씨와 똑같이 */
+    /* 회사명은 주황색 없이 화이트로 통일 */
 }
 
 .about-overview-card .overview-text {
     font-size: 1.1rem;
     line-height: 2;
-    color: #444444 !important;
-    /* 가독성 좋은 짙은 회색 */
+    color: rgba(255, 255, 255, 0.9) !important;
     word-break: keep-all;
     max-width: 850px;
     margin: 0 auto;

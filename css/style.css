@@ -407,15 +407,46 @@ nav a.active {
 
 .feature-icon-circle {
     flex-shrink: 0;
-    width: 40px;
-    /* 아이콘 크기 축소 */
-    height: 40px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
+    width: 44px;
+    /* 살짝 크기 최적화 */
+    height: 44px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.05);
+    transition: all 0.4s ease;
+}
+
+/* 듀오톤 아이콘 컬러 테마 */
+.feature-item-modern:nth-child(1) .feature-icon-circle {
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.2), rgba(255, 140, 0, 0.05));
+    border-color: rgba(255, 140, 0, 0.2);
+}
+
+.feature-item-modern:nth-child(2) .feature-icon-circle {
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.2), rgba(46, 213, 115, 0.05));
+    border-color: rgba(46, 213, 115, 0.2);
+}
+
+.feature-item-modern:nth-child(3) .feature-icon-circle {
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.2), rgba(74, 144, 226, 0.05));
+    border-color: rgba(74, 144, 226, 0.2);
+}
+
+.feature-item-modern:hover .feature-icon-circle {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+}
+
+.feature-item-modern:nth-child(2):hover .feature-icon-circle {
+    box-shadow: 0 0 20px rgba(46, 213, 115, 0.3);
+}
+
+.feature-item-modern:nth-child(3):hover .feature-icon-circle {
+    box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
 }
 
 .feature-text-modern h3 {

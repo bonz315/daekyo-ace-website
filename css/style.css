@@ -327,7 +327,8 @@ nav a.active {
 .split-premium-section {
     display: flex;
     width: 100%;
-    min-height: 700px;
+    min-height: 500px;
+    /* 기존 700px에서 축소하여 한눈에 보이도록 조정 */
     background-color: #0d0d0d;
     overflow: hidden;
 }
@@ -349,7 +350,8 @@ nav a.active {
     flex: 0.8;
     background-color: #111111;
     /* 고급스러운 딥 블랙 복구 */
-    padding: 5rem 4rem;
+    padding: 3rem 4rem;
+    /* 상하 패딩 축소 */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -359,32 +361,36 @@ nav a.active {
 
 /* 블랙 패널용 텍스트 스타일 */
 .split-right-content .section-title {
-    margin-bottom: 3.5rem;
+    margin-bottom: 2rem;
+    /* 간격 축소 */
     text-align: left !important;
 }
 
 .split-right-content .section-title h2 {
-    font-size: 2.8rem;
+    font-size: 2.4rem;
+    /* 폰트 크기 약간 축소 */
     color: #ffffff;
     line-height: 1.2;
 }
 
 .split-right-content .section-title p {
     color: #aaaaaa;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
 }
 
 .feature-list {
     display: flex;
     flex-direction: column;
-    gap: 2.2rem;
+    gap: 1.5rem;
+    /* 아이템 간격 축소 */
 }
 
 .feature-item-modern {
     display: flex;
-    gap: 1.5rem;
+    gap: 1.2rem;
     align-items: center;
-    padding: 1.2rem;
+    padding: 1rem 1.2rem;
+    /* 상하 패딩 축소 */
     border-radius: 20px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.05);

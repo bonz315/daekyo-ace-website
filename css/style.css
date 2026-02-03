@@ -1279,6 +1279,23 @@ footer {
     .certificate-image {
         height: 180px;
     }
+
+    /* 최신 자료 모바일 최적화: 가로 폭이 좁은 기기에서 버튼과 글씨 겹침 방지 */
+    .resource-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .resource-info {
+        width: 100%;
+    }
+
+    .download-btn {
+        width: 100%;
+        text-align: center;
+        padding: 0.8rem;
+    }
 }
 
 /* ==========================================

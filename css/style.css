@@ -324,139 +324,136 @@ nav a.active {
     line-height: 1.6;
 }
 
-/* 오버레이 섹션 디자인 (공장 전경 배경) */
-.overlay-section {
-    position: relative;
-    width: 100%;
-    min-height: 650px;
+/* 프리미엄 분할 섹션 (좌측 이미지, 우측 블랙 패널) */
+.split-premium-section {
     display: flex;
-    align-items: stretch;
-    justify-content: flex-end;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    /* 패럴랙스 효과 */
+    width: 100%;
+    min-height: 700px;
+    background-color: #0d0d0d;
     overflow: hidden;
 }
 
-.overlay-panel {
-    width: 45%;
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+.split-left-image {
+    flex: 1.2;
+    position: relative;
+    overflow: hidden;
+}
+
+.split-left-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.split-right-content {
+    flex: 0.8;
+    background-color: #111111;
+    /* 고급스러운 딥 블랙 */
     padding: 5rem 4rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    box-shadow: -15px 0 35px rgba(0, 0, 0, 0.05);
-    z-index: 2;
+    color: var(--white);
+    position: relative;
 }
 
-.overlay-panel .section-title {
-    margin-bottom: 3rem;
+/* 다크 배경용 텍스트 스타일 */
+.split-right-content .section-title {
+    margin-bottom: 3.5rem;
     text-align: left !important;
 }
 
-.overlay-panel .section-title h2 {
+.split-right-content .section-title h2 {
     font-size: 2.8rem;
+    color: var(--white);
     line-height: 1.2;
-    font-weight: 800;
-    color: var(--text-dark);
 }
 
-.overlay-panel .section-title p {
-    color: var(--text-dark);
-    opacity: 0.8;
+.split-right-content .section-title p {
+    color: #aaaaaa;
+    font-size: 1.1rem;
 }
 
-/* 프리미엄 특장점 아이템 */
 .feature-list {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 2.2rem;
 }
 
 .feature-item-modern {
     display: flex;
     gap: 1.5rem;
     align-items: center;
-    background: rgba(255, 255, 255, 0.4);
     padding: 1.2rem;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     transition: var(--transition);
 }
 
 .feature-item-modern:hover {
     transform: translateX(10px);
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: var(--shadow-md);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 140, 0, 0.3);
 }
 
 .feature-icon-circle {
     flex-shrink: 0;
-    width: 64px;
-    height: 64px;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border-radius: 18px;
-    /* 완전한 원보다 세련된 라운드 스퀘어 */
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     transition: var(--transition);
 }
 
 .feature-item-modern:hover .feature-icon-circle {
-    background: var(--white);
-    transform: translateY(-5px);
-    box-shadow: 0 12px 25px rgba(255, 140, 0, 0.15);
+    background: var(--primary-orange);
     border-color: var(--primary-orange);
 }
 
-.feature-item-modern:hover .feature-icon-circle svg path,
-.feature-item-modern:hover .feature-icon-circle svg circle {
+.feature-item-modern:hover .feature-icon-circle svg {
     stroke: white;
-    fill: white;
+    /* 호버 시 아이콘 색상을 화이트로 */
 }
 
 .feature-text-modern h3 {
     font-size: 1.2rem;
     margin-bottom: 0.3rem;
-    color: var(--text-dark);
+    color: var(--white);
 }
 
 .feature-text-modern p {
-    color: var(--dark-gray);
-    font-size: 0.9rem;
-    line-height: 1.5;
+    color: #999999;
+    font-size: 0.95rem;
 }
 
-@media (max-width: 1200px) {
-    .overlay-panel {
-        width: 60%;
+@media (max-width: 1024px) {
+    .split-premium-section {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .split-left-image {
+        height: 400px;
+    }
+
+    .split-right-content {
+        padding: 4rem 2rem;
     }
 }
 
-@media (max-width: 992px) {
-    .overlay-section {
-        min-height: 500px;
-        /* 모바일에서도 배경 이미지가 보일 수 있는 높이 확보 */
-        background-attachment: scroll;
+@media (max-width: 768px) {
+    .split-left-image {
+        height: 300px;
     }
 
-    .overlay-panel {
-        width: 100%;
-        padding: 3rem 1.5rem;
-        background: rgba(255, 255, 255, 0.2);
-        /* 배경 사진이 80% 보이도록 투명도 조정 */
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        box-shadow: none;
-        /* 모바일에서는 그림자 제거하여 깔끔하게 표시 */
+    .split-right-content .section-title h2 {
+        font-size: 2rem;
     }
 }
 

@@ -327,8 +327,8 @@ nav a.active {
 .split-premium-section {
     display: flex;
     width: 100%;
-    min-height: 250px;
-    /* 불필요한 하단 여백을 완전히 제거한 최종 슬림 모델 */
+    min-height: 380px;
+    /* 글자가 잘리지 않으면서도 한눈에 들어오는 최적의 높이 */
     background-color: #0d0d0d;
     overflow: hidden;
 }
@@ -352,8 +352,8 @@ nav a.active {
 .split-right-content {
     flex: 1;
     background-color: #111111;
-    padding: 0.5rem 2rem 1rem;
-    /* 여백 완전 삭제 */
+    padding: 2rem 3rem 1rem;
+    /* 상단 여백은 유지하고 하단 여백만 최소화 */
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -369,30 +369,32 @@ nav a.active {
 }
 
 .split-right-content .section-title h2 {
-    font-size: 1.6rem;
-    /* 극단적 슬림화 */
+    font-size: 2.4rem;
+    /* 시원한 크기로 복구 */
     color: #ffffff;
-    line-height: 1.1;
+    line-height: 1.2;
 }
 
 .split-right-content .section-title p {
     color: #aaaaaa;
-    font-size: 0.85rem;
+    font-size: 1.05rem;
+    /* 시원한 크기로 복구 */
 }
 
 .feature-list {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    /* 아이템 간 간격을 극도로 좁힘 */
+    gap: 1.2rem;
+    /* 특징들 사이의 간격 복구 */
 }
 
 .feature-item-modern {
     display: flex;
-    gap: 0.6rem;
+    gap: 1rem;
     align-items: center;
-    padding: 0.3rem 0.6rem;
-    border-radius: 8px;
+    padding: 0.8rem 1.2rem;
+    /* 아이템 패딩 복구 */
+    border-radius: 12px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: var(--transition);
@@ -400,11 +402,11 @@ nav a.active {
 
 .feature-icon-circle {
     flex-shrink: 0;
-    width: 28px;
-    /* 초미니 아이콘 박스 */
-    height: 28px;
+    width: 48px;
+    /* 아이콘 박스 크기 복구 */
+    height: 48px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -412,14 +414,16 @@ nav a.active {
 }
 
 .feature-text-modern h3 {
-    font-size: 0.9rem;
-    margin-bottom: 0px;
+    font-size: 1.15rem;
+    /* 특징 제목 크기 복구 */
+    margin-bottom: 0.2rem;
     color: #ffffff;
 }
 
 .feature-text-modern p {
     color: #999999;
-    font-size: 0.75rem;
+    font-size: 0.95rem;
+    /* 특징 설명 크기 복구 */
 }
 
 @media (max-width: 1024px) {

@@ -1,32 +1,16 @@
 :root {
-    /* 
-       [복구용] 기존 화이트 테마 변수
-       --white: #FFFFFF;
-       --light-gray: #F5F5F5;
-       --medium-gray: #E0E0E0;
-       --dark-gray: #666666;
-       --text-dark: #333333;
-    */
-
-    /* 다크 프리미엄 테마 변수 */
-    --white: #121212;
-    /* 기본 배경색 */
-    --light-gray: #1a1a1a;
-    /* 섹션 배경색 */
-    --medium-gray: #2c2c2c;
-    /* 테두리 및 구분선 */
-    --dark-gray: #999999;
-    /* 보조 텍스트 */
-    --text-dark: #f0f0f0;
-    /* 주 텍스트 (밝게) */
-    --pure-white: #ffffff;
-    /* 진짜 화이트가 필요할 때 */
-
-    /* 브랜드 컬러 (기존 주황색 유지) */
+    /* 브랜드 컬러 */
     --primary-orange: #FF8C00;
     --primary-orange-light: #FFA500;
     --primary-orange-dark: #E67E00;
     --accent-green: #00A86B;
+
+    /* 중성 컬러 */
+    --white: #FFFFFF;
+    --light-gray: #F5F5F5;
+    --medium-gray: #E0E0E0;
+    --dark-gray: #666666;
+    --text-dark: #333333;
 
     /* 타이포그래피 */
     --font-main: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -136,9 +120,8 @@ body {
    ========================================== */
 
 header {
-    background-color: #0d0d0d;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    border-bottom: 1px solid var(--medium-gray);
+    background-color: var(--white);
+    box-shadow: var(--shadow-sm);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -364,17 +347,16 @@ nav a.active {
 
 .split-right-content {
     flex: 0.8;
-    background-color: #111111;
-    /* 고급스러운 딥 블랙 */
+    background-color: var(--white);
     padding: 5rem 4rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    color: var(--white);
+    color: var(--text-dark);
     position: relative;
 }
 
-/* 다크 배경용 텍스트 스타일 */
+/* 텍스트 스타일 */
 .split-right-content .section-title {
     margin-bottom: 3.5rem;
     text-align: left !important;
@@ -382,13 +364,13 @@ nav a.active {
 
 .split-right-content .section-title h2 {
     font-size: 2.8rem;
-    color: var(--white);
+    color: var(--text-dark);
     line-height: 1.2;
 }
 
 .split-right-content .section-title p {
-    color: #aaaaaa;
-    font-size: 1.1rem;
+    color: var(--dark-gray);
+    font-size: 1.15rem;
 }
 
 .feature-list {
@@ -403,27 +385,28 @@ nav a.active {
     align-items: center;
     padding: 1.2rem;
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--light-gray);
+    border: 1px solid var(--medium-gray);
     transition: var(--transition);
 }
 
 .feature-item-modern:hover {
     transform: translateX(10px);
-    background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(255, 140, 0, 0.3);
+    background: var(--white);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-orange);
 }
 
 .feature-icon-circle {
     flex-shrink: 0;
     width: 60px;
     height: 60px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--white);
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--medium-gray);
     transition: var(--transition);
 }
 
@@ -433,18 +416,17 @@ nav a.active {
 }
 
 .feature-item-modern:hover .feature-icon-circle svg {
-    stroke: white;
-    /* 호버 시 아이콘 색상을 화이트로 */
+    stroke: var(--white);
 }
 
 .feature-text-modern h3 {
     font-size: 1.2rem;
     margin-bottom: 0.3rem;
-    color: var(--white);
+    color: var(--text-dark);
 }
 
 .feature-text-modern p {
-    color: #999999;
+    color: var(--dark-gray);
     font-size: 0.95rem;
 }
 
@@ -485,19 +467,17 @@ nav a.active {
 }
 
 .card {
-    background-color: #1a1a1a;
+    background-color: var(--white);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--medium-gray);
+    box-shadow: var(--shadow-sm);
     transition: var(--transition);
     cursor: pointer;
 }
 
 .card:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 20px 40px rgba(255, 140, 0, 0.1);
-    border-color: var(--primary-orange);
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: var(--shadow-lg);
 }
 
 .card:active {
@@ -555,11 +535,10 @@ nav a.active {
     font-size: 0.9rem;
     color: var(--text-dark);
     transition: var(--transition);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--light-gray);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sub-cat-item::after {
@@ -583,13 +562,12 @@ nav a.active {
 .card-image {
     width: 100%;
     height: 200px;
-    background-color: #ffffff;
-    /* 제품 사진의 투명 배경 처리를 위해 화이트 유지하되 */
+    background-color: var(--white);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    border-bottom: 1px solid var(--medium-gray);
+    border-bottom: 1px solid var(--light-gray);
     position: relative;
 }
 
@@ -1140,10 +1118,9 @@ footer {
         top: 100%;
         left: 0;
         right: 0;
-        background-color: #0d0d0d;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        background-color: var(--white);
+        box-shadow: var(--shadow-md);
         z-index: 1001;
-        border-bottom: 1px solid var(--medium-gray);
     }
 
     nav.mobile-active ul {

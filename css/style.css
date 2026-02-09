@@ -1035,9 +1035,18 @@ nav a.active {
    문의 폼
    ========================================== */
 
+/* 문의하기 그리드 레이아웃 */
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
 .contact-form {
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 100%;
+    /* 부모 그리드에 맞춰 확장 */
+    margin: 0;
 }
 
 .form-group {
@@ -1294,6 +1303,18 @@ footer {
     .contact-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .contact-form-section {
+        order: 1;
+        /* 온라인 문의를 위로 */
+    }
+
+    .contact-info-section {
+        order: 2;
+        /* 연락처 정보를 아래로 */
     }
 
     .footer-content {

@@ -178,7 +178,7 @@ function renderSubCategories(mainCategoryId) {
 
     const subCats = getSubCategories(mainCategoryId);
 
-    if (subCats.length === 0) {
+    if (subCats.length === 0 || mainCategoryId === 'wallpad') {
         container.style.display = 'none';
         return;
     }
@@ -283,6 +283,35 @@ function updateCategoryPath() {
     }
 
     pathElement.textContent = path.join(' > ');
+
+    // 안내 문구 표시 처리
+    renderCategoryNotice(selectedMainCategory);
+}
+
+// 카테고리별 안내 문구 렌더링
+function renderCategoryNotice(categoryId) {
+    const noticeContainer = document.getElementById('categoryNotice');
+    if (!noticeContainer) return;
+
+    if (categoryId === 'wallpad') {
+        noticeContainer.style.display = 'block';
+        noticeContainer.innerHTML = `
+            <div style="color: #e67e22; font-weight: 700; font-size: 1.25rem; margin-bottom: 1.5rem;">
+                월패드를 발주하시기 전, 확인해주시기 바랍니다.
+            </div>
+            <div style="line-height: 2; color: #333;">
+                <p style="margin-bottom: 0.5rem;">통합 월패드 박스는 전부 맞춤 제작입니다.</p>
+                <p style="font-weight: 600; color: #d35400; margin-bottom: 1.5rem;">현장에 설치되는 스펙을 확인해주세요.</p>
+                <div style="display: inline-block; text-align: left; background: #fff; padding: 1rem 1.5rem; border-radius: 8px; border: 1px dashed #ffd8a8;">
+                    <span style="font-weight: 700; color: var(--primary-orange);">필요사항 :</span> 
+                    월패드 브랜드와 모델명, 하부 네트워크스위치+온도조절기 배선기구 모양 및 스펙
+                </div>
+            </div>
+        `;
+    } else {
+        noticeContainer.style.display = 'none';
+        noticeContainer.innerHTML = '';
+    }
 }
 
 // 제품 렌더링

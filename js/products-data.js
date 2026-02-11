@@ -144,6 +144,23 @@ const products = [
         },
         badge: null,
         image: 'images/products/4ob-landscape.png'
+    },
+    {
+        id: 100,
+        name: '통합 월패드 박스',
+        mainCategory: 'wallpad',
+        subCategory: null,
+        detailCategory: null,
+        description: '현장 맞춤 제작 통합 월패드 박스',
+        specs: {
+            name: '통합 월패드 박스',
+            size: '현장 맞춤 제작',
+            material: '합성수지제 / 스틸',
+            color: '화이트 / 그레이',
+            certification: 'KC 인증 예정'
+        },
+        badge: '주문제작',
+        image: 'images/category-wallpad.png'
     }
 ];
 

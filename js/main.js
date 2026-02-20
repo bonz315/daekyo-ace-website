@@ -254,6 +254,17 @@ function initContactForm() {
     const contactForm = document.getElementById('contactForm');
     const successMessage = document.getElementById('successMessage');
     const submitBtn = contactForm ? contactForm.querySelector('.submit-btn') : null;
+    const emailInput = document.getElementById('email');
+
+    if (emailInput) {
+        // 이메일 유효성 검사 문구 커스텀
+        emailInput.addEventListener('invalid', function () {
+            this.setCustomValidity('올바른 메일주소를 입력해 주십시오.');
+        });
+        emailInput.addEventListener('input', function () {
+            this.setCustomValidity('');
+        });
+    }
 
     if (contactForm) {
         contactForm.addEventListener('submit', function (e) {
@@ -264,16 +275,20 @@ function initContactForm() {
                 return;
             }
 
+            // 전화번호 자동 포맷팅 적용 후 저장
+            const rawPhone = document.getElementById('phone').value;
+            const formattedPhone = formatPhoneNumber(rawPhone);
+
             const formData = {
                 id: 'INQ' + Date.now(),
                 name: document.getElementById('name').value,
                 company: document.getElementById('company').value,
                 email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
+                phone: formattedPhone,
                 category: document.getElementById('category').value,
                 subject: document.getElementById('subject').value,
                 message: document.getElementById('message').value,
-                date: new Date().toLocaleString(), // 더 정확한 시간 표시
+                date: new Date().toLocaleString(),
                 status: 'pending',
                 answer: null
             };
@@ -332,12 +347,15 @@ window.closeCheckModal = function () {
 
 window.lookupInquiry = function () {
     const name = document.getElementById('checkName').value;
-    const phone = document.getElementById('checkPhone').value;
+    const phoneInput = document.getElementById('checkPhone').value;
 
-    if (!name || !phone) {
+    if (!name || !phoneInput) {
         alert("이름과 연락처를 입력해주세요.");
         return;
     }
+
+    // 조회 시에도 입력값의 하이픈 제거 후 매칭 정확도 향상
+    const cleanedSearchPhone = phoneInput.replace(/\D/g, '');
 
     const resultArea = document.getElementById('inquiryResultArea');
     const step1 = document.getElementById('checkInquiryStep1');
@@ -346,24 +364,20 @@ window.lookupInquiry = function () {
     resultArea.style.display = 'block';
     resultArea.innerHTML = '<p style="text-align:center; padding:2rem;">조회 중입니다...</p>';
 
-    // Firebase Firestore에서 조회
+    // Firebase Firestore에서 조회 (DB에는 이미 포맷팅되어 저장되어 있을 것이므로, 
+    // 저장된 값을 불러온 후 한 번 더 포맷팅하여 비교하거나, 저장 단계에서 포맷팅을 통일하는 게 중요합니다.)
     db.collection("inquiries")
         .where("name", "==", name)
-        .where("phone", "==", phone)
         .get()
         .then((querySnapshot) => {
-            if (querySnapshot.empty) {
-                resultArea.innerHTML = `
-                    <div style="text-align:center; padding: 2rem;">
-                        <p style="color:#666;">등록된 문의 내역이 없습니다.</p>
-                        <button class="btn-outline" onclick="openCheckModal()" style="margin-top:1rem;">다시 시도</button>
-                    </div>`;
-                return;
-            }
-
             let results = [];
             querySnapshot.forEach((doc) => {
-                results.push(doc.data());
+                const data = doc.data();
+                // DB의 전화번호와 입력한 전화번호에서 숫자만 추출하여 비교 (가장 확실함)
+                const cleanedDbPhone = data.phone.replace(/\D/g, '');
+                if (cleanedDbPhone === cleanedSearchPhone) {
+                    results.push(data);
+                }
             });
 
             // 날짜순 정렬 (최신순)
@@ -454,14 +468,33 @@ function validateEmail(email) {
     return re.test(email);
 }
 
-// 전화번호 포맷팅
+// 전화번호 포맷팅 (01012345678 -> 010-1234-5678)
 function formatPhoneNumber(phone) {
-    const cleaned = phone.replace(/\D/g, '');
-    const match = cleaned.match(/^(\d{3})(\d{4})(\d{4})$/);
-    if (match) {
-        return match[1] + '-' + match[2] + '-' + match[3];
+    if (!phone) return "";
+    const cleaned = phone.replace(/\D/g, ''); // 숫자만 남기기
+    let match;
+
+    if (cleaned.length === 11) {
+        // 휴대전화 (010-1234-5678)
+        match = cleaned.match(/^(\d{3})(\d{4})(\d{4})$/);
+        if (match) return `${match[1]}-${match[2]}-${match[3]}`;
+    } else if (cleaned.length === 10) {
+        if (cleaned.startsWith('02')) {
+            // 서울 지역번호 (02-1234-5678)
+            match = cleaned.match(/^(\d{2})(\d{4})(\d{4})$/);
+            if (match) return `${match[1]}-${match[2]}-${match[3]}`;
+        } else {
+            // 기타 지역번호 (031-123-4567)
+            match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+            if (match) return `${match[1]}-${match[2]}-${match[3]}`;
+        }
+    } else if (cleaned.length === 9 && cleaned.startsWith('02')) {
+        // 서울 지역번호 (02-123-4567)
+        match = cleaned.match(/^(\d{2})(\d{3})(\d{4})$/);
+        if (match) return `${match[1]}-${match[2]}-${match[3]}`;
     }
-    return phone;
+
+    return phone; // 형식이 맞지 않으면 입력값 그대로 반환
 }
 
 // ==========================================

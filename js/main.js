@@ -238,13 +238,19 @@ function initResourceFilters() {
 function initContactForm() {
     const contactForm = document.getElementById('contactForm');
     const successMessage = document.getElementById('successMessage');
+    const submitBtn = contactForm ? contactForm.querySelector('.submit-btn') : null;
 
     if (contactForm) {
         contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
+            if (!document.getElementById('privacy').checked) {
+                alert('개인정보 수집 및 이용에 동의해주세요.');
+                return;
+            }
+
             const formData = {
-                id: 'INQ' + Date.now(), // 고유 ID 생성
+                id: 'INQ' + Date.now(),
                 name: document.getElementById('name').value,
                 company: document.getElementById('company').value,
                 email: document.getElementById('email').value,
@@ -252,30 +258,56 @@ function initContactForm() {
                 category: document.getElementById('category').value,
                 subject: document.getElementById('subject').value,
                 message: document.getElementById('message').value,
-                date: new Date().toISOString().split('T')[0],
-                status: 'pending', // pending, answered
-                answer: null // 관리자 답변
+                date: new Date().toLocaleString(), // 더 정확한 시간 표시
+                status: 'pending',
+                answer: null
             };
 
-            if (!document.getElementById('privacy').checked) {
-                alert('개인정보 수집 및 이용에 동의해주세요.');
-                return;
+            // 버튼 상태 변경
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '문의 전송 중...';
             }
 
-            // DB 대용으로 로컬스토리지에 저장
-            const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
-            inquiries.push(formData);
-            localStorage.setItem('daekyoInquiries', JSON.stringify(inquiries));
+            // 1. EmailJS를 통해 실제 메일 발송
+            emailjs.send("service_chviv7u", "template_c7t3yqs", formData)
+                .then(function () {
+                    // 성공 시
+                    console.log('SUCCESS!', formData.id);
 
-            // 성공 메시지 표시
-            contactForm.style.display = 'none';
-            successMessage.style.display = 'block';
+                    // 2. DB 대용으로 로컬스토리지에 저장 (기본 데이터 보존용)
+                    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
+                    inquiries.push(formData);
+                    localStorage.setItem('daekyoInquiries', JSON.stringify(inquiries));
 
-            setTimeout(() => {
-                contactForm.reset();
-                contactForm.style.display = 'block';
-                successMessage.style.display = 'none';
-            }, 3000);
+                    // 성공 메시지 표시
+                    contactForm.style.display = 'none';
+                    successMessage.style.display = 'block';
+
+                    setTimeout(() => {
+                        contactForm.reset();
+                        contactForm.style.display = 'block';
+                        successMessage.style.display = 'none';
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '문의하기';
+                        }
+                    }, 5000);
+                }, function (error) {
+                    // 실패 시
+                    console.log('FAILED...', error);
+                    alert('알림 메일 전송에 실패했습니다. 하지만 문의 주신 내용은 시스템에 저장되었습니다. 잠시 후 다시 시도해주세요.');
+
+                    // 실패해도 일단 로컬에는 저장 (고객의 문의는 소중하니까요)
+                    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
+                    inquiries.push(formData);
+                    localStorage.setItem('daekyoInquiries', JSON.stringify(inquiries));
+
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '문의하기';
+                    }
+                });
         });
     }
 }

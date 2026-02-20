@@ -295,7 +295,8 @@ function saveProduct() {
         mainCategory: document.getElementById('prodMainCat').value,
         subCategory: document.getElementById('prodSubCat').value,
         image: document.getElementById('prodImage').value,
-        cardSize: document.getElementById('prodCardSize').value, // 카드 노출용 규격
+        cardSize: document.getElementById('prodCardSize').value,
+        description: document.getElementById('prodDesc').value, // 상세 설명 추가
         specs: specs,
         updatedAt: new Date().toISOString(),
         isDB: true
@@ -605,6 +606,7 @@ function editProduct(id) {
         document.getElementById('prodSubCat').value = p.subCategory;
         document.getElementById('prodImage').value = p.image;
         document.getElementById('prodCardSize').value = p.cardSize || (p.specs ? p.specs.size : "");
+        document.getElementById('prodDesc').value = p.description || "";
 
         const preview = document.getElementById('imagePreview');
         preview.style.display = 'block';

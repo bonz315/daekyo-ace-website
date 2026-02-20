@@ -126,11 +126,20 @@ function renderProductBasicInfo(product) {
         nameEl.textContent = product.specs.name || product.name;
     }
 
-    // 설명
+    // 설명 (기존 상단 설명 및 하단 상세 설명)
     if (descEl) {
         if (product.description && product.description !== '') {
-            descEl.textContent = product.description;
+            // 상단 요약 설명으로도 사용
+            descEl.textContent = product.description.split('\n')[0]; // 첫 줄만 상단에 표시 (옵션)
             descEl.style.display = 'block';
+
+            // 하단에 전체 상세 설명 표시
+            const longDescSection = document.getElementById('longDescriptionSection');
+            const longDescContent = document.getElementById('longDescriptionContent');
+            if (longDescSection && longDescContent) {
+                longDescContent.textContent = product.description;
+                longDescSection.style.display = 'block';
+            }
         } else {
             descEl.style.display = 'none';
         }

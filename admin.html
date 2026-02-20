@@ -239,12 +239,15 @@
                             <label>인증</label>
                             <input type="text" id="specCert">
                         </div>
-                    </div>
-                </div>
-                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
-                    <button type="button" class="btn-outline" onclick="closeProductModal()">취소</button>
-                    <button type="submit" class="btn">저장하기</button>
-                </div>
+                        <div class="form-group" style="margin-top: 1.5rem;">
+                            <label>상세 설명 (상세페이지 하단에 노출될 긴 설명)</label>
+                            <textarea id="prodDesc" rows="5" placeholder="제품에 대한 추가 설명이나 특징을 자유롭게 적어주세요."></textarea>
+                        </div>
+
+                        <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="button" class="btn-outline" onclick="closeProductModal()">취소</button>
+                            <button type="submit" class="btn">저장하기</button>
+                        </div>
             </form>
         </div>
     </div>

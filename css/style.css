@@ -811,6 +811,11 @@ nav a.active {
     margin-bottom: var(--spacing-lg);
 }
 
+.product-gallery {
+    display: flex;
+    flex-direction: column;
+}
+
 .product-image-main {
     width: 100%;
     height: 500px;

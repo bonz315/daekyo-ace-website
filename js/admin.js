@@ -23,7 +23,37 @@ document.addEventListener('DOMContentLoaded', function () {
     initLogin();
     initTabs();
     initProductManagement();
+    initResourceManagement();
+    migrateLocalInquiries(); // 로컬에 남은 문의가 있다면 DB로 이동
 });
+
+// 이미지 선택 핸들러 (파일명 추출 및 프리뷰)
+window.handleImageSelect = function (input, targetInputId, previewId) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // 파일 이름 추출
+    const fileName = file.name;
+    const targetInput = document.getElementById(targetInputId);
+
+    // 경로에 따라 자동 완성 (제품이면 images/products/, 자료면 files/)
+    if (targetInputId === 'prodImage') {
+        targetInput.value = 'images/products/' + fileName;
+    } else {
+        targetInput.value = 'files/' + fileName;
+    }
+
+    // 프리뷰 표시 (이미지인 경우)
+    if (previewId) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const previewContainer = document.getElementById(previewId);
+            previewContainer.style.display = 'block';
+            previewContainer.querySelector('img').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+};
 
 // 1. 로그인 처리
 function initLogin() {
@@ -38,6 +68,7 @@ function initLogin() {
         loginSection.style.display = 'none';
         adminDashboard.style.display = 'block';
         renderAdminProductList();
+        renderAdminResourceListSync();
         renderAdminInquiryListSync(); // 실시간 문의 목록
     }
 
@@ -51,7 +82,8 @@ function initLogin() {
             adminDashboard.style.display = 'block';
             loginError.style.display = 'none';
             renderAdminProductList();
-            renderAdminInquiryList();
+            renderAdminResourceListSync();
+            renderAdminInquiryListSync();
         } else {
             loginError.style.display = 'block';
         }
@@ -61,6 +93,25 @@ function initLogin() {
         sessionStorage.removeItem('isAdminLoggedIn');
         window.location.reload();
     });
+}
+
+// 로컬 스토리지 문의 내역 마이그레이션 (동기화 누락 방지)
+function migrateLocalInquiries() {
+    const localInquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
+    if (localInquiries.length > 0) {
+        console.log("Found local inquiries, migrating to Firebase...");
+        let count = 0;
+        localInquiries.forEach(inq => {
+            db.collection("inquiries").doc(inq.id).set(inq)
+                .then(() => {
+                    count++;
+                    if (count === localInquiries.length) {
+                        localStorage.removeItem('daekyoInquiries');
+                        console.log("Migration complete.");
+                    }
+                });
+        });
+    }
 }
 
 // 2. 탭 전환
@@ -74,18 +125,17 @@ function initTabs() {
             contents.forEach(c => c.classList.remove('active'));
 
             tab.classList.add('active');
-            document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
-
-            // 데이터 새로고침
-            if (tab.dataset.tab === 'inquiry') renderAdminInquiryList();
+            const targetContent = document.getElementById(tab.dataset.tab + 'Tab');
+            if (targetContent) targetContent.classList.add('active');
         });
     });
 }
 
 // 3. 제품 관리 Logic
 function initProductManagement() {
-    // 상품 등록 폼 선택 시 카테고리 셀렉트박스 채우기
     const mainSelect = document.getElementById('prodMainCat');
+    if (!mainSelect) return;
+
     mainSelect.innerHTML = '<option value="">선택해주세요</option>';
     mainCategories.forEach(cat => {
         const opt = document.createElement('option');
@@ -96,7 +146,8 @@ function initProductManagement() {
 
     document.getElementById('productForm').addEventListener('submit', function (e) {
         e.preventDefault();
-        saveProduct();
+        alert("제품 정보는 현재 정적 파일(products-data.js)에서 관리됩니다. DB 저장 기능은 추후 확장 예정입니다.");
+        closeProductModal();
     });
 }
 
@@ -119,6 +170,7 @@ function updateSubSelect() {
 // 제품 리스트 렌더링
 function renderAdminProductList() {
     const tbody = document.getElementById('adminProductList');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     // 모든 제품 데이터 가져오기
@@ -130,56 +182,110 @@ function renderAdminProductList() {
 
         tr.innerHTML = `
             <td>${p.id}</td>
-            <td><img src="${p.image}" class="admin-img-preview"></td>
+            <td><img src="${p.image}" class="admin-img-preview" style="width:50px; height:50px; object-fit:contain;"></td>
             <td><strong>${p.name}</strong></td>
-            <td>${p.mainCategory} / ${p.subCategory}</td>
-            <td>2026-01-16</td>
+            <td>${p.mainCategory} / ${p.subCategory || '-'}</td>
+            <td>2026-02-20</td>
             <td>
                 <button class="btn-edit btn-sm" onclick="editProduct(${p.id})">수정</button>
-                <button class="btn-delete btn-sm" onclick="deleteProduct(${p.id})">삭제</button>
+                <button class="btn-delete btn-sm" onclick="alert('데이터 파일에서 직접 삭제해야 합니다.')">삭제</button>
             </td>
         `;
         tbody.appendChild(tr);
     });
 }
 
-// 모달 제어
-function openProductModal() {
-    document.getElementById('modalTitle').textContent = "새 제품 등록";
-    document.getElementById('productForm').reset();
-    document.getElementById('editId').value = "";
-    document.getElementById('productModal').style.display = 'block';
-}
-
-function closeProductModal() {
-    document.getElementById('productModal').style.display = 'none';
-}
-
-function editProduct(id) {
-    const p = products.find(item => item.id === id);
-    if (!p) return;
-
-    document.getElementById('modalTitle').textContent = "제품 정보 수정";
-    document.getElementById('editId').value = p.id;
-    document.getElementById('prodName').value = p.name;
-    document.getElementById('prodMainCat').value = p.mainCategory;
-    updateSubSelect();
-    document.getElementById('prodSubCat').value = p.subCategory;
-    document.getElementById('prodImage').value = p.image;
-
-    // 스펙 텍스트 변환
-    let specText = "";
-    if (p.specs) {
-        for (let key in p.specs) {
-            specText += `${key}: ${p.specs[key]}\n`;
-        }
+// 4. 자료실 관리 Logic
+function initResourceManagement() {
+    const resForm = document.getElementById('resourceForm');
+    if (resForm) {
+        resForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            saveResource();
+        });
     }
-    document.getElementById('prodSpecs').value = specText.trim();
-
-    document.getElementById('productModal').style.display = 'block';
 }
 
-// 4. 문의 관리 Logic (Firebase 실시간 리스너)
+function renderAdminResourceListSync() {
+    const tbody = document.getElementById('adminResourceList');
+    if (!tbody) return;
+
+    db.collection("resources").onSnapshot((querySnapshot) => {
+        tbody.innerHTML = '';
+
+        // 기본 데이터(resources-data.js)와 합쳐서 보여주거나 DB 데이터만 보여줌
+        // 여기서는 DB 데이터(커스텀 자료) 위주로 표시
+        querySnapshot.forEach((doc) => {
+            const res = doc.data();
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${res.type === 'catalog' ? '카탈로그' : '인증서'}</td>
+                <td><strong>${res.title}</strong></td>
+                <td>${res.description}</td>
+                <td><small>${res.fileUrl}</small></td>
+                <td>
+                    <button class="btn-edit btn-sm" onclick="editResource('${res.id}')">수정</button>
+                    <button class="btn-delete btn-sm" onclick="deleteResource('${res.id}')">삭제</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    });
+}
+
+function saveResource() {
+    const id = document.getElementById('editResId').value || 'RES' + Date.now();
+    const resourceData = {
+        id: id,
+        title: document.getElementById('resTitle').value,
+        type: document.getElementById('resType').value,
+        description: document.getElementById('resDesc').value,
+        fileInfo: document.getElementById('resInfo').value,
+        fileUrl: document.getElementById('resUrl').value,
+        updatedAt: new Date().toISOString()
+    };
+
+    db.collection("resources").doc(id).set(resourceData)
+        .then(() => {
+            alert("자료가 저장되었습니다.");
+            closeResourceModal();
+        })
+        .catch(err => alert("저장 실패: " + err));
+}
+
+window.openResourceModal = function () {
+    document.getElementById('resModalTitle').textContent = "새 자료 등록";
+    document.getElementById('resourceForm').reset();
+    document.getElementById('editResId').value = "";
+    document.getElementById('resourceModal').style.display = 'block';
+};
+
+window.closeResourceModal = function () {
+    document.getElementById('resourceModal').style.display = 'none';
+};
+
+window.editResource = function (id) {
+    db.collection("resources").doc(id).get().then(doc => {
+        if (!doc.exists) return;
+        const res = doc.data();
+        document.getElementById('resModalTitle').textContent = "자료 수정";
+        document.getElementById('editResId').value = res.id;
+        document.getElementById('resTitle').value = res.title;
+        document.getElementById('resType').value = res.type;
+        document.getElementById('resDesc').value = res.description;
+        document.getElementById('resInfo').value = res.fileInfo;
+        document.getElementById('resUrl').value = res.fileUrl;
+        document.getElementById('resourceModal').style.display = 'block';
+    });
+};
+
+function deleteResource(id) {
+    if (confirm("이 자료를 삭제하시겠습니까?")) {
+        db.collection("resources").doc(id).delete();
+    }
+}
+
+// 5. 문의 관리 Logic (Firebase 실시간 리스너)
 function renderAdminInquiryListSync() {
     const tbody = document.getElementById('adminInquiryList');
     if (!tbody) return;
@@ -189,6 +295,10 @@ function renderAdminInquiryListSync() {
         .orderBy("date", "desc")
         .onSnapshot((querySnapshot) => {
             tbody.innerHTML = '';
+
+            if (querySnapshot.empty) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#999;">문의 내역이 없습니다.</td></tr>';
+            }
 
             querySnapshot.forEach((doc) => {
                 const inq = doc.data();
@@ -212,6 +322,7 @@ function renderAdminInquiryListSync() {
             });
         }, (error) => {
             console.error("Inquiry Listener Error:", error);
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">데이터를 불러오는 중 오류가 발생했습니다. (권한 설정 확인 필요)连</td></tr>';
         });
 }
 
@@ -263,12 +374,56 @@ function deleteInquiry(id) {
     }
 }
 
+// 모달 제어
+function openProductModal() {
+    document.getElementById('modalTitle').textContent = "새 제품 등록";
+    document.getElementById('productForm').reset();
+    document.getElementById('editId').value = "";
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('productModal').style.display = 'block';
+}
+
+function closeProductModal() {
+    document.getElementById('productModal').style.display = 'none';
+}
+
+function editProduct(id) {
+    const p = products.find(item => item.id === id);
+    if (!p) return;
+
+    document.getElementById('modalTitle').textContent = "제품 정보 수정";
+    document.getElementById('editId').value = p.id;
+    document.getElementById('prodName').value = p.name;
+    document.getElementById('prodMainCat').value = p.mainCategory;
+    updateSubSelect();
+    document.getElementById('prodSubCat').value = p.subCategory;
+    document.getElementById('prodImage').value = p.image;
+
+    // 프리뷰 업데이트
+    const preview = document.getElementById('imagePreview');
+    preview.style.display = 'block';
+    preview.querySelector('img').src = p.image;
+
+    // 스펙 텍스트 변환
+    let specText = "";
+    if (p.specs) {
+        for (let key in p.specs) {
+            specText += `${key}: ${p.specs[key]}\n`;
+        }
+    }
+    document.getElementById('prodSpecs').value = specText.trim();
+
+    document.getElementById('productModal').style.display = 'block';
+}
+
 // 창 바깥 클릭 시 모달 닫기
 window.onclick = function (event) {
     const pModal = document.getElementById('productModal');
     const aModal = document.getElementById('answerModal');
     const cModal = document.getElementById('checkInquiryModal');
+    const rModal = document.getElementById('resourceModal');
     if (event.target == pModal) closeProductModal();
     if (event.target == aModal) closeAnswerModal();
     if (event.target == cModal) closeCheckModal();
+    if (event.target == rModal) closeResourceModal();
 }

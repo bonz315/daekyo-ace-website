@@ -208,3 +208,20 @@ textarea {
     border-radius: 8px;
     resize: none;
 }
+
+#imagePreview {
+    border: 1px dashed #ccc;
+    padding: 5px;
+    background: #fdfdfd;
+    margin-top: 10px;
+}
+
+#imagePreview img {
+    display: block;
+    max-width: 100%;
+}
+
+.status-badge {
+    display: inline-block;
+    font-weight: 500;
+}

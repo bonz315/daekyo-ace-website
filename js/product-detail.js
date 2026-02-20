@@ -83,13 +83,48 @@ function updateBreadcrumb(product) {
     breadcrumb.innerHTML = html;
 }
 
-// 제품 이미지 렌더링
 function renderProductImage(product) {
     const container = document.getElementById('productImageContainer');
     if (!container) return;
 
-    if (product.image) {
-        container.innerHTML = `<img src="${product.image}" alt="${product.name}">`;
+    // 이미지 배열 준비 (images 우선, 없으면 image 단일 항목)
+    const images = product.images || (product.image ? [product.image] : []);
+
+    if (images.length > 0) {
+        // 메인 이미지 표시
+        container.innerHTML = `<img src="${images[0]}" alt="${product.name}" id="mainProductImg">`;
+
+        // 기존 썸네일 리스트 제거 (혹시 있다면)
+        const oldList = document.querySelector('.product-thumb-list');
+        if (oldList) oldList.remove();
+
+        // 썸네일 리스트 추가 (이미지가 2장 이상일 때)
+        if (images.length > 1) {
+            const thumbList = document.createElement('div');
+            thumbList.className = 'product-thumb-list';
+
+            images.forEach((img, idx) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'thumb-item' + (idx === 0 ? ' active' : '');
+
+                thumb.innerHTML = `<img src="${img}" alt="${product.name} 썸네일 ${idx + 1}">`;
+
+                thumb.onclick = () => {
+                    // 메인 이미지 변경
+                    const mainImg = document.getElementById('mainProductImg');
+                    if (mainImg) mainImg.src = img;
+
+                    // 활성 썸네일 표시 변경
+                    document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                };
+
+                thumbList.appendChild(thumb);
+            });
+
+            // 이미지 컨테이너 다음에 배치
+            container.after(thumbList);
+        }
     } else {
         const mainCat = getMainCategory(product.mainCategory);
         const color = mainCat ? mainCat.color : '#FF8C00';

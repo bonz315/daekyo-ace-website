@@ -62,16 +62,19 @@ window.handleImageSelect = function (input, targetInputId, previewId) {
     const file = input.files[0];
     if (!file) return;
 
-    // 용량 제한 체크 (무료 DB 문서당 1MB 제한 대비) - PDF 원본은 DB에 안 들어가므로 예외 처리 가능하지만 안전하게 체크
     if (file.type.startsWith('image/') && file.size > 1024 * 1024) {
         alert("이미지 용량이 너무 큽니다. (1MB 이하만 가능)");
         input.value = "";
         return;
     }
 
-    const targetInput = document.getElementById(targetInputId);
+    // targetInputId/previewId가 엘리먼트일 수도 있고 ID 스트링일 수도 있게 처리
+    const targetInput = typeof targetInputId === 'string'
+        ? document.getElementById(targetInputId)
+        : targetInputId;
 
-    // 로딩 상태 표시
+    if (!targetInput) return;
+
     targetInput.value = "파일 처리 중...";
     targetInput.disabled = true;
 
@@ -79,45 +82,39 @@ window.handleImageSelect = function (input, targetInputId, previewId) {
     reader.onload = async function (e) {
         const rawData = e.target.result;
 
-        // 1. PDF인 경우 (썸네일 추출 + 정보 자동입력)
         if (file.type === 'application/pdf') {
             try {
                 targetInput.value = "PDF 분석 중...";
-                // 파일 정보 자동 입력 (예: PDF | 1.5MB)
                 const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
                 const infoInput = document.getElementById('resInfo');
                 if (infoInput) {
                     infoInput.value = `PDF, ${fileSizeMB}MB | ${new Date().toLocaleDateString()}`;
                 }
 
-                // 썸네일 생성 함수 호출
                 const thumbnailBase64 = await generatePdfThumbnail(rawData);
 
-                // 썸네일 입력창(resThumb)에 저장 및 프리뷰 표시
                 const thumbInput = document.getElementById('resThumb');
                 if (thumbInput) {
                     thumbInput.value = thumbnailBase64;
                     const thumbPreview = document.getElementById('resThumbPreview');
-                    if (thumbPreview) {
-                        thumbPreview.style.display = 'block';
-                        thumbPreview.querySelector('img').src = thumbnailBase64;
+                    const previewToUse = thumbPreview || (typeof previewId !== 'string' ? previewId : null);
+                    if (previewToUse) {
+                        previewToUse.style.display = 'block';
+                        previewToUse.querySelector('img').src = thumbnailBase64;
                     }
                 }
 
-                // 원래 선택했던 파일은 base64로 URL 칸에 입력 (1MB 이하일 때만 추천, 크면 드라이브 권장)
                 if (file.size < 1024 * 1024) {
                     targetInput.value = rawData;
                 } else {
                     targetInput.value = "";
-                    alert("파일이 1MB를 초과하여 직접 저장할 수 없습니다.\n구글 드라이브에 올리신 후 링크를 붙여넣어 주세요.\n(표지 사진은 자동으로 추출되었습니다!)");
+                    alert("파일이 1MB를 초과하여 직접 저장할 수 없습니다.");
                 }
             } catch (err) {
                 console.error("PDF Thumbnail Error:", err);
-                alert("PDF 표지 추출에 실패했습니다. 수동으로 올려주세요.");
             }
             targetInput.disabled = false;
         }
-        // 2. 이미지인 경우 (기존 압축 로직)
         else if (file.type.startsWith('image/')) {
             const img = new Image();
             img.onload = function () {
@@ -147,18 +144,19 @@ window.handleImageSelect = function (input, targetInputId, previewId) {
                 targetInput.value = compressedBase64;
                 targetInput.disabled = false;
 
-                if (previewId) {
-                    const previewContainer = document.getElementById(previewId);
+                const previewContainer = typeof previewId === 'string'
+                    ? document.getElementById(previewId)
+                    : previewId;
+
+                if (previewContainer) {
                     previewContainer.style.display = 'block';
                     previewContainer.querySelector('img').src = compressedBase64;
                 }
             };
             img.src = rawData;
         } else {
-            // 기타 파일
             targetInput.value = rawData;
             targetInput.disabled = false;
-            console.log("File loaded as Base64");
         }
     };
     reader.readAsDataURL(file);
@@ -289,14 +287,20 @@ function saveProduct() {
         certification: document.getElementById('specCert').value
     };
 
+    // 2. 다중 이미지 수집
+    const imageUrls = Array.from(document.querySelectorAll('.prod-image-url'))
+        .map(input => input.value.trim())
+        .filter(url => url !== "");
+
     const productData = {
         id: id,
         name: document.getElementById('prodName').value,
         mainCategory: document.getElementById('prodMainCat').value,
         subCategory: document.getElementById('prodSubCat').value,
-        image: document.getElementById('prodImage').value,
+        image: imageUrls[0] || "", // 첫 번째 이미지를 대표 이미지로
+        images: imageUrls,         // 전체 이미지 배열
         cardSize: document.getElementById('prodCardSize').value,
-        description: document.getElementById('prodDesc').value, // 상세 설명 추가
+        description: document.getElementById('prodDesc').value,
         specs: specs,
         updatedAt: new Date().toISOString(),
         isDB: true
@@ -578,7 +582,12 @@ function openProductModal() {
     document.getElementById('modalTitle').textContent = "새 제품 등록";
     document.getElementById('productForm').reset();
     document.getElementById('editId').value = "";
-    document.getElementById('imagePreview').style.display = 'none';
+
+    // 이미지 입력창 초기화
+    const container = document.getElementById('imageInputContainer');
+    container.innerHTML = "";
+    addImageInput();
+
     document.getElementById('productModal').style.display = 'block';
 }
 
@@ -604,13 +613,18 @@ function editProduct(id) {
         document.getElementById('prodMainCat').value = p.mainCategory;
         updateSubSelect();
         document.getElementById('prodSubCat').value = p.subCategory;
-        document.getElementById('prodImage').value = p.image;
-        document.getElementById('prodCardSize').value = p.cardSize || (p.specs ? p.specs.size : "");
-        document.getElementById('prodDesc').value = p.description || "";
 
-        const preview = document.getElementById('imagePreview');
-        preview.style.display = 'block';
-        preview.querySelector('img').src = p.image;
+        // 이미지 입력창 로드
+        const container = document.getElementById('imageInputContainer');
+        container.innerHTML = "";
+        const images = p.images || (p.image ? [p.image] : []);
+        if (images.length === 0) {
+            addImageInput();
+        } else {
+            images.forEach(img => addImageInput(img));
+        }
+
+        document.getElementById('prodCardSize').value = p.cardSize || (p.specs ? p.specs.size : "");
 
         // 상세 사양 필드 채우기
         if (p.specs) {
@@ -630,6 +644,47 @@ function editProduct(id) {
         document.getElementById('productModal').style.display = 'block';
     });
 }
+
+// 이미지 필드 동적 추가/삭제
+window.addImageInput = function (value = "") {
+    const container = document.getElementById('imageInputContainer');
+    if (!container) return;
+
+    const childCount = container.children.length;
+    if (childCount >= 5) {
+        alert("이미지는 최대 5장까지 등록 가능합니다.");
+        return;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'image-input-row';
+    div.style.marginBottom = '0.8rem';
+    div.innerHTML = `
+        <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
+            <div style="flex: 1;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" class="prod-image-url" placeholder="이미지 경로 또는 직접 업로드" style="flex: 1;" value="${value}">
+                    <input type="file" style="display: none;" onchange="handleImageSelect(this, this.previousElementSibling, this.parentElement.nextElementSibling)">
+                    <button type="button" class="btn-outline btn-sm" onclick="this.previousElementSibling.click()" style="white-space:nowrap; padding: 0 10px;">파일</button>
+                </div>
+                <div class="image-preview-mini" style="margin-top: 5px; display: ${value ? 'block' : 'none'};">
+                    <img src="${value}" style="height: 60px; border-radius: 4px; border: 1px solid #ddd; object-fit: contain;">
+                </div>
+            </div>
+            <button type="button" class="btn-delete btn-sm" onclick="removeImageInput(this)" style="padding: 0.4rem 0.8rem;">✕</button>
+        </div>
+    `;
+    container.appendChild(div);
+};
+
+window.removeImageInput = function (btn) {
+    const container = document.getElementById('imageInputContainer');
+    if (container.children.length > 1) {
+        btn.closest('.image-input-row').remove();
+    } else {
+        alert("최소 한 장의 이미지는 필요합니다.");
+    }
+};
 
 // 창 바깥 클릭 시 모달 닫기
 window.onclick = function (event) {

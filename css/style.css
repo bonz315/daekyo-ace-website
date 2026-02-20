@@ -31,49 +31,11 @@
     --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Scroll Reveal Base */
+/* Scroll Reveal Base - 초기 가시성 절대 보장 */
 [class*="reveal-"] {
-    opacity: 0;
-    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: transform, opacity;
-}
-
-/* JS 미작동 대비: active 클래스가 없어도 어느 정도 보이게 하거나, 
-   또는 JS에서 순차적으로 넣어주는 방식을 더 신뢰성 있게 변경 */
-.no-js [class*="reveal-"] {
     opacity: 1 !important;
     transform: none !important;
-}
-
-.reveal-fade.active {
-    opacity: 1;
-}
-
-.reveal-up {
-    transform: translateY(30px);
-}
-
-.reveal-up.active {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.reveal-left {
-    transform: translateX(-30px);
-}
-
-.reveal-left.active {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.reveal-right {
-    transform: translateX(30px);
-}
-
-.reveal-right.active {
-    opacity: 1;
-    transform: translateX(0);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -207,31 +169,55 @@ nav a.active {
 }
 
 /* ==========================================
-   히어로 섹션
+   히어로 섹션 & 페이지 타이틀 (브랜드 아이덴티티)
    ========================================== */
 
-.hero {
-    background: linear-gradient(135deg, var(--primary-orange-light) 0%, var(--primary-orange) 100%);
-    color: var(--white);
-    padding: 1rem var(--spacing-md);
-    /* 배너 사이즈를 더욱 슬림하게 조정 */
-    text-align: center;
+.hero,
+.page-title-section {
     position: relative;
+    padding: 5rem 2rem;
+    text-align: center;
     overflow: hidden;
 }
 
-.hero::after {
+/* 대교에이스의 상징: 주황색 상단 띠 */
+.hero::before,
+.page-title-section::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 6px;
     background: linear-gradient(90deg, var(--primary-orange), #ffae42);
-    z-index: 2;
+    z-index: 10;
 }
 
-.hero::before {
+.hero {
+    background: linear-gradient(135deg, var(--primary-orange-light) 0%, var(--primary-orange) 100%);
+    color: var(--white);
+}
+
+.hero-content h2,
+.page-title-section h1 {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.hero-content p,
+.page-title-section p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.page-title-section {
+    background-color: #f8f9fa;
+    color: #333;
+    border-bottom: 1px solid #eee;
+}
+
+.hero::after {
     content: '';
     position: absolute;
     top: -50%;
@@ -240,33 +226,6 @@ nav a.active {
     height: 500px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
-}
-
-.hero-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-}
-
-.hero p {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-    opacity: 0;
-    animation: fadeInUp 0.8s ease forwards 0.4s;
-}
-
-.hero h2 {
-    font-size: 2.2rem;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
-    opacity: 0;
-    animation: fadeInUp 0.8s ease forwards 0.2s;
-}
-
-.hero .btn {
-    padding: 0.6rem 1.5rem;
-    font-size: 0.95rem;
 }
 
 .btn {
@@ -303,20 +262,36 @@ nav a.active {
    ========================================== */
 .page-title-section {
     background-color: #f8f9fa;
-    padding: 4rem 0;
+    padding: 5rem 0;
     text-align: center;
     border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+/* 대교에이스의 상징: 주황색 상단 띠 */
+.page-title-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary-orange), #ffae42);
+    z-index: 10;
 }
 
 .page-title-section h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: #333;
+    font-size: 2.8rem;
+    margin-bottom: 1.5rem;
+    color: #222;
+    font-weight: 700;
 }
 
 .page-title-section p {
-    font-size: 1.2rem;
-    color: #666;
+    font-size: 1.25rem;
+    color: #555;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 /* ==========================================

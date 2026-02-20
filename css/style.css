@@ -38,12 +38,19 @@
     will-change: transform, opacity;
 }
 
+/* JS 미작동 대비: active 클래스가 없어도 어느 정도 보이게 하거나, 
+   또는 JS에서 순차적으로 넣어주는 방식을 더 신뢰성 있게 변경 */
+.no-js [class*="reveal-"] {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
 .reveal-fade.active {
     opacity: 1;
 }
 
 .reveal-up {
-    transform: translateY(40px);
+    transform: translateY(30px);
 }
 
 .reveal-up.active {
@@ -52,7 +59,7 @@
 }
 
 .reveal-left {
-    transform: translateX(-40px);
+    transform: translateX(-30px);
 }
 
 .reveal-left.active {
@@ -61,7 +68,7 @@
 }
 
 .reveal-right {
-    transform: translateX(40px);
+    transform: translateX(30px);
 }
 
 .reveal-right.active {
@@ -292,132 +299,24 @@ nav a.active {
 }
 
 /* ==========================================
-   프리미엄 히어로 섹션
+   페이지 타이틀 섹션 (홈/서브 공용 스타일)
    ========================================== */
-.hero-premium {
-    height: 85vh;
-    min-height: 600px;
-    background: url('../images/one-hyde-park.png') no-repeat center center/cover;
-    position: relative;
-    display: flex;
-    align-items: center;
-    color: white;
-    overflow: hidden;
+.page-title-section {
+    background-color: #f8f9fa;
+    padding: 4rem 0;
+    text-align: center;
+    border-bottom: 1px solid #eee;
 }
 
-.hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.2) 100%);
+.page-title-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #333;
 }
 
-.hero-premium-content {
-    position: relative;
-    z-index: 10;
-    padding-bottom: 50px;
-}
-
-.hero-premium-content h1 {
-    font-size: 4rem;
-    line-height: 1.2;
-    margin-bottom: 1.5rem;
-    font-weight: 800;
-}
-
-.hero-premium-content h1 span {
-    color: var(--primary-orange);
-}
-
-.hero-premium-content p {
-    font-size: 1.4rem;
-    color: #cccccc;
-    margin-bottom: 2.5rem;
-    max-width: 600px;
-}
-
-.hero-btns {
-    display: flex;
-    gap: 1.2rem;
-}
-
-.btn-primary {
-    background-color: var(--primary-orange);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-orange-dark);
-}
-
-.btn-white {
-    background-color: white;
-    color: var(--text-dark);
-}
-
-/* 스크롤 지시자 */
-.hero-scroll-indicator {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    opacity: 0.7;
-    z-index: 10;
-}
-
-.hero-scroll-indicator .mouse {
-    width: 24px;
-    height: 40px;
-    border: 2px solid white;
-    border-radius: 12px;
-    position: relative;
-}
-
-.hero-scroll-indicator .mouse::before {
-    content: '';
-    width: 4px;
-    height: 8px;
-    background: white;
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 2px;
-    animation: mouseScroll 1.5s infinite;
-}
-
-@keyframes mouseScroll {
-    0% {
-        transform: translate(-50%, 0);
-        opacity: 1;
-    }
-
-    100% {
-        transform: translate(-50%, 15px);
-        opacity: 0;
-    }
-}
-
-.hero-scroll-indicator span {
-    font-size: 0.8rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-@media (max-width: 768px) {
-    .hero-premium-content h1 {
-        font-size: 2.5rem;
-    }
-
-    .hero-premium-content p {
-        font-size: 1.1rem;
-    }
+.page-title-section p {
+    font-size: 1.2rem;
+    color: #666;
 }
 
 /* ==========================================

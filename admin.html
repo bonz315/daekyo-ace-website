@@ -193,6 +193,10 @@
                         <label>중분류 *</label>
                         <select id="prodSubCat" required></select>
                     </div>
+                    <div class="form-group">
+                        <label>제품 카드용 규격 (목록에 표시될 짧은 규격)</label>
+                        <input type="text" id="prodCardSize" placeholder="예: 102 X 102 X 85">
+                    </div>
                     <div class="form-group" style="grid-column: span 2;">
                         <label>제품 이미지 *</label>
                         <div style="display: flex; gap: 1rem; align-items: flex-start;">
@@ -208,9 +212,34 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" style="margin-top: 1rem;">
-                    <label>상세 사양 (규격, 재질 등 - 한 줄씩 입력)</label>
-                    <textarea id="prodSpecs" rows="4" placeholder="규격: 100x200&#10;재질: PVC"></textarea>
+
+                <div
+                    style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee;">
+                    <h4
+                        style="margin-bottom: 1rem; color: var(--primary-orange); border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+                        상세 사양 (상세페이지용)</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>제품명 (사양 내)</label>
+                            <input type="text" id="specName">
+                        </div>
+                        <div class="form-group">
+                            <label>상세 규격</label>
+                            <input type="text" id="specSize">
+                        </div>
+                        <div class="form-group">
+                            <label>재질</label>
+                            <input type="text" id="specMaterial">
+                        </div>
+                        <div class="form-group">
+                            <label>색상</label>
+                            <input type="text" id="specColor">
+                        </div>
+                        <div class="form-group">
+                            <label>인증</label>
+                            <input type="text" id="specCert">
+                        </div>
+                    </div>
                 </div>
                 <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
                     <button type="button" class="btn-outline" onclick="closeProductModal()">취소</button>

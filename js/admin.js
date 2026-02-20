@@ -280,17 +280,14 @@ function initProductManagement() {
 function saveProduct() {
     const id = document.getElementById('editId').value || 'PROD' + Date.now();
 
-    // 스펙 텍스트 처리 (key: value 형태)
-    const specsText = document.getElementById('prodSpecs').value;
-    const specs = {};
-    if (specsText) {
-        specsText.split('\n').forEach(line => {
-            const [key, ...val] = line.split(':');
-            if (key && val.length > 0) {
-                specs[key.trim()] = val.join(':').trim();
-            }
-        });
-    }
+    // 1. 상세 사양 객체 구성
+    const specs = {
+        name: document.getElementById('specName').value,
+        size: document.getElementById('specSize').value,
+        material: document.getElementById('specMaterial').value,
+        color: document.getElementById('specColor').value,
+        certification: document.getElementById('specCert').value
+    };
 
     const productData = {
         id: id,
@@ -298,9 +295,10 @@ function saveProduct() {
         mainCategory: document.getElementById('prodMainCat').value,
         subCategory: document.getElementById('prodSubCat').value,
         image: document.getElementById('prodImage').value,
+        cardSize: document.getElementById('prodCardSize').value, // 카드 노출용 규격
         specs: specs,
         updatedAt: new Date().toISOString(),
-        isDB: true // DB에서 가져온 데이터임을 표시
+        isDB: true
     };
 
     db.collection("products").doc(id.toString()).set(productData)
@@ -606,20 +604,26 @@ function editProduct(id) {
         updateSubSelect();
         document.getElementById('prodSubCat').value = p.subCategory;
         document.getElementById('prodImage').value = p.image;
+        document.getElementById('prodCardSize').value = p.cardSize || (p.specs ? p.specs.size : "");
 
-        // 프리뷰 업데이트
         const preview = document.getElementById('imagePreview');
         preview.style.display = 'block';
         preview.querySelector('img').src = p.image;
 
-        // 스펙 텍스트 변환
-        let specText = "";
+        // 상세 사양 필드 채우기
         if (p.specs) {
-            for (let key in p.specs) {
-                specText += `${key}: ${p.specs[key]}\n`;
-            }
+            document.getElementById('specName').value = p.specs.name || "";
+            document.getElementById('specSize').value = p.specs.size || "";
+            document.getElementById('specMaterial').value = p.specs.material || "";
+            document.getElementById('specColor').value = p.specs.color || "";
+            document.getElementById('specCert').value = p.specs.certification || "";
+        } else {
+            document.getElementById('specName').value = "";
+            document.getElementById('specSize').value = "";
+            document.getElementById('specMaterial').value = "";
+            document.getElementById('specColor').value = "";
+            document.getElementById('specCert').value = "";
         }
-        document.getElementById('prodSpecs').value = specText.trim();
 
         document.getElementById('productModal').style.display = 'block';
     });

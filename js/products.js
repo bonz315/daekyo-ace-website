@@ -396,9 +396,9 @@ function createProductCard(product) {
         </div>
         <div class="card-content">
             <h3 class="card-title">${product.name}</h3>
-            ${product.specs && product.specs.size ? `
+            ${(product.cardSize || (product.specs && product.specs.size)) ? `
                 <p style="color: var(--dark-gray); margin-top: 0.5rem; font-size: 0.9rem;">
-                    규격: ${product.specs.size}
+                    규격: ${product.cardSize || product.specs.size}
                 </p>
             ` : ''}
         </div>

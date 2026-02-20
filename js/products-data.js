@@ -76,7 +76,7 @@ const detailCategories = {
 };
 
 // 제품 데이터
-const products = [
+let products = [
     {
         id: 1,
         name: '매입 스위치 (CSW1SS)',
@@ -163,6 +163,28 @@ const products = [
         image: 'images/category-wallpad.png'
     }
 ];
+
+/**
+ * DB에 등록된 제품들을 가져와서 기존 정적 리스트와 합칩니다.
+ */
+async function loadDBProducts() {
+    try {
+        const querySnapshot = await db.collection("products").get();
+        querySnapshot.forEach((doc) => {
+            const dbProd = doc.data();
+            // 기존 정적 리스트에 있는 ID인 경우 교체, 없으면 추가
+            const existingIndex = products.findIndex(p => p.id.toString() === dbProd.id.toString());
+            if (existingIndex !== -1) {
+                products[existingIndex] = dbProd;
+            } else {
+                products.push(dbProd);
+            }
+        });
+        console.log("DB Products matched and loaded. Total:", products.length);
+    } catch (error) {
+        console.error("Error loading products from DB:", error);
+    }
+}
 
 // 제품 검색 함수
 function getProductsByCategory(mainCat, subCat = null, detailCat = null) {

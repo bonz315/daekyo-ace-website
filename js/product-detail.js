@@ -1,6 +1,9 @@
 // 제품 상세 페이지 JavaScript
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+    if (typeof loadDBProducts === 'function') {
+        await loadDBProducts();
+    }
     initProductDetail();
 });
 

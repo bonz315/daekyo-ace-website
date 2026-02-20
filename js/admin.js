@@ -12,7 +12,50 @@ document.addEventListener('DOMContentLoaded', function () {
     initProductManagement();
     initResourceManagement();
     migrateLocalInquiries(); // 로컬에 남은 문의가 있다면 DB로 이동
+    initDriveLinkConverter(); // 구글 드라이브 링크 변환 기능 추가
 });
+
+// 구글 드라이브 링크를 직링크로 변환하는 함수
+function initDriveLinkConverter() {
+    const urlInputs = ['prodImage', 'resUrl'];
+    urlInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        // 값이 입력될 때마다 체크
+        el.addEventListener('input', function () {
+            const val = this.value.trim();
+            if (val.includes('drive.google.com')) {
+                const converted = transformToDirectDownload(val);
+                if (converted !== val) {
+                    this.value = converted;
+                    console.log("Drive Link Converted:", converted);
+                    // 시각적 피드백 (배경색 살짝 변경)
+                    this.style.backgroundColor = "#e8f5e9";
+                    setTimeout(() => this.style.backgroundColor = "", 1000);
+                }
+            }
+        });
+    });
+}
+
+function transformToDirectDownload(url) {
+    // 1. /file/d/ID/ 형식 추출
+    let fileId = "";
+    const match1 = url.match(/\/file\/d\/([^\/]+)/);
+    if (match1) fileId = match1[1];
+
+    // 2. id=ID 형식 추출
+    if (!fileId) {
+        const match2 = url.match(/[?&]id=([^&]+)/);
+        if (match2) fileId = match2[1];
+    }
+
+    if (fileId) {
+        return `https://drive.google.com/uc?export=download&id=${fileId}`;
+    }
+    return url;
+}
 
 // 이미지 선택 핸들러 (카드 등록 없는 무료 방식: base64 + 압축 저장)
 window.handleImageSelect = function (input, targetInputId, previewId) {

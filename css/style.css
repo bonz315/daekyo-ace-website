@@ -158,6 +158,34 @@ nav a.active {
     color: var(--primary-orange);
 }
 
+/* 관리자 접속 버튼 */
+.admin-access-btn {
+    text-decoration: none;
+    color: #999;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-left: 1.5rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.admin-access-btn:hover {
+    color: var(--primary-orange);
+    border-color: var(--primary-orange);
+    background-color: #fff9f5;
+}
+
+@media (max-width: 992px) {
+    .admin-access-btn {
+        display: none;
+        /* 태블릿/모바일에서는 메뉴 복잡도를 줄이기 위해 숨김 */
+    }
+}
+
 /* 모바일 메뉴 버튼 */
 .mobile-menu-btn {
     display: none;

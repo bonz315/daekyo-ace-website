@@ -8,5 +8,6 @@ const resources = [];
 const resourceTypes = {
     catalog: "카탈로그",
     tax: "국세,지방세",
-    cert: "인증서"
+    cert: "인증서",
+    patent: "특허,실용신안"
 };

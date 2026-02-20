@@ -160,31 +160,48 @@ nav a.active {
     color: var(--primary-orange);
 }
 
-/* 관리자 접속 버튼 */
+/* 관리자 접속 버튼 (플로팅 스타일) */
 .admin-access-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
     text-decoration: none;
-    color: #999;
-    font-size: 0.75rem;
-    padding: 4px 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-left: 1.5rem;
-    transition: var(--transition);
+    color: #bbb;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
+}
+
+.admin-access-btn .admin-text {
+    display: none;
+    /* 플로팅 버튼에서는 텍스트 숨김 */
 }
 
 .admin-access-btn:hover {
+    transform: translateY(-5px);
+    background: var(--white);
     color: var(--primary-orange);
-    border-color: var(--primary-orange);
-    background-color: #fff9f5;
+    box-shadow: 0 12px 40px rgba(255, 140, 0, 0.2);
+    border-color: var(--primary-orange-light);
 }
 
-@media (max-width: 992px) {
+@media (max-width: 768px) {
     .admin-access-btn {
-        display: none;
-        /* 태블릿/모바일에서는 메뉴 복잡도를 줄이기 위해 숨김 */
+        bottom: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
     }
 }
 

@@ -7,5 +7,6 @@ const resources = [];
 // 자료실 타입 정의
 const resourceTypes = {
     catalog: "카탈로그",
-    cert: "인증서"
+    cert: "인증서",
+    tax: "시,국세"
 };

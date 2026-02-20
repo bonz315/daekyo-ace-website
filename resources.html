@@ -60,6 +60,7 @@
                 <button class="category-btn active" data-type="all">전체</button>
                 <button class="category-btn" data-type="catalog">카탈로그</button>
                 <button class="category-btn" data-type="cert">인증서</button>
+                <button class="category-btn" data-type="tax">시,국세</button>
             </div>
 
             <!-- 카탈로그 섹션 -->
@@ -80,6 +81,17 @@
                     <p>각종 인증서를 확인하세요</p>
                 </div>
                 <div class="resource-list" id="certList">
+                    <!-- JS로 렌더링 -->
+                </div>
+            </div>
+
+            <!-- 시,국세 섹션 -->
+            <div id="taxSection" style="display: none;">
+                <div class="section-title" style="margin-top: 3rem;">
+                    <h2>🏦 시,국세</h2>
+                    <p>시세 및 국세 관련 영수증/증명서를 확인하세요</p>
+                </div>
+                <div class="resource-list" id="taxList">
                     <!-- JS로 렌더링 -->
                 </div>
             </div>
@@ -116,14 +128,18 @@
         async function renderResources(filterType = 'all') {
             const catalogList = document.getElementById('catalogList');
             const certList = document.getElementById('certList');
+            const taxList = document.getElementById('taxList');
             const catalogSection = document.getElementById('catalogSection');
             const certSection = document.getElementById('certSection');
+            const taxSection = document.getElementById('taxSection');
 
             catalogList.innerHTML = '';
             certList.innerHTML = '';
+            taxList.innerHTML = '';
 
             let hasCatalog = false;
             let hasCert = false;
+            let hasTax = false;
 
             // 1. Firebase에서 데이터 가져오기
             const snapshot = await db.collection("resources").get();
@@ -139,7 +155,11 @@
                 const itemHtml = `
                     <div class="resource-item" data-type="${res.type}">
                         <div class="resource-info">
-                            <div class="resource-icon">${res.type === 'catalog' ? '📄' : '🏆'}</div>
+                            <div class="resource-icon" style="${res.thumbnail ? 'background:none; border:none; padding:0; overflow:hidden;' : ''}">
+                                ${res.thumbnail
+                        ? `<img src="${res.thumbnail}" style="width:100%; height:100%; object-fit:cover; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">`
+                        : (res.type === 'catalog' ? '📄' : (res.type === 'cert' ? '🏆' : '🏦'))}
+                            </div>
                             <div class="resource-details">
                                 <h3>${res.title}</h3>
                                 <p>${res.description} | ${res.fileInfo}</p>
@@ -155,11 +175,15 @@
                 } else if (res.type === 'cert') {
                     certList.innerHTML += itemHtml;
                     hasCert = true;
+                } else if (res.type === 'tax') {
+                    taxList.innerHTML += itemHtml;
+                    hasTax = true;
                 }
             });
 
             catalogSection.style.display = hasCatalog ? 'block' : 'none';
             certSection.style.display = hasCert ? 'block' : 'none';
+            taxSection.style.display = hasTax ? 'block' : 'none';
         }
     </script>
 

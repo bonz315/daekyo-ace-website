@@ -353,7 +353,7 @@ function renderAdminResourceListSync() {
             const res = doc.data();
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${res.type === 'catalog' ? '카탈로그' : '인증서'}</td>
+                <td>${resourceTypes[res.type] || res.type}</td>
                 <td><strong>${res.title}</strong></td>
                 <td>${res.description}</td>
                 <td><small>${res.fileUrl.startsWith('data:') ? '[이미지 데이터]' : res.fileUrl}</small></td>
@@ -376,6 +376,7 @@ function saveResource() {
         description: document.getElementById('resDesc').value,
         fileInfo: document.getElementById('resInfo').value,
         fileUrl: document.getElementById('resUrl').value,
+        thumbnail: document.getElementById('resThumb').value, // 썸네일 추가
         updatedAt: new Date().toISOString()
     };
 
@@ -391,6 +392,7 @@ window.openResourceModal = function () {
     document.getElementById('resModalTitle').textContent = "새 자료 등록";
     document.getElementById('resourceForm').reset();
     document.getElementById('editResId').value = "";
+    document.getElementById('resThumbPreview').style.display = 'none'; // 프리뷰 초기화
     document.getElementById('resourceModal').style.display = 'block';
 };
 
@@ -409,6 +411,17 @@ window.editResource = function (id) {
         document.getElementById('resDesc').value = res.description;
         document.getElementById('resInfo').value = res.fileInfo;
         document.getElementById('resUrl').value = res.fileUrl;
+        document.getElementById('resThumb').value = res.thumbnail || "";
+
+        // 썸네일 미리보기 처리
+        const thumbPreview = document.getElementById('resThumbPreview');
+        if (res.thumbnail) {
+            thumbPreview.style.display = 'block';
+            thumbPreview.querySelector('img').src = res.thumbnail;
+        } else {
+            thumbPreview.style.display = 'none';
+        }
+
         document.getElementById('resourceModal').style.display = 'block';
     });
 };

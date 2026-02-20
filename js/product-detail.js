@@ -144,7 +144,8 @@ function renderProductSpecs(product) {
 
     let html = '';
 
-    // 표시할 라벨 정의
+    // 표시할 라벨 및 순서 정의
+    const specOrder = ['name', 'model', 'size', 'material', 'color', 'temp', 'certification', 'packing'];
     const labels = {
         name: '제품명',
         model: '모델명',
@@ -156,18 +157,33 @@ function renderProductSpecs(product) {
         packing: '포장 단위'
     };
 
-    for (let key in product.specs) {
-        const label = labels[key] || key;
+    // 1. 정의된 순서대로 먼저 렌더링
+    specOrder.forEach(key => {
+        const label = labels[key];
         const value = product.specs[key];
 
-        // 데이터가 '삭제'거나 null이 아닌 경우만 렌더링
-        if (value && value !== '삭제') {
+        if (value && value !== '삭제' && value !== '') {
             html += `
                 <div class="spec-item">
                     <span class="spec-label">${label}</span>
                     <span class="spec-value">${value}</span>
                 </div>
             `;
+        }
+    });
+
+    // 2. 혹시 순서 정의에 없는 나머지 키가 있다면 추가 렌더링
+    for (let key in product.specs) {
+        if (!specOrder.includes(key)) {
+            const value = product.specs[key];
+            if (value && value !== '삭제' && value !== '') {
+                html += `
+                <div class="spec-item">
+                    <span class="spec-label">${key}</span>
+                    <span class="spec-value">${value}</span>
+                </div>
+            `;
+            }
         }
     }
 

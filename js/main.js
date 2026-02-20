@@ -2,20 +2,23 @@
 // 대교에이스 웹사이트 JavaScript
 // ==========================================
 
-// Firebase 설정
-const firebaseConfig = {
-    apiKey: "AIzaSyBvV3pOEkmxVpZi8DIj03tdVPHdVthvKjM",
-    authDomain: "daekyoace.firebaseapp.com",
-    projectId: "daekyoace",
-    storageBucket: "daekyoace.firebasestorage.app",
-    messagingSenderId: "694653024684",
-    appId: "1:694653024684:web:4aac532c696f7ffd95e209",
-    measurementId: "G-SGLNMD9P66"
-};
-
-// Firebase 초기화
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// Firebase 설정 (필요한 경우에만 사용하도록 체크)
+let db;
+if (typeof firebase !== 'undefined') {
+    if (!firebase.apps.length) {
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvV3pOEkmxVpZi8DIj03tdVPHdVthvKjM",
+            authDomain: "daekyoace.firebaseapp.com",
+            projectId: "daekyoace",
+            storageBucket: "daekyoace.firebasestorage.app",
+            messagingSenderId: "694653024684",
+            appId: "1:694653024684:web:4aac532c696f7ffd95e209",
+            measurementId: "G-SGLNMD9P66"
+        };
+        firebase.initializeApp(firebaseConfig);
+    }
+    db = firebase.firestore();
+}
 
 // DOM이 로드되면 실행
 document.addEventListener('DOMContentLoaded', function () {

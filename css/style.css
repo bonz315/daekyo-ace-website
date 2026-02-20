@@ -103,6 +103,8 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+    /* 모바일 메뉴의 기준점 */
 }
 
 .logo {
@@ -194,6 +196,8 @@ nav a.active {
     font-size: 1.5rem;
     cursor: pointer;
     color: var(--text-dark);
+    z-index: 1002;
+    /* 메뉴보다 위에 표시 */
 }
 
 /* ==========================================

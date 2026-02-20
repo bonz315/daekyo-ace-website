@@ -7,22 +7,36 @@ document.addEventListener('DOMContentLoaded', async function () {
     initProductDetail();
 });
 
-function initProductDetail() {
+async function initProductDetail() {
     // URL에서 제품 ID 가져오기
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
     if (!productId) {
-        alert('제품 정보를 찾을 수 없습니다.');
+        alert('제품 ID가 URL에 없습니다.');
         location.href = 'products.html';
         return;
     }
 
-    // 데이터베이스에서 제품 찾기
-    const product = getProductById(productId);
+    // 1. 먼저 로컬 데이터셋에서 찾기
+    let product = getProductById(productId);
+
+    // 2. 만약 없다면 DB에서 직접 1회성으로 다시 가져오기 시도
+    if (!product) {
+        console.log("Product not found in local array, trying direct DB fetch...");
+        try {
+            const doc = await db.collection("products").doc(productId.toString()).get();
+            if (doc.exists) {
+                product = doc.data();
+                console.log("Product found via direct DB fetch:", product);
+            }
+        } catch (err) {
+            console.error("Error during direct DB fetch:", err);
+        }
+    }
 
     if (!product) {
-        alert('해당 제품이 존재하지 않습니다.');
+        alert('죄송합니다. 해당 제품 정보를 찾을 수 없습니다. (ID: ' + productId + ')');
         location.href = 'products.html';
         return;
     }

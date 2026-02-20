@@ -57,14 +57,14 @@ function transformToDirectDownload(url) {
     return url;
 }
 
-// 이미지 선택 핸들러 (카드 등록 없는 무료 방식: base64 + 압축 저장)
+// 이미지/파일 선택 핸들러 (PDF 썸네일 자동 생성 기능 포함)
 window.handleImageSelect = function (input, targetInputId, previewId) {
     const file = input.files[0];
     if (!file) return;
 
-    // 용량 제한 체크 (무료 DB 문서당 1MB 제한 대비)
-    if (file.size > 1024 * 1024) {
-        alert("파일 용량이 너무 큽니다. (1MB 이하만 가능)");
+    // 용량 제한 체크 (무료 DB 문서당 1MB 제한 대비) - PDF 원본은 DB에 안 들어가므로 예외 처리 가능하지만 안전하게 체크
+    if (file.type.startsWith('image/') && file.size > 1024 * 1024) {
+        alert("이미지 용량이 너무 큽니다. (1MB 이하만 가능)");
         input.value = "";
         return;
     }
@@ -76,11 +76,49 @@ window.handleImageSelect = function (input, targetInputId, previewId) {
     targetInput.disabled = true;
 
     const reader = new FileReader();
-    reader.onload = function (e) {
-        const rawBase64 = e.target.result;
+    reader.onload = async function (e) {
+        const rawData = e.target.result;
 
-        // 이미지인 경우 압축 시도
-        if (file.type.startsWith('image/')) {
+        // 1. PDF인 경우 (썸네일 추출 + 정보 자동입력)
+        if (file.type === 'application/pdf') {
+            try {
+                targetInput.value = "PDF 분석 중...";
+                // 파일 정보 자동 입력 (예: PDF | 1.5MB)
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                const infoInput = document.getElementById('resInfo');
+                if (infoInput) {
+                    infoInput.value = `PDF, ${fileSizeMB}MB | ${new Date().toLocaleDateString()}`;
+                }
+
+                // 썸네일 생성 함수 호출
+                const thumbnailBase64 = await generatePdfThumbnail(rawData);
+
+                // 썸네일 입력창(resThumb)에 저장 및 프리뷰 표시
+                const thumbInput = document.getElementById('resThumb');
+                if (thumbInput) {
+                    thumbInput.value = thumbnailBase64;
+                    const thumbPreview = document.getElementById('resThumbPreview');
+                    if (thumbPreview) {
+                        thumbPreview.style.display = 'block';
+                        thumbPreview.querySelector('img').src = thumbnailBase64;
+                    }
+                }
+
+                // 원래 선택했던 파일은 base64로 URL 칸에 입력 (1MB 이하일 때만 추천, 크면 드라이브 권장)
+                if (file.size < 1024 * 1024) {
+                    targetInput.value = rawData;
+                } else {
+                    targetInput.value = "";
+                    alert("파일이 1MB를 초과하여 직접 저장할 수 없습니다.\n구글 드라이브에 올리신 후 링크를 붙여넣어 주세요.\n(표지 사진은 자동으로 추출되었습니다!)");
+                }
+            } catch (err) {
+                console.error("PDF Thumbnail Error:", err);
+                alert("PDF 표지 추출에 실패했습니다. 수동으로 올려주세요.");
+            }
+            targetInput.disabled = false;
+        }
+        // 2. 이미지인 경우 (기존 압축 로직)
+        else if (file.type.startsWith('image/')) {
             const img = new Image();
             img.onload = function () {
                 const canvas = document.createElement('canvas');
@@ -115,19 +153,34 @@ window.handleImageSelect = function (input, targetInputId, previewId) {
                     previewContainer.querySelector('img').src = compressedBase64;
                 }
             };
-            img.src = rawBase64;
+            img.src = rawData;
         } else {
-            // 이미지 이외의 파일 (PDF 등)은 그냥 base64 저장
-            targetInput.value = rawBase64;
+            // 기타 파일
+            targetInput.value = rawData;
             targetInput.disabled = false;
-            if (previewId) {
-                document.getElementById(previewId).style.display = 'none';
-            }
-            console.log("Non-image file loaded as Base64");
+            console.log("File loaded as Base64");
         }
     };
     reader.readAsDataURL(file);
 };
+
+// PDF 첫 페이지를 이미지로 변환하는 마법 같은 함수
+async function generatePdfThumbnail(pdfBase64) {
+    const loadingTask = pdfjsLib.getDocument(pdfBase64);
+    const pdf = await loadingTask.promise;
+    const page = await pdf.getPage(1); // 1페이지만 가져옴
+
+    const viewport = page.getViewport({ scale: 0.5 }); // 크기를 적당히 조절 (썸네일용)
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+    // 썸네일은 용량이 작아야 하므로 압축된 jpeg로 반환
+    return canvas.toDataURL('image/jpeg', 0.8);
+}
 
 // 1. 로그인 처리
 function initLogin() {

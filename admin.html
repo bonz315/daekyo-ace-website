@@ -15,6 +15,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="js/firebase-init.js"></script>
+
+    <!-- PDF.js - For auto-thumbnail generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
 </head>
 
 <body>
@@ -239,6 +245,7 @@
                     <div class="form-group">
                         <label>파일 정보</label>
                         <input type="text" id="resInfo" placeholder="예: PDF, 1.5MB | 2025.02.20">
+                        <small style="color: #999;">* PDF 업로드 시 자동 입력됩니다.</small>
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
                         <label>상세 설명</label>

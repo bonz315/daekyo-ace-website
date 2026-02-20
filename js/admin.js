@@ -14,49 +14,76 @@ document.addEventListener('DOMContentLoaded', function () {
     migrateLocalInquiries(); // 로컬에 남은 문의가 있다면 DB로 이동
 });
 
-// 이미지 선택 핸들러 (실제 파일 업로드 포함)
+// 이미지 선택 핸들러 (카드 등록 없는 무료 방식: base64 + 압축 저장)
 window.handleImageSelect = function (input, targetInputId, previewId) {
     const file = input.files[0];
     if (!file) return;
 
+    // 용량 제한 체크 (무료 DB 문서당 1MB 제한 대비)
+    if (file.size > 1024 * 1024) {
+        alert("파일 용량이 너무 큽니다. (1MB 이하만 가능)");
+        input.value = "";
+        return;
+    }
+
     const targetInput = document.getElementById(targetInputId);
-    const fileName = file.name;
-    const timestamp = Date.now();
-    const uniqueFileName = `${timestamp}_${fileName}`;
-
-    // 업로드 경로 설정
-    const storagePath = targetInputId === 'prodImage'
-        ? `products/${uniqueFileName}`
-        : `resources/${uniqueFileName}`;
-
-    const storageRef = storage.ref(storagePath);
 
     // 로딩 상태 표시
-    targetInput.value = "업로드 중...";
+    targetInput.value = "파일 처리 중...";
     targetInput.disabled = true;
 
-    // 파일 업로드 시작
-    storageRef.put(file).then(snapshot => {
-        return snapshot.ref.getDownloadURL();
-    }).then(downloadURL => {
-        // 업로드 완료 후 URL 입력창에 삽입
-        targetInput.value = downloadURL;
-        targetInput.disabled = false;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const rawBase64 = e.target.result;
 
-        // 프리뷰 표시 (이미지인 경우)
-        if (previewId) {
-            const previewContainer = document.getElementById(previewId);
-            previewContainer.style.display = 'block';
-            previewContainer.querySelector('img').src = downloadURL;
+        // 이미지인 경우 압축 시도
+        if (file.type.startsWith('image/')) {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const max_size = 800;
+
+                if (width > height) {
+                    if (width > max_size) {
+                        height *= max_size / width;
+                        width = max_size;
+                    }
+                } else {
+                    if (height > max_size) {
+                        width *= max_size / height;
+                        height = max_size;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                targetInput.value = compressedBase64;
+                targetInput.disabled = false;
+
+                if (previewId) {
+                    const previewContainer = document.getElementById(previewId);
+                    previewContainer.style.display = 'block';
+                    previewContainer.querySelector('img').src = compressedBase64;
+                }
+            };
+            img.src = rawBase64;
+        } else {
+            // 이미지 이외의 파일 (PDF 등)은 그냥 base64 저장
+            targetInput.value = rawBase64;
+            targetInput.disabled = false;
+            if (previewId) {
+                document.getElementById(previewId).style.display = 'none';
+            }
+            console.log("Non-image file loaded as Base64");
         }
-
-        console.log("Upload Success:", downloadURL);
-    }).catch(error => {
-        console.error("Upload Error:", error);
-        alert("파일 업로드에 실패했습니다: " + error.message);
-        targetInput.value = "";
-        targetInput.disabled = false;
-    });
+    };
+    reader.readAsDataURL(file);
 };
 
 // 1. 로그인 처리
@@ -286,7 +313,7 @@ function renderAdminResourceListSync() {
                 <td>${res.type === 'catalog' ? '카탈로그' : '인증서'}</td>
                 <td><strong>${res.title}</strong></td>
                 <td>${res.description}</td>
-                <td><small>${res.fileUrl}</small></td>
+                <td><small>${res.fileUrl.startsWith('data:') ? '[이미지 데이터]' : res.fileUrl}</small></td>
                 <td>
                     <button class="btn-edit btn-sm" onclick="editResource('${res.id}')">수정</button>
                     <button class="btn-delete btn-sm" onclick="deleteResource('${res.id}')">삭제</button>

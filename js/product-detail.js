@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 function initProductDetail() {
     // URL에서 제품 ID 가져오기
     const urlParams = new URLSearchParams(window.location.search);
-    const productId = parseInt(urlParams.get('id'));
+    const productId = urlParams.get('id');
 
     if (!productId) {
         alert('제품 정보를 찾을 수 없습니다.');

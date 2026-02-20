@@ -212,5 +212,6 @@ function getDetailCategories(mainCatId, subCatId) {
 
 // 제품 상세 정보 가져오기
 function getProductById(id) {
-    return products.find(product => product.id === parseInt(id));
+    if (!id) return null;
+    return products.find(product => product.id.toString() === id.toString());
 }

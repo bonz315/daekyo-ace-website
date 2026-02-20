@@ -2,6 +2,21 @@
 // 관리자 페이지 Logic
 // ==========================================
 
+// Firebase 설정
+const firebaseConfig = {
+    apiKey: "AIzaSyBvV3pOEkmxVpZi8DIj03tdVPHdVthvKjM",
+    authDomain: "daekyoace.firebaseapp.com",
+    projectId: "daekyoace",
+    storageBucket: "daekyoace.firebasestorage.app",
+    messagingSenderId: "694653024684",
+    appId: "1:694653024684:web:4aac532c696f7ffd95e209",
+    measurementId: "G-SGLNMD9P66"
+};
+
+// Firebase 초기화
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 const ADMIN_PASSWORD = "daekyo123"; // 초기 비밀번호
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -23,7 +38,7 @@ function initLogin() {
         loginSection.style.display = 'none';
         adminDashboard.style.display = 'block';
         renderAdminProductList();
-        renderAdminInquiryList();
+        renderAdminInquiryListSync(); // 실시간 문의 목록
     }
 
     loginForm.addEventListener('submit', function (e) {
@@ -164,48 +179,56 @@ function editProduct(id) {
     document.getElementById('productModal').style.display = 'block';
 }
 
-// 4. 문의 관리 Logic
-function renderAdminInquiryList() {
+// 4. 문의 관리 Logic (Firebase 실시간 리스너)
+function renderAdminInquiryListSync() {
     const tbody = document.getElementById('adminInquiryList');
     if (!tbody) return;
-    tbody.innerHTML = '';
 
-    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
+    // 실시간 리스너 설정: 데이터가 변하면 자동으로 호출됨
+    db.collection("inquiries")
+        .orderBy("date", "desc")
+        .onSnapshot((querySnapshot) => {
+            tbody.innerHTML = '';
 
-    inquiries.reverse().forEach(inq => {
-        const tr = document.createElement('tr');
-        const statusBadge = inq.status === 'answered'
-            ? '<span class="status-badge" style="background:#2ed573; color:white; padding:2px 8px; border-radius:12px; font-size:0.8rem;">답변완료</span>'
-            : '<span class="status-badge" style="background:#ffa502; color:white; padding:2px 8px; border-radius:12px; font-size:0.8rem;">대기중</span>';
+            querySnapshot.forEach((doc) => {
+                const inq = doc.data();
+                const tr = document.createElement('tr');
+                const statusBadge = inq.status === 'answered'
+                    ? '<span class="status-badge" style="background:#2ed573; color:white; padding:2px 8px; border-radius:12px; font-size:0.8rem;">답변완료</span>'
+                    : '<span class="status-badge" style="background:#ffa502; color:white; padding:2px 8px; border-radius:12px; font-size:0.8rem;">대기중</span>';
 
-        tr.innerHTML = `
-            <td>${inq.id.substring(3, 8)}...</td>
-            <td>${inq.name}<br><small style="color:#999;">${inq.company || '-'}</small></td>
-            <td><strong>${inq.subject}</strong></td>
-            <td>${statusBadge}</td>
-            <td>${inq.date}</td>
-            <td>
-                <button class="btn-edit btn-sm" onclick="openAnswerModal('${inq.id}')">답변</button>
-                <button class="btn-delete btn-sm" onclick="deleteInquiry('${inq.id}')">삭제</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
+                tr.innerHTML = `
+                    <td>${inq.id.substring(3, 8)}...</td>
+                    <td>${inq.name}<br><small style="color:#999;">${inq.company || '-'}</small></td>
+                    <td><strong>${inq.subject}</strong></td>
+                    <td>${statusBadge}</td>
+                    <td>${inq.date.split(',')[0]}</td>
+                    <td>
+                        <button class="btn-edit btn-sm" onclick="openAnswerModal('${inq.id}')">답변</button>
+                        <button class="btn-delete btn-sm" onclick="deleteInquiry('${inq.id}')">삭제</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }, (error) => {
+            console.error("Inquiry Listener Error:", error);
+        });
 }
 
 window.openAnswerModal = function (id) {
-    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
-    const inq = inquiries.find(item => item.id === id);
-    if (!inq) return;
+    db.collection("inquiries").doc(id).get().then((doc) => {
+        if (!doc.exists) return;
+        const inq = doc.data();
 
-    document.getElementById('answerInqId').value = inq.id;
-    document.getElementById('inquiryDetailView').innerHTML = `
-        <p><strong>작성자:</strong> ${inq.name} (${inq.phone})</p>
-        <p><strong>제목:</strong> ${inq.subject}</p>
-        <p style="margin-top:10px; border-top:1px solid #ddd; pt:10px;"><strong>내용:</strong><br>${inq.message}</p>
-    `;
-    document.getElementById('adminAnswerText').value = inq.answer || '';
-    document.getElementById('answerModal').style.display = 'block';
+        document.getElementById('answerInqId').value = inq.id;
+        document.getElementById('inquiryDetailView').innerHTML = `
+            <p><strong>작성자:</strong> ${inq.name} (${inq.phone})</p>
+            <p><strong>제목:</strong> ${inq.subject}</p>
+            <p style="margin-top:10px; border-top:1px solid #ddd; padding-top:10px;"><strong>내용:</strong><br>${inq.message}</p>
+        `;
+        document.getElementById('adminAnswerText').value = inq.answer || '';
+        document.getElementById('answerModal').style.display = 'block';
+    });
 };
 
 window.closeAnswerModal = function () {
@@ -217,25 +240,26 @@ document.getElementById('answerForm').addEventListener('submit', function (e) {
     const id = document.getElementById('answerInqId').value;
     const answer = document.getElementById('adminAnswerText').value;
 
-    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
-    const index = inquiries.findIndex(item => item.id === id);
-
-    if (index !== -1) {
-        inquiries[index].answer = answer;
-        inquiries[index].status = 'answered';
-        localStorage.setItem('daekyoInquiries', JSON.stringify(inquiries));
+    db.collection("inquiries").doc(id).update({
+        answer: answer,
+        status: 'answered'
+    }).then(() => {
         alert("답변이 등록되었습니다.");
         closeAnswerModal();
-        renderAdminInquiryList();
-    }
+    }).catch((error) => {
+        console.error("Error updating document: ", error);
+        alert("답변 저장 중 오류가 발생했습니다.");
+    });
 });
 
 function deleteInquiry(id) {
-    if (confirm("이 문의 내역을 삭제하시겠습니까? (삭제된 내역은 복구할 수 없으며 고객도 볼 수 없게 됩니다.)")) {
-        let inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
-        inquiries = inquiries.filter(item => item.id !== id);
-        localStorage.setItem('daekyoInquiries', JSON.stringify(inquiries));
-        renderAdminInquiryList();
+    if (confirm("이 문의 내역을 삭제하시겠습니까? (삭제된 내역은 서버에서 영구 삭제됩니다.)")) {
+        db.collection("inquiries").doc(id).delete().then(() => {
+            alert("삭제되었습니다.");
+        }).catch((error) => {
+            console.error("Error removing document: ", error);
+            alert("삭제 중 오류가 발생했습니다.");
+        });
     }
 }
 

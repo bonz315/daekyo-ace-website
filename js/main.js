@@ -2,6 +2,21 @@
 // 대교에이스 웹사이트 JavaScript
 // ==========================================
 
+// Firebase 설정
+const firebaseConfig = {
+    apiKey: "AIzaSyBvV3pOEkmxVpZi8DIj03tdVPHdVthvKjM",
+    authDomain: "daekyoace.firebaseapp.com",
+    projectId: "daekyoace",
+    storageBucket: "daekyoace.firebasestorage.app",
+    messagingSenderId: "694653024684",
+    appId: "1:694653024684:web:4aac532c696f7ffd95e209",
+    measurementId: "G-SGLNMD9P66"
+};
+
+// Firebase 초기화
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 // DOM이 로드되면 실행
 document.addEventListener('DOMContentLoaded', function () {
     // 모바일 메뉴 토글
@@ -272,15 +287,13 @@ function initContactForm() {
             // 1. EmailJS를 통해 실제 메일 발송
             emailjs.send("service_chviv7u", "template_c7t3yqs", formData)
                 .then(function () {
-                    // 성공 시
-                    console.log('SUCCESS!', formData.id);
+                    console.log('Email Sent SUCCESS!');
 
-                    // 2. DB 대용으로 로컬스토리지에 저장 (기본 데이터 보존용)
-                    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
-                    inquiries.push(formData);
-                    localStorage.setItem('daekyoInquiries', JSON.stringify(inquiries));
-
-                    // 성공 메시지 표시
+                    // 2. Firebase Firestore에 저장 (진짜 DB)
+                    return db.collection("inquiries").doc(formData.id).set(formData);
+                })
+                .then(function () {
+                    // DB 저장 성공 시
                     contactForm.style.display = 'none';
                     successMessage.style.display = 'block';
 
@@ -293,16 +306,10 @@ function initContactForm() {
                             submitBtn.textContent = '문의하기';
                         }
                     }, 5000);
-                }, function (error) {
-                    // 실패 시
+                })
+                .catch(function (error) {
                     console.log('FAILED...', error);
-                    alert('알림 메일 전송에 실패했습니다. 하지만 문의 주신 내용은 시스템에 저장되었습니다. 잠시 후 다시 시도해주세요.');
-
-                    // 실패해도 일단 로컬에는 저장 (고객의 문의는 소중하니까요)
-                    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
-                    inquiries.push(formData);
-                    localStorage.setItem('daekyoInquiries', JSON.stringify(inquiries));
-
+                    alert('전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.textContent = '문의하기';
@@ -332,51 +339,67 @@ window.lookupInquiry = function () {
         return;
     }
 
-    const inquiries = JSON.parse(localStorage.getItem('daekyoInquiries') || '[]');
-    const results = inquiries.filter(inq => inq.name === name && inq.phone === phone);
-
     const resultArea = document.getElementById('inquiryResultArea');
     const step1 = document.getElementById('checkInquiryStep1');
 
     step1.style.display = 'none';
     resultArea.style.display = 'block';
+    resultArea.innerHTML = '<p style="text-align:center; padding:2rem;">조회 중입니다...</p>';
 
-    if (results.length === 0) {
-        resultArea.innerHTML = `
-            <div style="text-align:center; padding: 2rem;">
-                <p style="color:#666;">등록된 문의 내역이 없습니다.</p>
-                <button class="btn-outline" onclick="openCheckModal()" style="margin-top:1rem;">다시 시도</button>
-            </div>`;
-        return;
-    }
+    // Firebase Firestore에서 조회
+    db.collection("inquiries")
+        .where("name", "==", name)
+        .where("phone", "==", phone)
+        .get()
+        .then((querySnapshot) => {
+            if (querySnapshot.empty) {
+                resultArea.innerHTML = `
+                    <div style="text-align:center; padding: 2rem;">
+                        <p style="color:#666;">등록된 문의 내역이 없습니다.</p>
+                        <button class="btn-outline" onclick="openCheckModal()" style="margin-top:1rem;">다시 시도</button>
+                    </div>`;
+                return;
+            }
 
-    let html = `<h4 style="margin-bottom:1.5rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">총 ${results.length}건의 문의가 발견되었습니다.</h4>`;
+            let results = [];
+            querySnapshot.forEach((doc) => {
+                results.push(doc.data());
+            });
 
-    results.reverse().forEach(inq => {
-        html += `
-            <div style="background:#f9f9f9; padding:1.5rem; border-radius:10px; margin-bottom:1.5rem; border:1px solid #eee;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
-                    <span style="font-weight:bold; color:var(--primary-orange);">${inq.category === 'product' ? '제품문의' : '일반문의'}</span>
-                    <span style="font-size:0.85rem; color:#999;">접수일: ${inq.date}</span>
-                </div>
-                <h5 style="font-size:1.1rem; margin-bottom:0.5rem;">Q. ${inq.subject}</h5>
-                <p style="font-size:0.95rem; color:#666; white-space:pre-wrap; margin-bottom:1rem; background:white; padding:1rem; border-radius:5px;">${inq.message}</p>
-                
-                ${inq.answer ? `
-                    <div style="margin-top:1rem; padding:1rem; background:#fff3e0; border-left:4px solid var(--primary-orange); border-radius:5px;">
-                        <strong style="display:block; margin-bottom:0.5rem;">📢 관리자 답변</strong>
-                        <p style="font-size:0.95rem; line-height:1.6; white-space:pre-wrap;">${inq.answer}</p>
+            // 날짜순 정렬 (최신순)
+            results.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            let html = `<h4 style="margin-bottom:1.5rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;">총 ${results.length}건의 문의가 발견되었습니다.</h4>`;
+
+            results.forEach(inq => {
+                html += `
+                    <div style="background:#f9f9f9; padding:1.5rem; border-radius:10px; margin-bottom:1.5rem; border:1px solid #eee;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                            <span style="font-weight:bold; color:var(--primary-orange);">${inq.category === 'product' ? '제품문의' : '일반문의'}</span>
+                            <span style="font-size:0.85rem; color:#999;">접수: ${inq.date}</span>
+                        </div>
+                        <h5 style="font-size:1.1rem; margin-bottom:0.5rem;">Q. ${inq.subject}</h5>
+                        <p style="font-size:0.95rem; color:#666; white-space:pre-wrap; margin-bottom:1rem; background:white; padding:1rem; border-radius:5px;">${inq.message}</p>
+                        
+                        ${inq.answer ? `
+                            <div style="margin-top:1rem; padding:1rem; background:#fff3e0; border-left:4px solid var(--primary-orange); border-radius:5px;">
+                                <strong style="display:block; margin-bottom:0.5rem;">📢 관리자 답변</strong>
+                                <p style="font-size:0.95rem; line-height:1.6; white-space:pre-wrap;">${inq.answer}</p>
+                            </div>
+                        ` : `
+                            <div style="text-align:center; padding:0.5rem; border:1px dashed #ccc; border-radius:5px; font-size:0.9rem; color:#999;">
+                                답변 대기 중입니다.
+                            </div>
+                        `}
                     </div>
-                ` : `
-                    <div style="text-align:center; padding:0.5rem; border:1px dashed #ccc; border-radius:5px; font-size:0.9rem; color:#999;">
-                        답변 대기 중입니다.
-                    </div>
-                `}
-            </div>
-        `;
-    });
-
-    resultArea.innerHTML = html;
+                `;
+            });
+            resultArea.innerHTML = html;
+        })
+        .catch((error) => {
+            console.error("Error getting documents: ", error);
+            resultArea.innerHTML = '<p style="text-align:center; color:red;">조회 시 오류가 발생했습니다. 관리자에게 문의바랍니다.</p>';
+        });
 };
 
 // ==========================================

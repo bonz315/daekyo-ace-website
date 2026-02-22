@@ -3,7 +3,7 @@
 // ==========================================
 
 // Firebase 설정 (필요한 경우에만 사용하도록 체크)
-let db;
+let mainFirestore;
 if (typeof firebase !== 'undefined') {
     if (!firebase.apps.length) {
         const firebaseConfig = {
@@ -17,7 +17,7 @@ if (typeof firebase !== 'undefined') {
         };
         firebase.initializeApp(firebaseConfig);
     }
-    db = firebase.firestore();
+    mainFirestore = firebase.firestore();
 }
 
 // DOM이 로드되면 실행
@@ -99,10 +99,10 @@ function initProductFilters() {
 
             // 중분류 표시/숨김
             if (selectedCategory === 'wall-box') {
-                subCategoryDiv.style.display = 'flex';
+                if (subCategoryDiv) subCategoryDiv.style.display = 'flex';
             } else {
-                subCategoryDiv.style.display = 'none';
-                detailCategoryDiv.style.display = 'none';
+                if (subCategoryDiv) subCategoryDiv.style.display = 'none';
+                if (detailCategoryDiv) detailCategoryDiv.style.display = 'none';
             }
 
             // 중분류, 소분류 버튼 초기화
@@ -124,9 +124,9 @@ function initProductFilters() {
 
             // 소분류 표시
             if (selectedSubCategory === 'standard') {
-                detailCategoryDiv.style.display = 'flex';
+                if (detailCategoryDiv) detailCategoryDiv.style.display = 'flex';
             } else {
-                detailCategoryDiv.style.display = 'none';
+                if (detailCategoryDiv) detailCategoryDiv.style.display = 'none';
             }
 
             detailCategoryBtns.forEach(b => b.classList.remove('active'));
@@ -308,7 +308,12 @@ function initContactForm() {
                     console.log('Email Sent SUCCESS!');
 
                     // 2. Firebase Firestore에 저장 (진짜 DB)
-                    return db.collection("inquiries").doc(formData.id).set(formData);
+                    const firestoreToUse = mainFirestore || (typeof db !== 'undefined' ? db : null);
+                    if (firestoreToUse) {
+                        return firestoreToUse.collection("inquiries").doc(formData.id).set(formData);
+                    } else {
+                        throw new Error("Firestore is not initialized.");
+                    }
                 })
                 .then(function () {
                     // DB 저장 성공 시

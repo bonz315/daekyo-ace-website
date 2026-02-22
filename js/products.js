@@ -59,8 +59,8 @@ function renderMainCategories() {
             // 중분류 아이템 클릭 시와 겹치지 않게 처리
             if (e.target.closest('.sub-cat-item')) return;
 
-            // 모바일 환경 대응 (너비 768px 이하)
-            if (window.innerWidth <= 768) {
+            // 모바일 환경 대응 (너비 768px 이하) & 월패드 제외 (월패드는 바로 이동)
+            if (window.innerWidth <= 768 && category.id !== 'wallpad') {
                 if (!card.classList.contains('active')) {
                     // 다른 열려있는 카드 닫기
                     document.querySelectorAll('.category-card.active').forEach(c => {
@@ -72,11 +72,11 @@ function renderMainCategories() {
                 }
             }
 
-            // PC 환경이거나 모바일에서 이미 활성화된 경우 페이지 이동
+            // PC 환경이거나 모바일에서 이미 활성화된 경우 (또는 월패드인 경우) 페이지 이동
             selectMainCategory(category.id);
         };
 
-        const subCatsHtml = subCats.map(sub => `
+        const subCatsHtml = (category.id === 'wallpad') ? '' : subCats.map(sub => `
             <div class="sub-cat-item" onclick="event.stopPropagation(); selectMainAndSubCategory('${category.id}', '${sub.id}')">
                 ${sub.name}
             </div>
@@ -88,9 +88,11 @@ function renderMainCategories() {
             </div>
             <div class="card-content">
                 <h3 class="card-title">${category.name}</h3>
+                ${(category.id === 'wallpad') ? '' : `
                 <div class="sub-category-hover-list">
                     ${subCatsHtml}
                 </div>
+                `}
             </div>
         `;
 

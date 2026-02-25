@@ -91,7 +91,7 @@ let products = [
             color: '블랙',
             certification: 'KS C 8436'
         },
-        badge: null,
+        isRecommended: true,
         image: 'images/products/wall-switch-box.jpg'
     },
     {
@@ -109,6 +109,7 @@ let products = [
             certification: 'KS C 8436'
         },
         badge: null,
+        isRecommended: true,
         image: 'images/products/4ob.jpg'
     },
     {
@@ -126,6 +127,7 @@ let products = [
             certification: 'KS C 8436'
         },
         badge: null,
+        isRecommended: true,
         image: 'images/products/4ob-2g.png'
     },
     {

@@ -295,6 +295,7 @@ function saveProduct() {
     const productData = {
         id: id,
         name: document.getElementById('prodName').value,
+        isRecommended: document.getElementById('prodIsRecommended').checked, // 메인 노출 여부
         mainCategory: document.getElementById('prodMainCat').value,
         subCategory: document.getElementById('prodSubCat').value,
         image: imageUrls[0] || "", // 첫 번째 이미지를 대표 이미지로
@@ -363,7 +364,10 @@ function renderAdminProductList() {
             tr.innerHTML = `
                 <td>${p.id}</td>
                 <td><img src="${p.image}" class="admin-img-preview" style="width:50px; height:50px; object-fit:contain;"></td>
-                <td><strong>${p.name}</strong> ${isStatic ? '<small style="color:#999;">(고정)</small>' : ''}</td>
+                <td>
+                    <strong>${p.name}</strong> ${isStatic ? '<small style="color:#999;">(고정)</small>' : ''}
+                    ${p.isRecommended ? '<span style="background:var(--primary-orange); color:white; font-size:10px; padding:2px 5px; border-radius:4px; margin-left:5px;">주요제품</span>' : ''}
+                </td>
                 <td>${p.mainCategory} / ${p.subCategory || '-'}</td>
                 <td>${p.updatedAt ? p.updatedAt.split('T')[0] : '기본 데이터'}</td>
                 <td>
@@ -582,6 +586,7 @@ function openProductModal() {
     document.getElementById('modalTitle').textContent = "새 제품 등록";
     document.getElementById('productForm').reset();
     document.getElementById('editId').value = "";
+    document.getElementById('prodIsRecommended').checked = false; // 기본값 해제
 
     // 이미지 입력창 초기화
     const container = document.getElementById('imageInputContainer');
@@ -613,6 +618,7 @@ function editProduct(id) {
         document.getElementById('prodMainCat').value = p.mainCategory;
         updateSubSelect();
         document.getElementById('prodSubCat').value = p.subCategory;
+        document.getElementById('prodIsRecommended').checked = p.isRecommended || false; // 노출 여부 설정
 
         // 이미지 입력창 로드
         const container = document.getElementById('imageInputContainer');

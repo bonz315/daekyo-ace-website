@@ -21,9 +21,17 @@ if (typeof firebase !== 'undefined') {
 }
 
 // DOM이 로드되면 실행
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     // 모바일 메뉴 토글
     initMobileMenu();
+
+    // 홈 화면 주요 제품 슬라이더
+    if (document.getElementById('recommendedProductSlider')) {
+        if (typeof loadDBProducts === 'function') {
+            await loadDBProducts();
+        }
+        initRecommendedSlider();
+    }
 
     // 제품 필터링
     initProductFilters();
@@ -506,7 +514,101 @@ function formatPhoneNumber(phone) {
 }
 
 // ==========================================
-// 전역 함수 (HTML에서 호출 가능)
+// 홈 화면 주요 제품 슬라이더
 // ==========================================
+function initRecommendedSlider() {
+    const sliderWrapper = document.getElementById('recommendedProductSlider');
+    const prevBtn = document.getElementById('prevSlide');
+    const nextBtn = document.getElementById('nextSlide');
+    if (!sliderWrapper) return;
+
+    // 1. 주요 제품만 필터링 (isRecommended === true)
+    const featuredProducts = products.filter(p => p.isRecommended === true);
+
+    if (featuredProducts.length === 0) {
+        sliderWrapper.innerHTML = '<p style="text-align:center; width:100%; padding:2rem; color:#999;">등록된 주요 제품이 없습니다.</p>';
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        return;
+    }
+
+    // 2. 카드 렌더링
+    sliderWrapper.innerHTML = featuredProducts.map(p => `
+        <div class="slider-item">
+            <div class="card" onclick="location.href='product-detail.html?id=${p.id}'">
+                <div class="card-image" style="background-color: #ffffff; padding: 10px;">
+                    <img src="${p.image}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">${p.name}</h3>
+                    <p style="color: var(--dark-gray); margin-top: 0.5rem; font-size: 0.9rem;">
+                        ${p.cardSize || (p.specs ? p.specs.size : "")}
+                    </p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    // 3. 슬라이더 로직
+    let currentIndex = 0;
+    const itemsPerView = () => {
+        if (window.innerWidth <= 768) return 1;
+        if (window.innerWidth <= 1024) return 2;
+        return 3;
+    };
+
+    function updateSlider() {
+        const itemWidth = sliderWrapper.querySelector('.slider-item').offsetWidth;
+        const gap = 24; // var(--spacing-md) 값에 맞춰 조정
+        sliderWrapper.style.transform = `translateX(-${currentIndex * (itemWidth + gap)}px)`;
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            const maxIndex = featuredProducts.length - itemsPerView();
+            if (currentIndex < maxIndex) {
+                currentIndex++;
+            } else {
+                currentIndex = 0; // 루프
+            }
+            updateSlider();
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            const maxIndex = featuredProducts.length - itemsPerView();
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else {
+                currentIndex = maxIndex > 0 ? maxIndex : 0; // 루프
+            }
+            updateSlider();
+        });
+    }
+
+    // 자동 슬라이드 (5초마다)
+    let autoSlide = setInterval(() => {
+        if (nextBtn) nextBtn.click();
+    }, 5000);
+
+    // 사용자가 버튼 클릭 시 자동 슬라이드 일시 정지
+    [prevBtn, nextBtn].forEach(btn => {
+        if (btn) {
+            btn.addEventListener('mouseenter', () => clearInterval(autoSlide));
+            btn.addEventListener('mouseleave', () => {
+                autoSlide = setInterval(() => {
+                    if (nextBtn) nextBtn.click();
+                }, 5000);
+            });
+        }
+    });
+
+    // 윈도우 리사이즈 대응
+    window.addEventListener('resize', () => {
+        currentIndex = 0;
+        updateSlider();
+    });
+}
 window.smoothScroll = smoothScroll;
 window.scrollToTop = scrollToTop;

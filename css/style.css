@@ -613,6 +613,77 @@ nav a.active {
     transform: translateY(-8px) scale(1.0);
 }
 
+/* 주요 제품 슬라이더 스타일 */
+.slider-container {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 20px 0;
+}
+
+.slider-wrapper {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    gap: var(--spacing-md);
+}
+
+.slider-item {
+    flex: 0 0 calc(33.333% - (var(--spacing-md) * 2 / 3));
+    min-width: 300px;
+}
+
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+}
+
+.slider-btn:hover {
+    background: var(--primary-orange);
+    color: white;
+    border-color: var(--primary-orange);
+}
+
+.slider-btn.prev {
+    left: 10px;
+}
+
+.slider-btn.next {
+    right: 10px;
+}
+
+@media (max-width: 1024px) {
+    .slider-item {
+        flex: 0 0 calc(50% - (var(--spacing-md) / 2));
+    }
+}
+
+@media (max-width: 768px) {
+    .slider-item {
+        flex: 0 0 100%;
+    }
+
+    .slider-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+}
+
 /* 대분류 카드 전용 스타일 */
 .category-card {
     position: relative;

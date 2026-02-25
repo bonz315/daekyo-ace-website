@@ -126,45 +126,12 @@
                 <p>대교에이스의 대표 제품을 만나보세요</p>
             </div>
 
-            <div class="card-grid">
-                <div class="card" onclick="location.href='product-detail.html?id=1'" style="transition-delay: 0.1s;">
-                    <div class="card-image" style="background-color: #ffffff; padding: 10px;">
-                        <img src="images/products/wall-switch-box.jpg" alt="매입 스위치"
-                            style="width: 100%; height: 100%; object-fit: contain;">
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">매입 스위치 (CSW1SS)</h3>
-                        <p style="color: var(--dark-gray); margin-top: 0.5rem; font-size: 0.9rem;">
-                            규격: 62 X 102 X 85 (가로 X 세로 X 깊이)
-                        </p>
-                    </div>
+            <div class="slider-container">
+                <button class="slider-btn prev" id="prevSlide">❮</button>
+                <div class="slider-wrapper" id="recommendedProductSlider">
+                    <!-- JavaScript로 주요 제품 동적 생성 -->
                 </div>
-
-                <div class="card" onclick="location.href='product-detail.html?id=6'" style="transition-delay: 0.2s;">
-                    <div class="card-image" style="background-color: #ffffff; padding: 10px;">
-                        <img src="images/products/4ob.jpg" alt="매입 사각"
-                            style="width: 100%; height: 100%; object-fit: contain;">
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">매입 사각 (4OB)</h3>
-                        <p style="color: var(--dark-gray); margin-top: 0.5rem; font-size: 0.9rem;">
-                            규격: 102 X 102 X 85 (가로 X 세로 X 깊이)
-                        </p>
-                    </div>
-                </div>
-
-                <div class="card" onclick="location.href='product-detail.html?id=7'" style="transition-delay: 0.3s;">
-                    <div class="card-image" style="background-color: #ffffff; padding: 10px;">
-                        <img src="images/products/4ob-2g.png" alt="매입 연용"
-                            style="width: 100%; height: 100%; object-fit: contain;">
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-title">매입 연용 (4OB 2G)</h3>
-                        <p style="color: var(--dark-gray); margin-top: 0.5rem; font-size: 0.9rem;">
-                            규격: 102 X 102 X 85 (가로 X 세로 X 깊이)
-                        </p>
-                    </div>
-                </div>
+                <button class="slider-btn next" id="nextSlide">❯</button>
             </div>
 
             <div style="text-align: center; margin-top: 3rem;">
@@ -270,6 +237,12 @@
     <a href="admin.html" class="admin-access-btn" title="관리자 모드">
         <span>🔒</span><span class="admin-text">관리자</span>
     </a>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/products-data.js"></script>
 
     <!-- JavaScript -->
     <script src="js/main.js"></script>

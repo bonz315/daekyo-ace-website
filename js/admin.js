@@ -184,43 +184,45 @@ async function generatePdfThumbnail(pdfBase64) {
 // 1. 로그인 처리
 function initLogin() {
     const loginForm = document.getElementById('loginForm');
-    const loginSection = document.getElementById('loginSection');
+    const adminLogin = document.getElementById('adminLogin');
     const adminDashboard = document.getElementById('adminDashboard');
-    const loginError = document.getElementById('loginError');
-    const logoutBtn = document.getElementById('logoutBtn');
 
     // 이미 로그인되어 있는지 확인
     if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
-        loginSection.style.display = 'none';
-        adminDashboard.style.display = 'block';
+        if (adminLogin) adminLogin.style.display = 'none';
+        if (adminDashboard) adminDashboard.style.display = 'block';
         renderAdminProductList();
         renderAdminCategoryList();
         renderAdminResourceListSync();
         renderAdminInquiryListSync(); // 실시간 문의 목록
     }
 
-    loginForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const pwd = document.getElementById('adminPassword').value;
+    if (loginForm) {
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const pwd = document.getElementById('adminPassword').value;
 
-        if (pwd === ADMIN_PASSWORD) {
-            sessionStorage.setItem('isAdminLoggedIn', 'true');
-            loginSection.style.display = 'none';
-            adminDashboard.style.display = 'block';
-            loginError.style.display = 'none';
-            renderAdminProductList();
-            renderAdminResourceListSync();
-            renderAdminInquiryListSync();
-        } else {
-            loginError.style.display = 'block';
-        }
-    });
-
-    logoutBtn.addEventListener('click', function () {
-        sessionStorage.removeItem('isAdminLoggedIn');
-        window.location.reload();
-    });
+            if (pwd === ADMIN_PASSWORD) {
+                sessionStorage.setItem('isAdminLoggedIn', 'true');
+                if (adminLogin) adminLogin.style.display = 'none';
+                if (adminDashboard) adminDashboard.style.display = 'block';
+                renderAdminProductList();
+                renderAdminCategoryList();
+                renderAdminResourceListSync();
+                renderAdminInquiryListSync();
+            } else {
+                alert("비밀번호가 일치하지 않습니다.");
+            }
+        });
+    }
 }
+
+// 로그아웃
+function logout() {
+    sessionStorage.removeItem('isAdminLoggedIn');
+    window.location.reload();
+}
+window.logout = logout;
 
 // 로컬 스토리지 문의 내역 마이그레이션 (동기화 누락 방지)
 function migrateLocalInquiries() {
@@ -466,7 +468,7 @@ window.closeResourceModal = function () {
     document.getElementById('resourceModal').style.display = 'none';
 };
 
-window.editResource = function (id) {
+function editResource(id) {
     db.collection("resources").doc(id).get().then(doc => {
         if (!doc.exists) return;
         const res = doc.data();
@@ -490,7 +492,8 @@ window.editResource = function (id) {
 
         document.getElementById('resourceModal').style.display = 'block';
     });
-};
+}
+window.editResource = editResource;
 
 function deleteResource(id) {
     if (confirm("이 자료를 삭제하시겠습니까?")) {
@@ -605,46 +608,41 @@ function openProductModal() {
 function closeProductModal() {
     document.getElementById('productModal').style.display = 'none';
 }
+window.closeProductModal = closeProductModal;
 
 function editProduct(id) {
-    // 1. 고정 데이터에서 찾기
-    let p = products.find(item => item.id.toString() === id.toString());
-
-    // 2. DB에서 찾기 (고정 데이터에 없거나 DB 데이터를 선호할 경우)
-    db.collection("products").doc(id.toString()).get().then(doc => {
-        if (doc.exists) {
-            p = doc.data();
-        }
-
-        if (!p) return;
-
-        document.getElementById('modalTitle').textContent = p.isDB ? "제품 정보 수정" : "고정 제품 정보를 수정하여 DB에 저장";
+    db.collection("products").doc(id.toString()).get().then((doc) => {
+        if (!doc.exists) return;
+        const p = doc.data();
+        window.openProductModal(); // 초기화
+        document.getElementById('modalTitle').textContent = "제품 수정";
         document.getElementById('editId').value = p.id;
         document.getElementById('prodName').value = p.name;
+        document.getElementById('prodIsRecommended').checked = p.isRecommended || false;
         document.getElementById('prodMainCat').value = p.mainCategory;
         updateSubSelect();
-        document.getElementById('prodSubCat').value = p.subCategory;
-        document.getElementById('prodIsRecommended').checked = p.isRecommended || false; // 노출 여부 설정
+        document.getElementById('prodSubCat').value = p.subCategory || "";
+        document.getElementById('prodCardSize').value = p.cardSize || "";
+        document.getElementById('prodDesc').value = p.description || "";
 
-        // 이미지 입력창 로드
+        // 이미지 로딩
         const container = document.getElementById('imageInputContainer');
         container.innerHTML = "";
-        const images = p.images || (p.image ? [p.image] : []);
-        if (images.length === 0) {
-            addImageInput();
+        if (p.images && p.images.length > 0) {
+            p.images.forEach(imgUrl => window.addImageInput(imgUrl));
+        } else if (p.image) {
+            window.addImageInput(p.image);
         } else {
-            images.forEach(img => addImageInput(img));
+            window.addImageInput();
         }
 
-        document.getElementById('prodCardSize').value = p.cardSize || (p.specs ? p.specs.size : "");
-
-        // 상세 사양 필드 채우기
+        // 사양 로딩
         if (p.specs) {
             document.getElementById('specName').value = p.specs.name || "";
             document.getElementById('specSize').value = p.specs.size || "";
             document.getElementById('specMaterial').value = p.specs.material || "";
             document.getElementById('specColor').value = p.specs.color || "";
-            document.getElementById('specCert').value = p.specs.certification || "";
+            document.getElementById('specCert').value = p.specs.cert || "";
         } else {
             document.getElementById('specName').value = "";
             document.getElementById('specSize').value = "";

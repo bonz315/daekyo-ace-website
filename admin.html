@@ -24,174 +24,7 @@
 </head>
 
 <body>
-    <!-- 로그인 영역 -->
-    <div id="loginSection" class="admin-login-container">
-        <div class="login-card">
-            <div class="logo" style="margin-bottom: 2rem; justify-content: center;">
-                <img src="images/logo.png" alt="대교에이스 로고" style="height: 50px;">
-            </div>
-            <h2>시스템 관리자 로그인</h2>
-            <p>관리자 비밀번호를 입력해주세요.</p>
-            <form id="loginForm" style="margin-top: 2rem;">
-                <div class="form-group">
-                    <input type="password" id="adminPassword" placeholder="비밀번호 입력" required>
-                </div>
-                <button type="submit" class="btn" style="width: 100%; padding: 1rem;">로그인</button>
-                <p id="loginError" style="color: #ff4d4d; margin-top: 1rem; display: none;">비밀번호가 일치하지 않습니다.</p>
-            </form>
-        </div>
-    </div>
-
-    <!-- 관리자 대시보드 (로그인 후 표시) -->
-    <div id="adminDashboard" style="display: none;">
-        <header class="admin-header">
-            <div class="admin-container">
-                <div style="display: flex; align-items: center; gap: 2rem;">
-                    <a href="index.html" class="logo">
-                        <img src="images/logo.png" alt="로고" style="height: 35px;">
-                    </a>
-                    <h1 style="font-size: 1.2rem; color: var(--white); opacity: 0.8;">Admin Dashboard</h1>
-                </div>
-                <button id="logoutBtn" class="btn-outline" style="color: white; border-color: white;">로그아웃</button>
-            </div>
-        </header>
-
-        <main class="admin-container" style="padding: 2rem 0;">
-            <div class="admin-tabs">
-                <button class="admin-tab active" data-tab="product">제품 관리</button>
-                <button class="admin-tab" data-tab="category">카테고리 관리</button>
-                <button class="admin-tab" data-tab="resource">자료실 관리</button>
-                <button class="admin-tab" data-tab="inquiry">문의 관리</button>
-            </div>
-
-            <!-- 제품 관리 탭 -->
-            <div id="productTab" class="tab-content active">
-                <div class="admin-card">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2>제품 등록/수정</h2>
-                        <button class="btn" onclick="openProductModal()">+ 새 제품 등록</button>
-                    </div>
-
-                    <div class="admin-table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>이미지</th>
-                                    <th>제품명</th>
-                                    <th>카테고리</th>
-                                    <th>등록일</th>
-                                    <th>관리</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminProductList">
-                                <!-- 제품 리스트가 여기에 렌더링됨 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 카테고리 관리 탭 -->
-            <div id="categoryTab" class="tab-content">
-                <div class="admin-card">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2>대분류 관리</h2>
-                        <button class="btn" onclick="openMainCategoryModal()">+ 대분류 추가</button>
-                    </div>
-                    <div class="admin-table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>아이콘</th>
-                                    <th>카테고리명</th>
-                                    <th>색상</th>
-                                    <th>이미지</th>
-                                    <th>관리</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminMainCategoryList"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="admin-card" style="margin-top: 2rem;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2>중분류 관리</h2>
-                        <button class="btn" onclick="openSubCategoryModal()">+ 중분류 추가</button>
-                    </div>
-                    <div class="admin-table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>대분류</th>
-                                    <th>ID</th>
-                                    <th>중분류명</th>
-                                    <th>설명</th>
-                                    <th>관리</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminSubCategoryList"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div id="resourceTab" class="tab-content">
-                <div class="admin-card">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2>자료실 파일 등록/수정</h2>
-                        <button class="btn" onclick="openResourceModal()">+ 새 자료 등록</button>
-                    </div>
-
-                    <div class="admin-table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>유형</th>
-                                    <th>제목</th>
-                                    <th>상세설명</th>
-                                    <th>파일경로</th>
-                                    <th>관리</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminResourceList">
-                                <!-- 자료 리스트가 여기에 렌더링됨 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 문의 관리 탭 (추가) -->
-            <div id="inquiryTab" class="tab-content">
-                <div class="admin-card">
-                    <h2>고객 문의 내역</h2>
-                    <div class="admin-table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>이름(회사)</th>
-                                    <th>제목</th>
-                                    <th>상태</th>
-                                    <th>접수일</th>
-                                    <th>관리</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminInquiryList">
-                                <!-- 문의 리스트 렌더링 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+    <!-- 모든 모달을 최상위로 이동 (중첩 및 렌더링 문제 해결) -->
 
     <!-- 답변 등록 모달 -->
     <div id="answerModal" class="modal">
@@ -292,11 +125,13 @@
                             <label>상세 설명 (상세페이지 하단에 노출될 긴 설명)</label>
                             <textarea id="prodDesc" rows="5" placeholder="제품에 대한 추가 설명이나 특징을 자유롭게 적어주세요."></textarea>
                         </div>
+                    </div>
+                </div>
 
-                        <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
-                            <button type="button" class="btn-outline" onclick="closeProductModal()">취소</button>
-                            <button type="submit" class="btn">저장하기</button>
-                        </div>
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn-outline" onclick="closeProductModal()">취소</button>
+                    <button type="submit" class="btn">저장하기</button>
+                </div>
             </form>
         </div>
     </div>
@@ -445,6 +280,172 @@
                 </div>
             </form>
         </div>
+    </div>
+
+    <div id="adminLogin" class="admin-login-container">
+        <div class="login-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+            <h2>관리자 로그인</h2>
+            <p>(주)대교에이스 관리 시스템</p>
+            <form id="loginForm" style="margin-top: 2rem;">
+                <div class="form-group" style="text-align: left;">
+                    <label>비밀번호</label>
+                    <input type="password" id="adminPassword" required placeholder="비밀번호를 입력하세요.">
+                </div>
+                <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">로그인</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="adminDashboard" style="display: none;">
+        <header class="admin-header">
+            <div class="admin-container">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <a href="index.html" style="color: white; text-decoration: none; font-weight: 700;">대교에이스</a>
+                    <span style="opacity: 0.5;">|</span>
+                    <span style="font-weight: 500;">관리자 모드</span>
+                </div>
+                <button onclick="logout()" class="btn-outline"
+                    style="color: white; border-color: rgba(255,255,255,0.3); padding: 0.4rem 1rem;">로그아웃</button>
+            </div>
+        </header>
+
+        <div class="admin-tabs-section">
+            <div class="admin-container">
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="product">제품 관리</button>
+                    <button class="admin-tab" data-tab="category">카테고리 관리</button>
+                    <button class="admin-tab" data-tab="resource">자료실 관리</button>
+                    <button class="admin-tab" data-tab="inquiry">문의 관리</button>
+                </div>
+            </div>
+        </div>
+
+        <main class="admin-container" style="padding: 2rem 0;">
+            <div id="productTab" class="tab-content active">
+                <div class="admin-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2>전체 제품 목록</h2>
+                        <button class="btn" onclick="openProductModal()">+ 새 제품 등록</button>
+                    </div>
+                    <div class="admin-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>이미지</th>
+                                    <th>제품명</th>
+                                    <th>카테고리</th>
+                                    <th>최종수정일</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminProductList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카테고리 관리 탭 -->
+            <div id="categoryTab" class="tab-content">
+                <div class="admin-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2>대분류 관리</h2>
+                        <button class="btn" onclick="openMainCategoryModal()">+ 대분류 추가</button>
+                    </div>
+                    <div class="admin-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>아이콘</th>
+                                    <th>카테고리명</th>
+                                    <th>색상</th>
+                                    <th>이미지</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminMainCategoryList"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="admin-card" style="margin-top: 2rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2>중분류 관리</h2>
+                        <button class="btn" onclick="openSubCategoryModal()">+ 중분류 추가</button>
+                    </div>
+                    <div class="admin-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>대분류</th>
+                                    <th>ID</th>
+                                    <th>중분류명</th>
+                                    <th>설명</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminSubCategoryList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="resourceTab" class="tab-content">
+                <div class="admin-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2>자료실 파일 등록/수정</h2>
+                        <button class="btn" onclick="openResourceModal()">+ 새 자료 등록</button>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>유형</th>
+                                    <th>제목</th>
+                                    <th>상세설명</th>
+                                    <th>파일경로</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminResourceList">
+                                <!-- 자료 리스트가 여기에 렌더링됨 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 문의 관리 탭 (추가) -->
+            <div id="inquiryTab" class="tab-content">
+                <div class="admin-card">
+                    <h2>고객 문의 내역</h2>
+                    <div class="admin-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>이름(회사)</th>
+                                    <th>제목</th>
+                                    <th>상태</th>
+                                    <th>접수일</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminInquiryList">
+                                <!-- 문의 리스트 렌더링 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script src="js/products-data.js"></script>

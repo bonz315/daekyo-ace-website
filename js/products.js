@@ -7,6 +7,9 @@ let selectedDetailCategory = null;
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', async function () {
+    if (typeof loadCategories === 'function') {
+        await loadCategories();
+    }
     if (typeof loadDBProducts === 'function') {
         await loadDBProducts();
     }

@@ -22,6 +22,11 @@ if (typeof firebase !== 'undefined') {
 
 // DOM이 로드되면 실행
 document.addEventListener('DOMContentLoaded', async function () {
+    // 카테고리 로드
+    if (typeof loadCategories === 'function') {
+        await loadCategories();
+    }
+
     // 모바일 메뉴 토글
     initMobileMenu();
 

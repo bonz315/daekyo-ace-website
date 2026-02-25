@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initLogin();
     initTabs();
     initProductManagement();
+    initCategoryManagement();
     initResourceManagement();
     migrateLocalInquiries(); // 로컬에 남은 문의가 있다면 DB로 이동
     initDriveLinkConverter(); // 구글 드라이브 링크 변환 기능 추가
@@ -193,6 +194,7 @@ function initLogin() {
         loginSection.style.display = 'none';
         adminDashboard.style.display = 'block';
         renderAdminProductList();
+        renderAdminCategoryList();
         renderAdminResourceListSync();
         renderAdminInquiryListSync(); // 실시간 문의 목록
     }
@@ -252,6 +254,10 @@ function initTabs() {
             tab.classList.add('active');
             const targetContent = document.getElementById(tab.dataset.tab + 'Tab');
             if (targetContent) targetContent.classList.add('active');
+
+            if (tab.dataset.tab === 'category') {
+                renderAdminCategoryList();
+            }
         });
     });
 }
@@ -692,14 +698,270 @@ window.removeImageInput = function (btn) {
     }
 };
 
-// 창 바깥 클릭 시 모달 닫기
+// ==========================================
+// 5. 카테고리 관리 Logic
+// ==========================================
+function initCategoryManagement() {
+    const mainCatForm = document.getElementById('mainCategoryForm');
+    if (mainCatForm) {
+        mainCatForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            saveMainCategory();
+        });
+    }
+
+    const subCatForm = document.getElementById('subCategoryForm');
+    if (subCatForm) {
+        subCatForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            saveSubCategory();
+        });
+    }
+}
+
+// 대분류 리스트 렌더링
+function renderAdminCategoryList() {
+    const mainList = document.getElementById('adminMainCategoryList');
+    const subList = document.getElementById('adminSubCategoryList');
+    if (!mainList || !subList) return;
+
+    mainList.innerHTML = '<tr><td colspan="6" style="text-align:center;">로딩 중...</td></tr>';
+    subList.innerHTML = '<tr><td colspan="5" style="text-align:center;">로딩 중...</td></tr>';
+
+    // 카테고리 로드 후 렌더링
+    loadCategories().then(() => {
+        // 대분류 렌더링
+        mainList.innerHTML = '';
+        mainCategories.forEach((cat, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${cat.id}</td>
+                <td style="font-size:1.5rem;">${cat.icon || ''}</td>
+                <td><strong>${cat.name}</strong></td>
+                <td><span style="display:inline-block; width:20px; height:20px; background:${cat.color}; border-radius:4px; vertical-align:middle; margin-right:5px;"></span> ${cat.color || ''}</td>
+                <td>${cat.image ? '<img src="' + cat.image + '" style="height:30px;">' : '-'}</td>
+                <td>
+                    <button class="btn-edit btn-sm" onclick="editMainCategory(${index})">수정</button>
+                    <button class="btn-delete btn-sm" onclick="deleteMainCategory(${index})">삭제</button>
+                </td>
+            `;
+            mainList.appendChild(tr);
+        });
+
+        // 중분류 렌더링
+        subList.innerHTML = '';
+        Object.keys(subCategories).forEach(mainId => {
+            const mainCat = getMainCategory(mainId);
+            const mainName = mainCat ? mainCat.name : mainId;
+
+            subCategories[mainId].forEach((sub, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><small>${mainName}</small></td>
+                    <td>${sub.id}</td>
+                    <td><strong>${sub.name}</strong></td>
+                    <td>${sub.description || '-'}</td>
+                    <td>
+                        <button class="btn-edit btn-sm" onclick="editSubCategory('${mainId}', ${index})">수정</button>
+                        <button class="btn-delete btn-sm" onclick="deleteSubCategory('${mainId}', ${index})">삭제</button>
+                    </td>
+                `;
+                subList.appendChild(tr);
+            });
+        });
+
+        // 제품 등록용 대분류 선택창 업데이트
+        updateProductMainCatSelect();
+    });
+}
+
+function updateProductMainCatSelect() {
+    const mainSelect = document.getElementById('prodMainCat');
+    if (!mainSelect) return;
+
+    const currentVal = mainSelect.value;
+    mainSelect.innerHTML = '<option value="">대분류 선택</option>';
+    mainCategories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        mainSelect.appendChild(opt);
+    });
+    mainSelect.value = currentVal;
+}
+
+// 대분류 모달 제어
+window.openMainCategoryModal = function () {
+    document.getElementById('mainCatModalTitle').textContent = "대분류 추가";
+    document.getElementById('mainCategoryForm').reset();
+    document.getElementById('editMainCatIndex').value = "";
+    document.getElementById('mainCategoryModal').style.display = 'block';
+};
+
+window.closeMainCategoryModal = function () {
+    document.getElementById('mainCategoryModal').style.display = 'none';
+};
+
+window.editMainCategory = function (index) {
+    const cat = mainCategories[index];
+    if (!cat) return;
+
+    document.getElementById('mainCatModalTitle').textContent = "대분류 수정";
+    document.getElementById('editMainCatIndex').value = index;
+    document.getElementById('mainCatId').value = cat.id;
+    document.getElementById('mainCatName').value = cat.name;
+    document.getElementById('mainCatIcon').value = cat.icon || "";
+    document.getElementById('mainCatColor').value = cat.color || "";
+    document.getElementById('mainCatImage').value = cat.image || "";
+
+    document.getElementById('mainCategoryModal').style.display = 'block';
+};
+
+async function saveMainCategory() {
+    const index = document.getElementById('editMainCatIndex').value;
+    const catData = {
+        id: document.getElementById('mainCatId').value.trim(),
+        name: document.getElementById('mainCatName').value.trim(),
+        icon: document.getElementById('mainCatIcon').value.trim(),
+        color: document.getElementById('mainCatColor').value.trim(),
+        image: document.getElementById('mainCatImage').value.trim()
+    };
+
+    if (index === "") {
+        // 추가
+        mainCategories.push(catData);
+    } else {
+        // 수정
+        mainCategories[parseInt(index)] = catData;
+    }
+
+    try {
+        await db.collection("categories").doc("main").set({ list: mainCategories });
+        alert("대분류가 저장되었습니다.");
+        closeMainCategoryModal();
+        renderAdminCategoryList();
+    } catch (error) {
+        alert("저장 실패: " + error);
+    }
+}
+
+window.deleteMainCategory = async function (index) {
+    if (confirm("이 대분류를 삭제하시겠습니까? 연결된 중분류 데이터도 모두 삭제됩니다.")) {
+        const catId = mainCategories[index].id;
+        mainCategories.splice(index, 1);
+        delete subCategories[catId]; // 연결된 중분류 삭제
+
+        try {
+            await db.collection("categories").doc("main").set({ list: mainCategories });
+            await db.collection("categories").doc("sub").set({ data: subCategories });
+            alert("삭제되었습니다.");
+            renderAdminCategoryList();
+        } catch (error) {
+            alert("삭제 실패: " + error);
+        }
+    }
+};
+
+// 중분류 모달 제어
+window.openSubCategoryModal = function () {
+    const parentSelect = document.getElementById('subCatParentId');
+    parentSelect.innerHTML = '<option value="">대분류 선택</option>';
+    mainCategories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        parentSelect.appendChild(opt);
+    });
+
+    document.getElementById('subCatModalTitle').textContent = "중분류 추가";
+    document.getElementById('subCategoryForm').reset();
+    document.getElementById('editSubCatMainId').value = "";
+    document.getElementById('editSubCatIndex').value = "";
+    document.getElementById('subCategoryModal').style.display = 'block';
+};
+
+window.closeSubCategoryModal = function () {
+    document.getElementById('subCategoryModal').style.display = 'none';
+};
+
+window.editSubCategory = function (mainId, index) {
+    const sub = subCategories[mainId][index];
+    if (!sub) return;
+
+    openSubCategoryModal(); // Select 박스 선패치 위해 호출
+
+    document.getElementById('subCatModalTitle').textContent = "중분류 수정";
+    document.getElementById('editSubCatMainId').value = mainId;
+    document.getElementById('editSubCatIndex').value = index;
+
+    document.getElementById('subCatParentId').value = mainId;
+    document.getElementById('subCatId').value = sub.id;
+    document.getElementById('subCatName').value = sub.name;
+    document.getElementById('subCatDesc').value = sub.description || "";
+};
+
+async function saveSubCategory() {
+    const parentId = document.getElementById('subCatParentId').value;
+    const oldMainId = document.getElementById('editSubCatMainId').value;
+    const index = document.getElementById('editSubCatIndex').value;
+
+    const subData = {
+        id: document.getElementById('subCatId').value.trim(),
+        name: document.getElementById('subCatName').value.trim(),
+        description: document.getElementById('subCatDesc').value.trim()
+    };
+
+    if (!subCategories[parentId]) subCategories[parentId] = [];
+
+    if (index === "") {
+        // 추가
+        subCategories[parentId].push(subData);
+    } else {
+        // 수정
+        if (oldMainId !== parentId) {
+            // 대분류가 바뀐 경우 이전 위치에서 삭제 후 새 위치에 추가
+            subCategories[oldMainId].splice(parseInt(index), 1);
+            subCategories[parentId].push(subData);
+        } else {
+            subCategories[parentId][parseInt(index)] = subData;
+        }
+    }
+
+    try {
+        await db.collection("categories").doc("sub").set({ data: subCategories });
+        alert("중분류가 저장되었습니다.");
+        closeSubCategoryModal();
+        renderAdminCategoryList();
+    } catch (error) {
+        alert("저장 실패: " + error);
+    }
+}
+
+window.deleteSubCategory = async function (mainId, index) {
+    if (confirm("이 중분류를 삭제하시겠습니까?")) {
+        subCategories[mainId].splice(index, 1);
+        try {
+            await db.collection("categories").doc("sub").set({ data: subCategories });
+            alert("삭제되었습니다.");
+            renderAdminCategoryList();
+        } catch (error) {
+            alert("삭제 실패: " + error);
+        }
+    }
+};
+
 window.onclick = function (event) {
     const pModal = document.getElementById('productModal');
     const aModal = document.getElementById('answerModal');
     const cModal = document.getElementById('checkInquiryModal');
     const rModal = document.getElementById('resourceModal');
+    const mCatModal = document.getElementById('mainCategoryModal');
+    const sCatModal = document.getElementById('subCategoryModal');
+
     if (event.target == pModal) closeProductModal();
     if (event.target == aModal) closeAnswerModal();
     if (event.target == cModal) closeCheckModal();
     if (event.target == rModal) closeResourceModal();
+    if (event.target == mCatModal) closeMainCategoryModal();
+    if (event.target == sCatModal) closeSubCategoryModal();
 }

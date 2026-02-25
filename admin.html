@@ -59,6 +59,7 @@
         <main class="admin-container" style="padding: 2rem 0;">
             <div class="admin-tabs">
                 <button class="admin-tab active" data-tab="product">제품 관리</button>
+                <button class="admin-tab" data-tab="category">카테고리 관리</button>
                 <button class="admin-tab" data-tab="resource">자료실 관리</button>
                 <button class="admin-tab" data-tab="inquiry">문의 관리</button>
             </div>
@@ -92,7 +93,53 @@
                 </div>
             </div>
 
-            <!-- 자료실 관리 탭 -->
+            <!-- 카테고리 관리 탭 -->
+            <div id="categoryTab" class="tab-content">
+                <div class="admin-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2>대분류 관리</h2>
+                        <button class="btn" onclick="openMainCategoryModal()">+ 대분류 추가</button>
+                    </div>
+                    <div class="admin-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>아이콘</th>
+                                    <th>카테고리명</th>
+                                    <th>색상</th>
+                                    <th>이미지</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminMainCategoryList"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="admin-card" style="margin-top: 2rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2>중분류 관리</h2>
+                        <button class="btn" onclick="openSubCategoryModal()">+ 중분류 추가</button>
+                    </div>
+                    <div class="admin-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>대분류</th>
+                                    <th>ID</th>
+                                    <th>중분류명</th>
+                                    <th>설명</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminSubCategoryList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             <div id="resourceTab" class="tab-content">
                 <div class="admin-card">
                     <div
@@ -319,6 +366,81 @@
                 </div>
                 <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
                     <button type="button" class="btn-outline" onclick="closeResourceModal()">취소</button>
+                    <button type="submit" class="btn">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 대분류 등록/수정 모달 -->
+    <div id="mainCategoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="mainCatModalTitle">대분류 등록</h3>
+                <span class="close" onclick="closeMainCategoryModal()">&times;</span>
+            </div>
+            <form id="mainCategoryForm">
+                <input type="hidden" id="editMainCatIndex">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ID (영문/숫자) *</label>
+                        <input type="text" id="mainCatId" required placeholder="예: wall">
+                    </div>
+                    <div class="form-group">
+                        <label>카테고리명 *</label>
+                        <input type="text" id="mainCatName" required placeholder="예: 벽체(매입)">
+                    </div>
+                    <div class="form-group">
+                        <label>아이콘 (이모지 또는 폰트아이콘)</label>
+                        <input type="text" id="mainCatIcon" placeholder="예: 🧱">
+                    </div>
+                    <div class="form-group">
+                        <label>테마 색상 (HEX)</label>
+                        <input type="text" id="mainCatColor" placeholder="예: #FF8C00">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>대표 이미지 경로</label>
+                        <input type="text" id="mainCatImage" placeholder="예: images/category-wall.jpg">
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn-outline" onclick="closeMainCategoryModal()">취소</button>
+                    <button type="submit" class="btn">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 중분류 등록/수정 모달 -->
+    <div id="subCategoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="subCatModalTitle">중분류 등록</h3>
+                <span class="close" onclick="closeSubCategoryModal()">&times;</span>
+            </div>
+            <form id="subCategoryForm">
+                <input type="hidden" id="editSubCatMainId">
+                <input type="hidden" id="editSubCatIndex">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>대분류 선택 *</label>
+                        <select id="subCatParentId" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>ID (영문/숫자) *</label>
+                        <input type="text" id="subCatId" required placeholder="예: private">
+                    </div>
+                    <div class="form-group">
+                        <label>중분류명 *</label>
+                        <input type="text" id="subCatName" required placeholder="예: 민영">
+                    </div>
+                    <div class="form-group">
+                        <label>설명</label>
+                        <input type="text" id="subCatDesc" placeholder="예: 민영 벽체 제품">
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn-outline" onclick="closeSubCategoryModal()">취소</button>
                     <button type="submit" class="btn">저장하기</button>
                 </div>
             </form>

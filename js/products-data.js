@@ -1,7 +1,7 @@
 // 대교에이스 제품 데이터베이스
 
-// 대분류 카테고리
-const mainCategories = [
+// 대분류 카테고리 (초기값, DB 로딩 실패 시 대비)
+let mainCategories = [
     {
         id: 'wall',
         name: '벽체(매입)',
@@ -39,8 +39,8 @@ const mainCategories = [
     }
 ];
 
-// 중분류 카테고리 (대분류별)
-const subCategories = {
+// 중분류 카테고리 (초기값)
+let subCategories = {
     wall: [
         { id: 'private', name: '민영', description: '민영 벽체 제품' },
         { id: 'lh', name: 'LH', description: 'LH 벽체 제품' },
@@ -70,10 +70,36 @@ const subCategories = {
     ]
 };
 
-// 소분류 카테고리 (중분류별) - 필요시 추가
-const detailCategories = {
+// 소분류 카테고리 (초기값)
+let detailCategories = {
     // 향후 소분류가 필요한 경우 여기에 추가
 };
+
+/**
+ * DB에서 카테고리 정보를 가져옵니다.
+ */
+async function loadCategories() {
+    try {
+        const mainDoc = await db.collection("categories").doc("main").get();
+        if (mainDoc.exists) {
+            mainCategories = mainDoc.data().list || mainCategories;
+        }
+
+        const subDoc = await db.collection("categories").doc("sub").get();
+        if (subDoc.exists) {
+            subCategories = subDoc.data().data || subCategories;
+        }
+
+        const detailDoc = await db.collection("categories").doc("detail").get();
+        if (detailDoc.exists) {
+            detailCategories = detailDoc.data().data || detailCategories;
+        }
+
+        console.log("Categories loaded from DB");
+    } catch (error) {
+        console.error("Error loading categories:", error);
+    }
+}
 
 // 제품 데이터
 let products = [

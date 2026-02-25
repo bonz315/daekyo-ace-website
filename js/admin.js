@@ -699,7 +699,7 @@ window.removeImageInput = function (btn) {
 };
 
 // ==========================================
-// 5. 카테고리 관리 Logic
+// 6. 카테고리 관리 Logic
 // ==========================================
 function initCategoryManagement() {
     const mainCatForm = document.getElementById('mainCategoryForm');
@@ -729,50 +729,55 @@ function renderAdminCategoryList() {
     subList.innerHTML = '<tr><td colspan="5" style="text-align:center;">로딩 중...</td></tr>';
 
     // 카테고리 로드 후 렌더링
-    loadCategories().then(() => {
-        // 대분류 렌더링
-        mainList.innerHTML = '';
-        mainCategories.forEach((cat, index) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${cat.id}</td>
-                <td style="font-size:1.5rem;">${cat.icon || ''}</td>
-                <td><strong>${cat.name}</strong></td>
-                <td><span style="display:inline-block; width:20px; height:20px; background:${cat.color}; border-radius:4px; vertical-align:middle; margin-right:5px;"></span> ${cat.color || ''}</td>
-                <td>${cat.image ? '<img src="' + cat.image + '" style="height:30px;">' : '-'}</td>
-                <td>
-                    <button class="btn-edit btn-sm" onclick="editMainCategory(${index})">수정</button>
-                    <button class="btn-delete btn-sm" onclick="deleteMainCategory(${index})">삭제</button>
-                </td>
-            `;
-            mainList.appendChild(tr);
-        });
-
-        // 중분류 렌더링
-        subList.innerHTML = '';
-        Object.keys(subCategories).forEach(mainId => {
-            const mainCat = getMainCategory(mainId);
-            const mainName = mainCat ? mainCat.name : mainId;
-
-            subCategories[mainId].forEach((sub, index) => {
+    if (typeof loadCategories === 'function') {
+        loadCategories().then(() => {
+            // 대분류 렌더링
+            mainList.innerHTML = '';
+            mainCategories.forEach((cat, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><small>${mainName}</small></td>
-                    <td>${sub.id}</td>
-                    <td><strong>${sub.name}</strong></td>
-                    <td>${sub.description || '-'}</td>
+                    <td>${cat.id}</td>
+                    <td style="font-size:1.5rem;">${cat.icon || ''}</td>
+                    <td><strong>${cat.name}</strong></td>
+                    <td><span style="display:inline-block; width:20px; height:20px; background:${cat.color}; border-radius:4px; vertical-align:middle; margin-right:5px;"></span> ${cat.color || ''}</td>
+                    <td>${cat.image ? '<img src="' + cat.image + '" style="height:30px;">' : '-'}</td>
                     <td>
-                        <button class="btn-edit btn-sm" onclick="editSubCategory('${mainId}', ${index})">수정</button>
-                        <button class="btn-delete btn-sm" onclick="deleteSubCategory('${mainId}', ${index})">삭제</button>
+                        <button class="btn-edit btn-sm" onclick="editMainCategory(${index})">수정</button>
+                        <button class="btn-delete btn-sm" onclick="deleteMainCategory(${index})">삭제</button>
                     </td>
                 `;
-                subList.appendChild(tr);
+                mainList.appendChild(tr);
             });
-        });
 
-        // 제품 등록용 대분류 선택창 업데이트
-        updateProductMainCatSelect();
-    });
+            // 중분류 렌더링
+            subList.innerHTML = '';
+            Object.keys(subCategories).forEach(mainId => {
+                const mainCat = getMainCategory(mainId);
+                const mainName = mainCat ? mainCat.name : mainId;
+
+                subCategories[mainId].forEach((sub, index) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><small>${mainName}</small></td>
+                        <td>${sub.id}</td>
+                        <td><strong>${sub.name}</strong></td>
+                        <td>${sub.description || '-'}</td>
+                        <td>
+                            <button class="btn-edit btn-sm" onclick="editSubCategory('${mainId}', ${index})">수정</button>
+                            <button class="btn-delete btn-sm" onclick="deleteSubCategory('${mainId}', ${index})">삭제</button>
+                        </td>
+                    `;
+                    subList.appendChild(tr);
+                });
+            });
+
+            // 제품 등록용 대분류 선택창 업데이트
+            updateProductMainCatSelect();
+        }).catch(err => {
+            console.error("Error categories load/render:", err);
+            mainList.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">카테고리를 불러올 수 없습니다.</td></tr>';
+        });
+    }
 }
 
 function updateProductMainCatSelect() {
@@ -791,18 +796,18 @@ function updateProductMainCatSelect() {
 }
 
 // 대분류 모달 제어
-window.openMainCategoryModal = function () {
+function openMainCategoryModal() {
     document.getElementById('mainCatModalTitle').textContent = "대분류 추가";
     document.getElementById('mainCategoryForm').reset();
     document.getElementById('editMainCatIndex').value = "";
     document.getElementById('mainCategoryModal').style.display = 'block';
-};
+}
 
-window.closeMainCategoryModal = function () {
+function closeMainCategoryModal() {
     document.getElementById('mainCategoryModal').style.display = 'none';
-};
+}
 
-window.editMainCategory = function (index) {
+function editMainCategory(index) {
     const cat = mainCategories[index];
     if (!cat) return;
 
@@ -815,7 +820,7 @@ window.editMainCategory = function (index) {
     document.getElementById('mainCatImage').value = cat.image || "";
 
     document.getElementById('mainCategoryModal').style.display = 'block';
-};
+}
 
 async function saveMainCategory() {
     const index = document.getElementById('editMainCatIndex').value;
@@ -845,7 +850,7 @@ async function saveMainCategory() {
     }
 }
 
-window.deleteMainCategory = async function (index) {
+async function deleteMainCategory(index) {
     if (confirm("이 대분류를 삭제하시겠습니까? 연결된 중분류 데이터도 모두 삭제됩니다.")) {
         const catId = mainCategories[index].id;
         mainCategories.splice(index, 1);
@@ -860,10 +865,10 @@ window.deleteMainCategory = async function (index) {
             alert("삭제 실패: " + error);
         }
     }
-};
+}
 
 // 중분류 모달 제어
-window.openSubCategoryModal = function () {
+function openSubCategoryModal() {
     const parentSelect = document.getElementById('subCatParentId');
     parentSelect.innerHTML = '<option value="">대분류 선택</option>';
     mainCategories.forEach(cat => {
@@ -878,13 +883,14 @@ window.openSubCategoryModal = function () {
     document.getElementById('editSubCatMainId').value = "";
     document.getElementById('editSubCatIndex').value = "";
     document.getElementById('subCategoryModal').style.display = 'block';
-};
+}
 
-window.closeSubCategoryModal = function () {
+function closeSubCategoryModal() {
     document.getElementById('subCategoryModal').style.display = 'none';
-};
+}
 
-window.editSubCategory = function (mainId, index) {
+function editSubCategory(mainId, index) {
+    if (!subCategories[mainId]) return;
     const sub = subCategories[mainId][index];
     if (!sub) return;
 
@@ -898,7 +904,7 @@ window.editSubCategory = function (mainId, index) {
     document.getElementById('subCatId').value = sub.id;
     document.getElementById('subCatName').value = sub.name;
     document.getElementById('subCatDesc').value = sub.description || "";
-};
+}
 
 async function saveSubCategory() {
     const parentId = document.getElementById('subCatParentId').value;
@@ -920,7 +926,9 @@ async function saveSubCategory() {
         // 수정
         if (oldMainId !== parentId) {
             // 대분류가 바뀐 경우 이전 위치에서 삭제 후 새 위치에 추가
-            subCategories[oldMainId].splice(parseInt(index), 1);
+            if (subCategories[oldMainId]) {
+                subCategories[oldMainId].splice(parseInt(index), 1);
+            }
             subCategories[parentId].push(subData);
         } else {
             subCategories[parentId][parseInt(index)] = subData;
@@ -937,7 +945,7 @@ async function saveSubCategory() {
     }
 }
 
-window.deleteSubCategory = async function (mainId, index) {
+async function deleteSubCategory(mainId, index) {
     if (confirm("이 중분류를 삭제하시겠습니까?")) {
         subCategories[mainId].splice(index, 1);
         try {
@@ -948,20 +956,33 @@ window.deleteSubCategory = async function (mainId, index) {
             alert("삭제 실패: " + error);
         }
     }
-};
+}
 
+// 전역 공개 (HTML onclick 호출용)
+window.editMainCategory = editMainCategory;
+window.editSubCategory = editSubCategory;
+window.deleteMainCategory = deleteMainCategory;
+window.deleteSubCategory = deleteSubCategory;
+window.openMainCategoryModal = openMainCategoryModal;
+window.closeMainCategoryModal = closeMainCategoryModal;
+window.openSubCategoryModal = openSubCategoryModal;
+window.closeSubCategoryModal = closeSubCategoryModal;
+
+// 창 바깥 클릭 시 모달 닫기
 window.onclick = function (event) {
-    const pModal = document.getElementById('productModal');
-    const aModal = document.getElementById('answerModal');
-    const cModal = document.getElementById('checkInquiryModal');
-    const rModal = document.getElementById('resourceModal');
-    const mCatModal = document.getElementById('mainCategoryModal');
-    const sCatModal = document.getElementById('subCategoryModal');
+    const modals = {
+        productModal: closeProductModal,
+        answerModal: closeAnswerModal,
+        checkInquiryModal: closeCheckModal,
+        resourceModal: closeResourceModal,
+        mainCategoryModal: closeMainCategoryModal,
+        subCategoryModal: closeSubCategoryModal
+    };
 
-    if (event.target == pModal) closeProductModal();
-    if (event.target == aModal) closeAnswerModal();
-    if (event.target == cModal) closeCheckModal();
-    if (event.target == rModal) closeResourceModal();
-    if (event.target == mCatModal) closeMainCategoryModal();
-    if (event.target == sCatModal) closeSubCategoryModal();
+    for (const [id, closeFunc] of Object.entries(modals)) {
+        const modal = document.getElementById(id);
+        if (event.target === modal) {
+            closeFunc();
+        }
+    }
 }

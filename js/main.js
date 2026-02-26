@@ -87,6 +87,9 @@ function initMobileMenu() {
 // 제품 필터링
 // ==========================================
 function initProductFilters() {
+    // 동적 제품 페이지(products.html)에서는 products.js가 필터링을 담당하므로 main.js의 필터링은 중지
+    if (document.getElementById('productGrid')) return;
+
     const categoryBtns = document.querySelectorAll('.category-btn[data-category]');
     const subCategoryBtns = document.querySelectorAll('.category-btn[data-subcategory]');
     const detailCategoryBtns = document.querySelectorAll('.category-btn[data-detail]');

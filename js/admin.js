@@ -257,6 +257,9 @@ function initTabs() {
             const targetContent = document.getElementById(tab.dataset.tab + 'Tab');
             if (targetContent) targetContent.classList.add('active');
 
+            // 탭 변경 시 페이지 최상단으로 이동 (고정 헤더/탭 정렬 확인용)
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
             if (tab.dataset.tab === 'category') {
                 renderAdminCategoryList();
             }

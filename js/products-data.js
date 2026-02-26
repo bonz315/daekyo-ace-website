@@ -218,7 +218,14 @@ async function loadDBProducts() {
 function getProductsByCategory(mainCat, subCat = null, detailCat = null) {
     return products.filter(product => {
         if (mainCat && product.mainCategory !== mainCat) return false;
-        if (subCat && product.subCategory !== subCat) return false;
+
+        // 중분류 필터 (타입 캐스팅 고려)
+        if (subCat) {
+            const pSub = product.subCategory ? product.subCategory.toString() : "";
+            const sSub = subCat.toString();
+            if (pSub !== sSub) return false;
+        }
+
         if (detailCat && product.detailCategory !== detailCat) return false;
         return true;
     });

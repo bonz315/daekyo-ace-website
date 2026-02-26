@@ -196,24 +196,42 @@ function renderSubCategories(mainCategoryId) {
 
     // '전체' 버튼 추가
     const allBtn = document.createElement('button');
-    allBtn.className = 'category-btn' + (selectedSubCategory === null ? ' active' : '');
+    // selectedSubCategory가 null이거나 undefined일 때 활성화
+    const isAllActive = (selectedSubCategory === null || selectedSubCategory === undefined);
+    allBtn.className = 'category-btn' + (isAllActive ? ' active' : '');
     allBtn.textContent = '전체';
-    allBtn.onclick = () => selectSubCategory(null);
+    allBtn.onclick = (e) => {
+        e.preventDefault();
+        selectSubCategory(null);
+    };
     container.appendChild(allBtn);
 
     subCats.forEach(subCat => {
         const button = document.createElement('button');
-        button.className = 'category-btn' + (selectedSubCategory === subCat.id ? ' active' : '');
+        const isActive = (selectedSubCategory && selectedSubCategory.toString() === subCat.id.toString());
+        button.className = 'category-btn' + (isActive ? ' active' : '');
         button.textContent = subCat.name;
-        button.onclick = () => selectSubCategory(subCat.id);
+        button.onclick = (e) => {
+            e.preventDefault();
+            selectSubCategory(subCat.id);
+        };
         container.appendChild(button);
     });
 }
 
 // 중분류 선택
-function selectSubCategory(subCategoryId) {
+function selectSubCategory(subCategoryId, updateHistory = true) {
     selectedSubCategory = subCategoryId;
     selectedDetailCategory = null;
+
+    // URL 및 히스토리 업데이트
+    if (updateHistory) {
+        let newUrl = window.location.pathname + '?category=' + selectedMainCategory;
+        if (subCategoryId) {
+            newUrl += '&sub=' + subCategoryId;
+        }
+        window.history.pushState({ categoryId: selectedMainCategory, subId: subCategoryId }, '', newUrl);
+    }
 
     // 중분류 버튼 활성화 상태 업데이트를 위해 다시 렌더링
     renderSubCategories(selectedMainCategory);

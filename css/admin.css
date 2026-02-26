@@ -103,6 +103,30 @@ body {
     color: white;
 }
 
+/* 서브 탭 (필터용) */
+.admin-sub-tab {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #555;
+    border-radius: 20px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.admin-sub-tab:hover {
+    background-color: #f8f9fa;
+}
+
+.admin-sub-tab.active {
+    background-color: #34495e;
+    border-color: #34495e;
+    color: white;
+}
+
 /* 카드 */
 .admin-card {
     background: white;

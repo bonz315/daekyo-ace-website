@@ -325,9 +325,26 @@
             <div id="productTab" class="tab-content active">
                 <div class="admin-card">
                     <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <h2>전체 제품 목록</h2>
-                        <button class="btn" onclick="openProductModal()">+ 새 제품 등록</button>
+                        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
+                        <div>
+                            <h2 style="margin-bottom: 1.5rem;">제품 데이터 관리</h2>
+                            <!-- 제품 검색 및 필터 바 -->
+                            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1rem;">
+                                <div style="position: relative; flex: 1; min-width: 250px;">
+                                    <input type="text" id="adminProductSearch" placeholder="제품명 검색..."
+                                        style="width: 100%; padding: 0.6rem 1rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem;"
+                                        onkeyup="handleAdminProductSearch(event)">
+                                </div>
+                                <button class="btn" onclick="openProductModal()" style="white-space: nowrap;">+ 새 제품
+                                    등록</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 카테고리 필터 서브 탭 -->
+                    <div id="adminProductCategoryFilter" class="admin-sub-tabs"
+                        style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem;">
+                        <!-- JavaScript (renderAdminProductCategoryTabs) 로 동적 생성 -->
                     </div>
                     <div class="admin-table-container">
                         <table>

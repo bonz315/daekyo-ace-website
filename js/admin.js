@@ -6,6 +6,10 @@
 
 const ADMIN_PASSWORD = "daekyo123"; // 초기 비밀번호
 
+// 제품 관리 목록용 필터 상태
+let adminProductCategoryFilter = 'all';
+let adminProductSearchKeyword = '';
+
 document.addEventListener('DOMContentLoaded', function () {
     initLogin();
     initTabs();
@@ -193,6 +197,7 @@ function initLogin() {
         if (adminDashboard) adminDashboard.style.display = 'block';
         renderAdminProductList();
         renderAdminCategoryList();
+        renderAdminProductCategoryTabs(); // 카테고리 필터 탭 생성
         renderAdminResourceListSync();
         renderAdminInquiryListSync(); // 실시간 문의 목록
     }
@@ -208,6 +213,7 @@ function initLogin() {
                 if (adminDashboard) adminDashboard.style.display = 'block';
                 renderAdminProductList();
                 renderAdminCategoryList();
+                renderAdminProductCategoryTabs();
                 renderAdminResourceListSync();
                 renderAdminInquiryListSync();
             } else {
@@ -360,12 +366,33 @@ function renderAdminProductList() {
         });
 
         // 2. 고정 제품 데이터와 합치기 (ID 중복 시 DB 우선)
-        const combinedProducts = [...dbProducts];
+        let combinedProducts = [...dbProducts];
         products.forEach(p => {
             if (!dbProducts.find(dbP => dbP.id.toString() === p.id.toString())) {
                 combinedProducts.push(p);
             }
         });
+
+        // 3. 필터링 적용 (카테고리 및 검색어)
+        if (adminProductCategoryFilter !== 'all') {
+            combinedProducts = combinedProducts.filter(p => p.mainCategory === adminProductCategoryFilter);
+        }
+
+        if (adminProductSearchKeyword) {
+            const kw = adminProductSearchKeyword.toLowerCase();
+            combinedProducts = combinedProducts.filter(p =>
+                p.name.toLowerCase().includes(kw) ||
+                (p.id && p.id.toString().includes(kw))
+            );
+        }
+
+        // 최신순 정렬 (ID 기준 내림차순)
+        combinedProducts.sort((a, b) => b.id - a.id);
+
+        if (combinedProducts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#999;">검색 결과 또는 등록된 제품이 없습니다.</td></tr>';
+            return;
+        }
 
         // 제품 렌더링
         combinedProducts.forEach(p => {
@@ -772,8 +799,9 @@ function renderAdminCategoryList() {
                 });
             });
 
-            // 제품 등록용 대분류 선택창 업데이트
+            // 제품 등록용 대분류 선택창 및 필터 탭 업데이트
             updateProductMainCatSelect();
+            renderAdminProductCategoryTabs();
         }).catch(err => {
             console.error("Error categories load/render:", err);
             mainList.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">카테고리를 불러올 수 없습니다.</td></tr>';
@@ -958,6 +986,37 @@ async function deleteSubCategory(mainId, index) {
         }
     }
 }
+
+// 제품 검색 핸들러
+window.handleAdminProductSearch = function (event) {
+    adminProductSearchKeyword = event.target.value;
+    renderAdminProductList();
+};
+
+// 제품 카테고리 필터 서브탭 생성
+function renderAdminProductCategoryTabs() {
+    const container = document.getElementById('adminProductCategoryFilter');
+    if (!container) return;
+
+    // '전체' 버튼
+    let html = `<button class="admin-sub-tab ${adminProductCategoryFilter === 'all' ? 'active' : ''}" 
+                        onclick="setAdminProductCategoryFilter('all')">전체보기</button>`;
+
+    // 각 대분류별 버튼
+    mainCategories.forEach(cat => {
+        html += `<button class="admin-sub-tab ${adminProductCategoryFilter === cat.id ? 'active' : ''}" 
+                         onclick="setAdminProductCategoryFilter('${cat.id}')">${cat.name}</button>`;
+    });
+
+    container.innerHTML = html;
+}
+
+// 카테고리 필터 변경 핸들러
+window.setAdminProductCategoryFilter = function (categoryId) {
+    adminProductCategoryFilter = categoryId;
+    renderAdminProductCategoryTabs();
+    renderAdminProductList();
+};
 
 // 전역 공개 (HTML onclick 호출용)
 window.editMainCategory = editMainCategory;

@@ -220,11 +220,16 @@
             <div class="contact-grid">
                 <div class="map-container"
                     style="position: relative; border-radius: 12px; border: 1px solid var(--medium-gray); overflow: hidden; height: 100%; min-height: 400px; box-shadow: var(--shadow-md);">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3198.1845340576233!2d127.19949905460652!3d36.71812912672888!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357ad699d3d912f5%3A0x63ee32ed1448e140!2z7IS47KKF7Yq567OE7J6Q7LmY7IucIOyGjOygleuptCDshozsoJXsgrDri6jrj5nroZwgMjc!5e0!3m2!1sko!2skr!4v1768526874433!5m2!1sko!2skr"
-                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
+                    <!-- 카카오맵 iframe 연동 (대교에이스 주소) -->
+                    <iframe src="https://map.kakao.com/link/map/대교에이스,36.71812912672888,127.19949905460652" width="100%"
+                        height="100%" style="border:0;" allowfullscreen="" loading="lazy">
                     </iframe>
-                    <div style="position: absolute; bottom: 20px; right: 20px; z-index: 10;">
+                    <div style="position: absolute; bottom: 20px; right: 20px; z-index: 10; display: flex; gap: 10px;">
+                        <a href="https://map.kakao.com/link/to/대교에이스,36.71812912672888,127.19949905460652"
+                            target="_blank" class="btn"
+                            style="background-color: #FEE500; color: #000000; padding: 0.6rem 1.2rem; font-size: 0.9rem; box-shadow: var(--shadow-lg); border-radius: 8px; display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+                            <span style="font-weight: bold;">K</span> 카카오 길찾기
+                        </a>
                         <a href="https://naver.me/FY3F4pq7" target="_blank" class="btn"
                             style="background-color: #03C75A; color: white; padding: 0.6rem 1.2rem; font-size: 0.9rem; box-shadow: var(--shadow-lg); border-radius: 8px; display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
                             <span style="font-weight: bold;">N</span> 네이버 지도 열기

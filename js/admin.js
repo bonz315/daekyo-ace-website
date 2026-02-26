@@ -829,6 +829,14 @@ function openMainCategoryModal() {
     document.getElementById('mainCatModalTitle').textContent = "대분류 추가";
     document.getElementById('mainCategoryForm').reset();
     document.getElementById('editMainCatIndex').value = "";
+
+    // 이미지 프리뷰 초기화
+    const preview = document.getElementById('mainCatPreview');
+    if (preview) {
+        preview.style.display = 'none';
+        preview.querySelector('img').src = "";
+    }
+
     document.getElementById('mainCategoryModal').style.display = 'block';
 }
 
@@ -847,6 +855,15 @@ function editMainCategory(index) {
     document.getElementById('mainCatIcon').value = cat.icon || "";
     document.getElementById('mainCatColor').value = cat.color || "";
     document.getElementById('mainCatImage').value = cat.image || "";
+
+    // 이미지 프리뷰 설정
+    const preview = document.getElementById('mainCatPreview');
+    if (preview && cat.image) {
+        preview.style.display = 'block';
+        preview.querySelector('img').src = cat.image;
+    } else if (preview) {
+        preview.style.display = 'none';
+    }
 
     document.getElementById('mainCategoryModal').style.display = 'block';
 }

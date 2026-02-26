@@ -234,8 +234,19 @@
                         <input type="text" id="mainCatColor" placeholder="예: #FF8C00">
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
-                        <label>대표 이미지 경로</label>
-                        <input type="text" id="mainCatImage" placeholder="예: images/category-wall.jpg">
+                        <label>대표 이미지</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="mainCatImage" placeholder="이미지 경로 또는 직접 업로드" style="flex: 1;">
+                            <input type="file" id="mainCatFile" style="display: none;"
+                                onchange="handleImageSelect(this, 'mainCatImage', 'mainCatPreview')">
+                            <button type="button" class="btn-outline btn-sm"
+                                onclick="document.getElementById('mainCatFile').click()" style="white-space:nowrap;">파일
+                                선택</button>
+                        </div>
+                        <div id="mainCatPreview" style="margin-top: 10px; display: none;">
+                            <img src=""
+                                style="max-width: 100px; max-height: 100px; object-fit: contain; border: 1px solid #eee; border-radius: 4px;">
+                        </div>
                     </div>
                 </div>
                 <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">

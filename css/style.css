@@ -618,29 +618,25 @@ nav a.active {
     position: relative;
     max-width: 1200px;
     margin: 0 auto;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     padding: 20px 0;
+    -webkit-overflow-scrolling: touch;
+    /* 스크롤바 숨기기 */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    touch-action: pan-x;
+    /* 모바일에서 가로 스와이프 부드럽게 */
+}
+
+.slider-container::-webkit-scrollbar {
+    display: none;
 }
 
 .marquee-wrapper {
     display: flex;
     width: max-content;
     gap: var(--spacing-md);
-    animation: marquee 30s linear infinite;
-}
-
-.marquee-wrapper:hover {
-    animation-play-state: paused;
-}
-
-@keyframes marquee {
-    0% {
-        transform: translateX(0);
-    }
-
-    100% {
-        transform: translateX(calc(-50% - (var(--spacing-md) / 2)));
-    }
 }
 
 .slider-item {

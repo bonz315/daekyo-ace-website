@@ -554,9 +554,64 @@ function initRecommendedSlider() {
         </div>
     `;
 
-    // 3. 무한 롤링을 위해 아이템 목록을 2배로 생성
+    // 3. 무한 롤링 및 양방향 스와이프를 위해 아이템 목록을 3세트로 생성
     const itemsHTML = featuredProducts.map(createCardHTML).join('');
-    sliderWrapper.innerHTML = itemsHTML + itemsHTML;
+    sliderWrapper.innerHTML = itemsHTML + itemsHTML + itemsHTML;
+
+    // 4. JS 롤링 로직 + 네이티브 스와이프 지원
+    const container = document.querySelector('.slider-container');
+    let isHovered = false;
+    let isTouched = false;
+    // 모바일은 2(빠름), PC는 1(부드러움)
+    let scrollSpeed = window.innerWidth <= 768 ? 2 : 1;
+
+    // 사용자 상호작용 시 자동 스크롤 일시정지 (스와이프 방해 방지)
+    container.addEventListener('mouseenter', () => isHovered = true);
+    container.addEventListener('mouseleave', () => isHovered = false);
+    container.addEventListener('touchstart', () => isTouched = true, { passive: true });
+
+    // 터치가 끝난 뒤 사용자가 읽을 수 있도록 1.5초 후 롤링 재개
+    container.addEventListener('touchend', () => {
+        setTimeout(() => isTouched = false, 1500);
+    }, { passive: true });
+
+    function autoScroll() {
+        if (!isHovered && !isTouched) {
+            container.scrollLeft += scrollSpeed;
+        }
+
+        const items = container.querySelectorAll('.slider-item');
+        if (items.length > 0) {
+            // 아이템 1개의 실제 너비 + gap(1.5rem = 24px)
+            const singleItemWidth = items[0].offsetWidth + 24;
+            const singleSetWidth = singleItemWidth * featuredProducts.length;
+
+            // 오른쪽으로 계속 가서 2번째 세트를 온전히 넘어갔을 때 1세트 뒤로 점프
+            if (container.scrollLeft >= singleSetWidth * 2) {
+                container.scrollLeft -= singleSetWidth;
+            }
+            // 사용자가 왼쪽(뒤로)으로 스와이프해서 0 지점에 다가갔을 때 1세트 앞으로 점프
+            if (container.scrollLeft <= 0) {
+                container.scrollLeft += singleSetWidth;
+            }
+        }
+
+        requestAnimationFrame(autoScroll);
+    }
+
+    // 윈도우 리사이즈 대응
+    window.addEventListener('resize', () => {
+        scrollSpeed = window.innerWidth <= 768 ? 2 : 1;
+    });
+
+    // 시작 시 가운데(두 번째 세트)에서 출발해야 왼쪽으로도 부드럽게 스와이프 가능
+    setTimeout(() => {
+        const firstItem = container.querySelector('.slider-item');
+        if (firstItem) {
+            container.scrollLeft = (firstItem.offsetWidth + 24) * featuredProducts.length;
+        }
+        autoScroll();
+    }, 100);
 }
 window.smoothScroll = smoothScroll;
 window.scrollToTop = scrollToTop;

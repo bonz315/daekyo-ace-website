@@ -218,20 +218,33 @@
             </div>
 
             <div class="contact-grid">
-                <div class="map-container"
-                    style="position: relative; border-radius: 12px; border: 1px solid var(--medium-gray); overflow: hidden; height: 100%; min-height: 400px; box-shadow: var(--shadow-md);">
-                    <!-- 카카오맵 iframe 연동 (대교에이스 정확한 위치 및 깔끔한 모바일 뷰) -->
-                    <iframe src="https://m.map.kakao.com/actions/detailMapView?id=25921948&refService=biy" width="100%"
-                        height="100%" style="border:0;" allowfullscreen="" loading="lazy">
-                    </iframe>
-                    <div style="position: absolute; bottom: 20px; right: 20px; z-index: 10; display: flex; gap: 10px;">
-                        <a href="https://map.kakao.com/link/to/25921948" target="_blank" class="btn"
-                            style="background-color: #FEE500; color: #000000; padding: 0.6rem 1.2rem; font-size: 0.9rem; box-shadow: var(--shadow-lg); border-radius: 8px; display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
-                            <span style="font-weight: bold;">K</span> 카카오 길찾기
-                        </a>
+                <div class="map-container" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div
+                        style="border-radius: 12px; border: 1px solid var(--medium-gray); overflow: hidden; box-shadow: var(--shadow-md); width: 100%;">
+                        <!-- * 카카오맵 - 지도퍼가기 -->
+                        <!-- 1. 지도 노드 -->
+                        <div id="daumRoughmapContainer1772085780007"
+                            class="root_daum_roughmap root_daum_roughmap_landing" style="width: 100%;"></div>
+
+                        <!-- 2. 설치 스크립트 -->
+                        <script charset="UTF-8" class="daum_roughmap_loader_script"
+                            src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+
+                        <!-- 3. 실행 스크립트 -->
+                        <script charset="UTF-8">
+                            new daum.roughmap.Lander({
+                                "timestamp": "1772085780007",
+                                "key": "ieuyu4to5q7",
+                                "mapWidth": "100%",
+                                "mapHeight": "400"
+                            }).render();
+                        </script>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end;">
                         <a href="https://naver.me/FY3F4pq7" target="_blank" class="btn"
-                            style="background-color: #03C75A; color: white; padding: 0.6rem 1.2rem; font-size: 0.9rem; box-shadow: var(--shadow-lg); border-radius: 8px; display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
-                            <span style="font-weight: bold;">N</span> 네이버 지도 열기
+                            style="background-color: #03C75A; color: white; padding: 0.6rem 1.2rem; font-size: 0.9rem; box-shadow: var(--shadow-md); border-radius: 8px; display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+                            <span style="font-weight: bold;">N</span> 네이버 지도로 열기
                         </a>
                     </div>
                 </div>

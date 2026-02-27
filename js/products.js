@@ -414,6 +414,66 @@ function renderProducts() {
         return;
     }
 
+    // ─── 서포트&조절판(support-plate): 키워드별 그룹핑 ───
+    if (selectedSubCategory === 'support-plate') {
+        container.style.display = 'block';
+        container.style.gridTemplateColumns = '';
+        container.classList.remove('product-grid-private');
+
+        const mainCat = getMainCategory(selectedMainCategory);
+        const color = mainCat ? mainCat.color : '#4A90E2';
+
+        // 키워드 기반 그룹 분류 (순서 고정)
+        const groups = [
+            { key: '써포트', label: '써포트', products: [] },
+            { key: '조절판', label: '조절판', products: [] },
+            { key: '기타', label: '기타', products: [] }
+        ];
+
+        filteredProducts.forEach(p => {
+            const name = p.name || '';
+            if (name.includes('써포트') || name.includes('서포트')) {
+                groups[0].products.push(p);
+            } else if (name.includes('조절판')) {
+                groups[1].products.push(p);
+            } else {
+                groups[2].products.push(p);
+            }
+        });
+
+        // 제품이 있는 그룹만 렌더링
+        groups.forEach(group => {
+            if (group.products.length === 0) return;
+
+            // 그룹 헤더
+            const header = document.createElement('div');
+            header.style.cssText = `
+                margin: 1.5rem 0 0.8rem 0;
+                padding: 0.5rem 1rem;
+                background: ${color}15;
+                border-left: 4px solid ${color};
+                border-radius: 0 8px 8px 0;
+                font-weight: 700;
+                font-size: 1rem;
+                color: ${color};
+                letter-spacing: 0.03em;
+            `;
+            header.textContent = group.label;
+            container.appendChild(header);
+
+            // 그룹 내 제품 그리드
+            const groupGrid = document.createElement('div');
+            groupGrid.className = 'product-subgrid';
+            group.products.forEach(product => {
+                const card = createProductCard(product);
+                groupGrid.appendChild(card);
+            });
+            container.appendChild(groupGrid);
+        });
+
+        return;
+    }
+
     // ─── 기타 중분류: 기존 방식 ───
     container.style.display = 'grid';
 

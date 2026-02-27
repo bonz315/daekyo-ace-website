@@ -753,8 +753,8 @@ function renderAdminCategoryList() {
     const subList = document.getElementById('adminSubCategoryList');
     if (!mainList || !subList) return;
 
-    mainList.innerHTML = '<tr><td colspan="6" style="text-align:center;">로딩 중...</td></tr>';
-    subList.innerHTML = '<tr><td colspan="5" style="text-align:center;">로딩 중...</td></tr>';
+    mainList.innerHTML = '<tr><td colspan="7" style="text-align:center;">로딩 중...</td></tr>';
+    subList.innerHTML = '<tr><td colspan="6" style="text-align:center;">로딩 중...</td></tr>';
 
     // 카테고리 로드 후 렌더링
     if (typeof loadCategories === 'function') {
@@ -763,7 +763,13 @@ function renderAdminCategoryList() {
             mainList.innerHTML = '';
             mainCategories.forEach((cat, index) => {
                 const tr = document.createElement('tr');
+                const isFirst = index === 0;
+                const isLast = index === mainCategories.length - 1;
                 tr.innerHTML = `
+                    <td style="white-space:nowrap;">
+                        <button class="btn-sm" onclick="moveMainCategory(${index}, -1)" ${isFirst ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="위로">▲</button>
+                        <button class="btn-sm" onclick="moveMainCategory(${index}, 1)" ${isLast ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="아래로">▼</button>
+                    </td>
                     <td>${cat.id}</td>
                     <td style="font-size:1.5rem;">${cat.icon || ''}</td>
                     <td><strong>${cat.name}</strong></td>
@@ -776,7 +782,6 @@ function renderAdminCategoryList() {
                 `;
                 mainList.appendChild(tr);
             });
-
             // 중분류 렌더링
             subList.innerHTML = '';
             Object.keys(subCategories).forEach(mainId => {
@@ -784,8 +789,14 @@ function renderAdminCategoryList() {
                 const mainName = mainCat ? mainCat.name : mainId;
 
                 subCategories[mainId].forEach((sub, index) => {
+                    const isFirst = index === 0;
+                    const isLast = index === subCategories[mainId].length - 1;
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
+                        <td style="white-space:nowrap;">
+                            <button class="btn-sm" onclick="moveSubCategory('${mainId}', ${index}, -1)" ${isFirst ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="위로">▲</button>
+                            <button class="btn-sm" onclick="moveSubCategory('${mainId}', ${index}, 1)" ${isLast ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="아래로">▼</button>
+                        </td>
                         <td><small>${mainName}</small></td>
                         <td>${sub.id}</td>
                         <td><strong>${sub.name}</strong></td>
@@ -804,7 +815,7 @@ function renderAdminCategoryList() {
             renderAdminProductCategoryTabs();
         }).catch(err => {
             console.error("Error categories load/render:", err);
-            mainList.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">카테고리를 불러올 수 없습니다.</td></tr>';
+            mainList.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">카테고리를 불러올 수 없습니다.</td></tr>';
         });
     }
 }
@@ -1044,6 +1055,45 @@ window.openMainCategoryModal = openMainCategoryModal;
 window.closeMainCategoryModal = closeMainCategoryModal;
 window.openSubCategoryModal = openSubCategoryModal;
 window.closeSubCategoryModal = closeSubCategoryModal;
+
+// 대분류 순서 이동
+window.moveMainCategory = async function (index, direction) {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= mainCategories.length) return;
+
+    // 배열 내 위치 스왑
+    const temp = mainCategories[index];
+    mainCategories[index] = mainCategories[newIndex];
+    mainCategories[newIndex] = temp;
+
+    try {
+        await db.collection("categories").doc("main").set({ list: mainCategories });
+        renderAdminCategoryList();
+    } catch (error) {
+        alert("순서 변경 실패: " + error);
+    }
+};
+
+// 중분류 순서 이동
+window.moveSubCategory = async function (mainId, index, direction) {
+    const subs = subCategories[mainId];
+    if (!subs) return;
+
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= subs.length) return;
+
+    // 배열 내 위치 스왑
+    const temp = subs[index];
+    subs[index] = subs[newIndex];
+    subs[newIndex] = temp;
+
+    try {
+        await db.collection("categories").doc("sub").set({ data: subCategories });
+        renderAdminCategoryList();
+    } catch (error) {
+        alert("순서 변경 실패: " + error);
+    }
+};
 
 // 창 바깥 클릭 시 모달 닫기
 window.onclick = function (event) {

@@ -582,6 +582,19 @@ nav a.active {
     align-items: start;
 }
 
+/* 민영 전용: PC 4열 */
+.product-grid-private {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* 통합박스 그룹 내 서브 그리드 */
+.product-subgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: 0.5rem;
+}
+
 .card {
     background-color: var(--white);
     border-radius: 12px;
@@ -760,7 +773,7 @@ nav a.active {
 }
 
 .card-title {
-    font-size: 1.25rem;
+    font-size: 15px;
     font-weight: 600;
     margin-bottom: var(--spacing-xs);
     color: var(--text-dark);
@@ -1414,6 +1427,17 @@ footer {
 
     .card-title {
         font-size: 1rem;
+    }
+
+    /* 민영 모바일: 4열 → 2열 */
+    .product-grid-private {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* 통합박스 서브 그리드 모바일: 2열 */
+    .product-subgrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
     }
 
     .card-description {

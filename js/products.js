@@ -364,6 +364,7 @@ function renderProducts() {
     if (selectedSubCategory === 'integrated') {
         container.style.display = 'block';
         container.style.gridTemplateColumns = '';
+        container.classList.remove('product-grid-private');
 
         // 접두어 추출: 영문자 + 연속된 숫자 1자리 (예: CSW3, CSW4, CSW5)
         function getPrefix(name) {
@@ -400,14 +401,9 @@ function renderProducts() {
             header.textContent = prefix;
             container.appendChild(header);
 
-            // 그룹 내 제품 그리드
+            // 그룹 내 제품 그리드 (CSS 클래스로 반응형 처리)
             const groupGrid = document.createElement('div');
-            groupGrid.style.cssText = `
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-                gap: var(--spacing-md);
-                margin-bottom: 0.5rem;
-            `;
+            groupGrid.className = 'product-subgrid';
             products.forEach(product => {
                 const card = createProductCard(product);
                 groupGrid.appendChild(card);
@@ -421,11 +417,11 @@ function renderProducts() {
     // ─── 기타 중분류: 기존 방식 ───
     container.style.display = 'grid';
 
-    // 민영(private): 4열 고정
+    // 민영(private): CSS 클래스로 4열 (모바일에선 미디어쿼리로 2열 전환)
     if (selectedSubCategory === 'private') {
-        container.style.gridTemplateColumns = 'repeat(4, 1fr)';
+        container.classList.add('product-grid-private');
     } else {
-        container.style.gridTemplateColumns = '';
+        container.classList.remove('product-grid-private');
     }
 
     filteredProducts.forEach(product => {

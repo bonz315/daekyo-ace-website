@@ -389,16 +389,43 @@ function renderAdminProductList() {
             );
         }
 
-        // 최신순 정렬 (ID 기준 내림차순)
-        combinedProducts.sort((a, b) => b.id - a.id);
+        // 대분류별로 그룹화하여 정렬
+        // 먼저 대분류 순서 기준으로 정렬, 같은 대분류 내에서는 ID 내림차순
+        const mainCatOrder = {};
+        mainCategories.forEach((cat, idx) => { mainCatOrder[cat.id] = idx; });
+        combinedProducts.sort((a, b) => {
+            const orderA = mainCatOrder[a.mainCategory] !== undefined ? mainCatOrder[a.mainCategory] : 999;
+            const orderB = mainCatOrder[b.mainCategory] !== undefined ? mainCatOrder[b.mainCategory] : 999;
+            if (orderA !== orderB) return orderA - orderB;
+            return b.id - a.id;
+        });
 
         if (combinedProducts.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#999;">검색 결과 또는 등록된 제품이 없습니다.</td></tr>';
             return;
         }
 
-        // 제품 렌더링
+        // 제품 렌더링 (대분류별 그룹 헤더 포함)
+        let lastMainCat = null;
         combinedProducts.forEach(p => {
+            // 전체보기 모드이고 검색어가 없을 때 그룹 헤더 삽입
+            if (adminProductCategoryFilter === 'all' && !adminProductSearchKeyword && p.mainCategory !== lastMainCat) {
+                lastMainCat = p.mainCategory;
+                const mainCat = getMainCategory(p.mainCategory);
+                const mainName = mainCat ? mainCat.name : p.mainCategory;
+                const mainColor = mainCat ? mainCat.color : '#888';
+                const groupCount = combinedProducts.filter(pp => pp.mainCategory === p.mainCategory).length;
+
+                const headerTr = document.createElement('tr');
+                headerTr.innerHTML = `
+                    <td colspan="6" style="background: ${mainColor}15; border-left: 4px solid ${mainColor}; padding: 0.7rem 1rem; font-weight: 700; color: ${mainColor};">
+                        ${mainCat ? mainCat.icon || '' : ''} ${mainName}
+                        <span style="font-weight:400; color:#999; margin-left:8px; font-size:0.85rem;">(${groupCount}개)</span>
+                    </td>
+                `;
+                tbody.appendChild(headerTr);
+            }
+
             const tr = document.createElement('tr');
             const isStatic = !p.isDB;
 

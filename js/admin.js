@@ -13,6 +13,9 @@ let adminProductSearchKeyword = '';
 // 중분류 관리용 대분류 필터 상태
 let adminSubCatFilter = 'all';
 
+// 자료실 관리용 유형 필터 상태
+let adminResourceFilter = 'all';
+
 document.addEventListener('DOMContentLoaded', function () {
     initLogin();
     initTabs();
@@ -389,14 +392,25 @@ function renderAdminProductList() {
             );
         }
 
-        // 대분류별로 그룹화하여 정렬
-        // 먼저 대분류 순서 기준으로 정렬, 같은 대분류 내에서는 ID 내림차순
+        // 대분류/중분류별로 그룹화하여 정렬
         const mainCatOrder = {};
         mainCategories.forEach((cat, idx) => { mainCatOrder[cat.id] = idx; });
+
+        // 중분류 순서 맵 생성
+        const subCatOrder = {};
+        Object.keys(subCategories).forEach(mainId => {
+            subCategories[mainId].forEach((sub, idx) => {
+                subCatOrder[mainId + '/' + sub.id] = idx;
+            });
+        });
+
         combinedProducts.sort((a, b) => {
             const orderA = mainCatOrder[a.mainCategory] !== undefined ? mainCatOrder[a.mainCategory] : 999;
             const orderB = mainCatOrder[b.mainCategory] !== undefined ? mainCatOrder[b.mainCategory] : 999;
             if (orderA !== orderB) return orderA - orderB;
+            const subOrderA = subCatOrder[a.mainCategory + '/' + a.subCategory] !== undefined ? subCatOrder[a.mainCategory + '/' + a.subCategory] : 999;
+            const subOrderB = subCatOrder[b.mainCategory + '/' + b.subCategory] !== undefined ? subCatOrder[b.mainCategory + '/' + b.subCategory] : 999;
+            if (subOrderA !== subOrderB) return subOrderA - subOrderB;
             return b.id - a.id;
         });
 
@@ -405,12 +419,15 @@ function renderAdminProductList() {
             return;
         }
 
-        // 제품 렌더링 (대분류별 그룹 헤더 포함)
+        // 제품 렌더링 (대분류/중분류별 그룹 헤더 포함)
+        const showHeaders = !adminProductSearchKeyword;
         let lastMainCat = null;
+        let lastSubCat = null;
         combinedProducts.forEach(p => {
-            // 전체보기 모드이고 검색어가 없을 때 그룹 헤더 삽입
-            if (adminProductCategoryFilter === 'all' && !adminProductSearchKeyword && p.mainCategory !== lastMainCat) {
+            // 대분류 헤더
+            if (showHeaders && adminProductCategoryFilter === 'all' && p.mainCategory !== lastMainCat) {
                 lastMainCat = p.mainCategory;
+                lastSubCat = null; // 대분류 바뀌면 중분류 리셋
                 const mainCat = getMainCategory(p.mainCategory);
                 const mainName = mainCat ? mainCat.name : p.mainCategory;
                 const mainColor = mainCat ? mainCat.color : '#888';
@@ -424,6 +441,27 @@ function renderAdminProductList() {
                     </td>
                 `;
                 tbody.appendChild(headerTr);
+            }
+
+            // 중분류 헤더
+            const subKey = (p.mainCategory || '') + '/' + (p.subCategory || '');
+            if (showHeaders && p.subCategory && subKey !== lastSubCat) {
+                lastSubCat = subKey;
+                const subs = getSubCategories(p.mainCategory);
+                const subCat = subs.find(s => s.id && s.id.toString() === (p.subCategory || '').toString());
+                const subName = subCat ? subCat.name : p.subCategory || '';
+                const mainCat = getMainCategory(p.mainCategory);
+                const mainColor = mainCat ? mainCat.color : '#888';
+                const subCount = combinedProducts.filter(pp => pp.mainCategory === p.mainCategory && pp.subCategory === p.subCategory).length;
+
+                const subHeaderTr = document.createElement('tr');
+                subHeaderTr.innerHTML = `
+                    <td colspan="6" style="background: #f9f9f9; border-left: 3px solid ${mainColor}88; padding: 0.5rem 1rem 0.5rem 2rem; color: #555; font-size: 0.9rem;">
+                        ┗ ${subName}
+                        <span style="color:#aaa; margin-left:6px; font-size:0.8rem;">(${subCount}개)</span>
+                    </td>
+                `;
+                tbody.appendChild(subHeaderTr);
             }
 
             const tr = document.createElement('tr');
@@ -472,13 +510,57 @@ function renderAdminResourceListSync() {
     const tbody = document.getElementById('adminResourceList');
     if (!tbody) return;
 
+    // 유형 필터 탭 렌더링
+    renderAdminResourceFilterTabs();
+
     db.collection("resources").onSnapshot((querySnapshot) => {
         tbody.innerHTML = '';
 
-        // 기본 데이터(resources-data.js)와 합쳐서 보여주거나 DB 데이터만 보여줌
-        // 여기서는 DB 데이터(커스텀 자료) 위주로 표시
+        const allResources = [];
         querySnapshot.forEach((doc) => {
-            const res = doc.data();
+            allResources.push(doc.data());
+        });
+
+        // 필터링 적용
+        let filtered = allResources;
+        if (adminResourceFilter !== 'all') {
+            filtered = filtered.filter(r => r.type === adminResourceFilter);
+        }
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem; color:#999;">등록된 자료가 없습니다.</td></tr>';
+            return;
+        }
+
+        // 유형별로 정렬
+        const typeOrder = Object.keys(resourceTypes);
+        filtered.sort((a, b) => {
+            const oA = typeOrder.indexOf(a.type);
+            const oB = typeOrder.indexOf(b.type);
+            return (oA === -1 ? 999 : oA) - (oB === -1 ? 999 : oB);
+        });
+
+        // 그룹 헤더 + 렌더링
+        const typeColors = { catalog: '#2196F3', tax: '#4CAF50', cert: '#FF9800', patent: '#9C27B0' };
+        let lastType = null;
+        filtered.forEach(res => {
+            // 전체보기 모드일 때 그룹 헤더
+            if (adminResourceFilter === 'all' && res.type !== lastType) {
+                lastType = res.type;
+                const typeName = resourceTypes[res.type] || res.type;
+                const color = typeColors[res.type] || '#888';
+                const count = filtered.filter(r => r.type === res.type).length;
+
+                const headerTr = document.createElement('tr');
+                headerTr.innerHTML = `
+                    <td colspan="5" style="background: ${color}15; border-left: 4px solid ${color}; padding: 0.7rem 1rem; font-weight: 700; color: ${color};">
+                        ${typeName}
+                        <span style="font-weight:400; color:#999; margin-left:8px; font-size:0.85rem;">(${count}개)</span>
+                    </td>
+                `;
+                tbody.appendChild(headerTr);
+            }
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${resourceTypes[res.type] || res.type}</td>
@@ -494,6 +576,28 @@ function renderAdminResourceListSync() {
         });
     });
 }
+
+function renderAdminResourceFilterTabs() {
+    const container = document.getElementById('adminResourceFilterTabs');
+    if (!container) return;
+
+    const typeColors = { catalog: '#2196F3', tax: '#4CAF50', cert: '#FF9800', patent: '#9C27B0' };
+    let html = `<button class="admin-sub-tab ${adminResourceFilter === 'all' ? 'active' : ''}" 
+                        onclick="setAdminResourceFilter('all')">전체보기</button>`;
+
+    Object.keys(resourceTypes).forEach(key => {
+        html += `<button class="admin-sub-tab ${adminResourceFilter === key ? 'active' : ''}" 
+                         onclick="setAdminResourceFilter('${key}')">${resourceTypes[key]}</button>`;
+    });
+
+    container.innerHTML = html;
+}
+
+window.setAdminResourceFilter = function (type) {
+    adminResourceFilter = type;
+    renderAdminResourceFilterTabs();
+    renderAdminResourceListSync();
+};
 
 function saveResource() {
     const id = document.getElementById('editResId').value || 'RES' + Date.now();

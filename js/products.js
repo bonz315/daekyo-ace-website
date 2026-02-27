@@ -357,15 +357,75 @@ function renderProducts() {
         return;
     }
 
-    container.style.display = 'grid';
     noProductsMsg.style.display = 'none';
     container.innerHTML = '';
 
-    // 민영(private) 중분류에서만 4열 고정 → 제품 4개가 한 줄에 표시
+    // ─── 통합박스(integrated): 제품명 접두어별 그룹핑 ───
+    if (selectedSubCategory === 'integrated') {
+        container.style.display = 'block';
+        container.style.gridTemplateColumns = '';
+
+        // 접두어 추출: 영문자 + 연속된 숫자 1자리 (예: CSW3, CSW4, CSW5)
+        function getPrefix(name) {
+            const match = name.match(/^([A-Za-z가-힣]+\d)/);
+            return match ? match[1].toUpperCase() : name.charAt(0).toUpperCase();
+        }
+
+        // 그룹 맵 생성 (순서 유지)
+        const groupMap = new Map();
+        filteredProducts.forEach(p => {
+            const prefix = getPrefix(p.name);
+            if (!groupMap.has(prefix)) groupMap.set(prefix, []);
+            groupMap.get(prefix).push(p);
+        });
+
+        // 그룹별 렌더링
+        const mainCat = getMainCategory(selectedMainCategory);
+        const color = mainCat ? mainCat.color : '#FF8C00';
+
+        groupMap.forEach((products, prefix) => {
+            // 그룹 헤더
+            const header = document.createElement('div');
+            header.style.cssText = `
+                margin: 1.5rem 0 0.8rem 0;
+                padding: 0.5rem 1rem;
+                background: ${color}15;
+                border-left: 4px solid ${color};
+                border-radius: 0 8px 8px 0;
+                font-weight: 700;
+                font-size: 1rem;
+                color: ${color};
+                letter-spacing: 0.03em;
+            `;
+            header.textContent = prefix;
+            container.appendChild(header);
+
+            // 그룹 내 제품 그리드
+            const groupGrid = document.createElement('div');
+            groupGrid.style.cssText = `
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: var(--spacing-md);
+                margin-bottom: 0.5rem;
+            `;
+            products.forEach(product => {
+                const card = createProductCard(product);
+                groupGrid.appendChild(card);
+            });
+            container.appendChild(groupGrid);
+        });
+
+        return;
+    }
+
+    // ─── 기타 중분류: 기존 방식 ───
+    container.style.display = 'grid';
+
+    // 민영(private): 4열 고정
     if (selectedSubCategory === 'private') {
         container.style.gridTemplateColumns = 'repeat(4, 1fr)';
     } else {
-        container.style.gridTemplateColumns = ''; // 다른 곳은 기본 CSS (auto-fill, minmax 300px)
+        container.style.gridTemplateColumns = '';
     }
 
     filteredProducts.forEach(product => {

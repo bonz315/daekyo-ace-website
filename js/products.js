@@ -361,6 +361,16 @@ function renderProducts() {
     noProductsMsg.style.display = 'none';
     container.innerHTML = '';
 
+    // 제품 수에 따라 그리드 열 수 자동 조정
+    // 4개: 4열 (한 줄에 전부 표시), 그 외: 기본 auto-fill(300px) 유지
+    if (filteredProducts.length === 4) {
+        container.style.gridTemplateColumns = 'repeat(4, 1fr)';
+    } else if (filteredProducts.length === 2) {
+        container.style.gridTemplateColumns = 'repeat(2, 1fr)';
+    } else {
+        container.style.gridTemplateColumns = ''; // 기본 CSS (auto-fill, minmax 300px)
+    }
+
     filteredProducts.forEach(product => {
         const card = createProductCard(product);
         container.appendChild(card);

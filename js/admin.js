@@ -323,17 +323,36 @@ function saveProduct() {
     const productData = {
         id: id,
         name: document.getElementById('prodName').value,
-        isRecommended: document.getElementById('prodIsRecommended').checked, // 메인 노출 여부
+        isRecommended: document.getElementById('prodIsRecommended').checked,
         mainCategory: document.getElementById('prodMainCat').value,
         subCategory: document.getElementById('prodSubCat').value,
-        image: imageUrls[0] || "", // 첫 번째 이미지를 대표 이미지로
-        images: imageUrls,         // 전체 이미지 배열
+        image: imageUrls[0] || "",
+        images: imageUrls,
         cardSize: document.getElementById('prodCardSize').value,
         description: document.getElementById('prodDesc').value,
         specs: specs,
         updatedAt: new Date().toISOString(),
         isDB: true
+        // sortOrder: 기존 값 유지 (수정 시) 또는 저장 후 별도 설정
     };
+
+    // 기존 sortOrder 값이 있으면 유지
+    const editingId = document.getElementById('editId').value;
+    if (editingId) {
+        db.collection("products").doc(editingId.toString()).get().then(doc => {
+            if (doc.exists && doc.data().sortOrder !== undefined) {
+                productData.sortOrder = doc.data().sortOrder;
+            }
+            db.collection("products").doc(id.toString()).set(productData)
+                .then(() => {
+                    alert("제품 정보가 저장되었습니다.");
+                    closeProductModal();
+                    renderAdminProductList();
+                })
+                .catch(err => alert("저장 실패: " + err));
+        });
+        return; // 비동기 처리로 이동
+    }
 
     db.collection("products").doc(id.toString()).set(productData)
         .then(() => {
@@ -364,7 +383,7 @@ function updateSubSelect() {
 function renderAdminProductList() {
     const tbody = document.getElementById('adminProductList');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1rem;">데이터 로딩 중...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:1rem;">데이터 로딩 중...</td></tr>';
 
     // DB 데이터 가져오기
     db.collection("products").get().then((querySnapshot) => {
@@ -397,11 +416,10 @@ function renderAdminProductList() {
             );
         }
 
-        // 대분류/중분류별로 그룹화하여 정렬
+        // 대분류/중분류별 + sortOrder 정렬
         const mainCatOrder = {};
         mainCategories.forEach((cat, idx) => { mainCatOrder[cat.id] = idx; });
 
-        // 중분류 순서 맵 생성
         const subCatOrder = {};
         Object.keys(subCategories).forEach(mainId => {
             subCategories[mainId].forEach((sub, idx) => {
@@ -416,15 +434,28 @@ function renderAdminProductList() {
             const subOrderA = subCatOrder[a.mainCategory + '/' + a.subCategory] !== undefined ? subCatOrder[a.mainCategory + '/' + a.subCategory] : 999;
             const subOrderB = subCatOrder[b.mainCategory + '/' + b.subCategory] !== undefined ? subCatOrder[b.mainCategory + '/' + b.subCategory] : 999;
             if (subOrderA !== subOrderB) return subOrderA - subOrderB;
+            // 같은 중분류 내에서는 sortOrder 기준, 없으면 ID 내림차순
+            const soA = a.sortOrder !== undefined ? a.sortOrder : 99999;
+            const soB = b.sortOrder !== undefined ? b.sortOrder : 99999;
+            if (soA !== soB) return soA - soB;
             return b.id - a.id;
         });
 
+        // 같은 중분류 그룹 내에서 인접 제품 인덱스를 파악 (▲/▼ 버튼용)
+        // 동일 mainCategory+subCategory 목록
+        const groupMap = {}; // key: mainCat/subCat → sorted product array
+        combinedProducts.forEach(p => {
+            const key = (p.mainCategory || '') + '/' + (p.subCategory || '');
+            if (!groupMap[key]) groupMap[key] = [];
+            groupMap[key].push(p);
+        });
+
         if (combinedProducts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#999;">검색 결과 또는 등록된 제품이 없습니다.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem; color:#999;">검색 결과 또는 등록된 제품이 없습니다.</td></tr>';
             return;
         }
 
-        // 제품 렌더링 (대분류/중분류별 그룹 헤더 포함)
+        // 제품 렌더링 (대분류/중분류별 그룹 헤더 + 순서 버튼)
         const showHeaders = !adminProductSearchKeyword;
         let lastMainCat = null;
         let lastSubCat = null;
@@ -432,7 +463,7 @@ function renderAdminProductList() {
             // 대분류 헤더
             if (showHeaders && adminProductCategoryFilter === 'all' && p.mainCategory !== lastMainCat) {
                 lastMainCat = p.mainCategory;
-                lastSubCat = null; // 대분류 바뀌면 중분류 리셋
+                lastSubCat = null;
                 const mainCat = getMainCategory(p.mainCategory);
                 const mainName = mainCat ? mainCat.name : p.mainCategory;
                 const mainColor = mainCat ? mainCat.color : '#888';
@@ -440,7 +471,7 @@ function renderAdminProductList() {
 
                 const headerTr = document.createElement('tr');
                 headerTr.innerHTML = `
-                    <td colspan="6" style="background: ${mainColor}15; border-left: 4px solid ${mainColor}; padding: 0.7rem 1rem; font-weight: 700; color: ${mainColor};">
+                    <td colspan="7" style="background: ${mainColor}15; border-left: 4px solid ${mainColor}; padding: 0.7rem 1rem; font-weight: 700; color: ${mainColor};">
                         ${mainCat ? mainCat.icon || '' : ''} ${mainName}
                         <span style="font-weight:400; color:#999; margin-left:8px; font-size:0.85rem;">(${groupCount}개)</span>
                     </td>
@@ -461,7 +492,7 @@ function renderAdminProductList() {
 
                 const subHeaderTr = document.createElement('tr');
                 subHeaderTr.innerHTML = `
-                    <td colspan="6" style="background: #f9f9f9; border-left: 3px solid ${mainColor}88; padding: 0.5rem 1rem 0.5rem 2rem; color: #555; font-size: 0.9rem;">
+                    <td colspan="7" style="background: #f9f9f9; border-left: 3px solid ${mainColor}88; padding: 0.5rem 1rem 0.5rem 2rem; color: #555; font-size: 0.9rem;">
                         ┗ ${subName}
                         <span style="color:#aaa; margin-left:6px; font-size:0.8rem;">(${subCount}개)</span>
                     </td>
@@ -469,10 +500,25 @@ function renderAdminProductList() {
                 tbody.appendChild(subHeaderTr);
             }
 
+            // 같은 그룹 내 위치 파악 (순서 버튼용)
+            const groupKey = (p.mainCategory || '') + '/' + (p.subCategory || '');
+            const groupArr = groupMap[groupKey] || [];
+            const posInGroup = groupArr.findIndex(gp => gp.id.toString() === p.id.toString());
+            const isFirst = posInGroup === 0;
+            const isLast = posInGroup === groupArr.length - 1;
+            const prevProduct = isFirst ? null : groupArr[posInGroup - 1];
+            const nextProduct = isLast ? null : groupArr[posInGroup + 1];
+
             const tr = document.createElement('tr');
             const isStatic = !p.isDB;
 
             tr.innerHTML = `
+                <td style="white-space:nowrap;">
+                    ${isStatic ? '<span style="color:#ccc; font-size:0.75rem;">고정</span>' : `
+                    <button class="btn-sm" onclick="moveProduct('${p.id}', '${prevProduct ? prevProduct.id : ''}', -1)" ${isFirst ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="위로">▲</button>
+                    <button class="btn-sm" onclick="moveProduct('${p.id}', '${nextProduct ? nextProduct.id : ''}', 1)" ${isLast ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="아래로">▼</button>
+                    `}
+                </td>
                 <td>${p.id}</td>
                 <td><img src="${p.image}" class="admin-img-preview" style="width:50px; height:50px; object-fit:contain;"></td>
                 <td>
@@ -490,6 +536,37 @@ function renderAdminProductList() {
         });
     });
 }
+
+// 제품 순서 변경 (같은 중분류 내 두 제품의 sortOrder 교환)
+window.moveProduct = async function (currentId, adjacentId, direction) {
+    if (!adjacentId || adjacentId === 'null' || adjacentId === '') return;
+
+    try {
+        const [curDoc, adjDoc] = await Promise.all([
+            db.collection("products").doc(currentId.toString()).get(),
+            db.collection("products").doc(adjacentId.toString()).get()
+        ]);
+
+        if (!curDoc.exists || !adjDoc.exists) return;
+
+        const curData = curDoc.data();
+        const adjData = adjDoc.data();
+
+        // sortOrder가 없는 경우 현재 ID를 기본값으로 사용
+        const curOrder = curData.sortOrder !== undefined ? curData.sortOrder : Number(currentId);
+        const adjOrder = adjData.sortOrder !== undefined ? adjData.sortOrder : Number(adjacentId);
+
+        // 두 제품의 sortOrder를 교환
+        await Promise.all([
+            db.collection("products").doc(currentId.toString()).update({ sortOrder: adjOrder }),
+            db.collection("products").doc(adjacentId.toString()).update({ sortOrder: curOrder })
+        ]);
+
+        renderAdminProductList();
+    } catch (error) {
+        alert("순서 변경 실패: " + error);
+    }
+};
 
 window.deleteProduct = function (id) {
     if (confirm("이 제품을 데이터베이스에서 삭제하시겠습니까? (고정 제품은 삭제할 수 없습니다.)")) {

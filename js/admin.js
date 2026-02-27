@@ -811,7 +811,7 @@ function editProduct(id) {
             document.getElementById('specSize').value = p.specs.size || "";
             document.getElementById('specMaterial').value = p.specs.material || "";
             document.getElementById('specColor').value = p.specs.color || "";
-            document.getElementById('specCert').value = p.specs.cert || "";
+            document.getElementById('specCert').value = p.specs.certification || "";
         } else {
             document.getElementById('specName').value = "";
             document.getElementById('specSize').value = "";

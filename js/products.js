@@ -134,13 +134,21 @@ function selectMainAndSubCategory(mainId, subId, updateHistory = true) {
 // 대분류 선택
 function selectMainCategory(categoryId, updateHistory = true) {
     selectedMainCategory = categoryId;
-    selectedSubCategory = null; // 초기에는 전체 제품 표시
     selectedDetailCategory = null;
+
+    // 첫 번째 중분류 자동 선택 (전체 보기 없이)
+    const subCats = getSubCategories(categoryId);
+    if (subCats && subCats.length > 0 && categoryId !== 'wallpad') {
+        selectedSubCategory = subCats[0].id;
+    } else {
+        selectedSubCategory = null;
+    }
 
     // URL 업데이트 (뒤로가기 시 상태 유지용)
     if (updateHistory) {
-        const newUrl = window.location.pathname + '?category=' + categoryId;
-        window.history.pushState({ categoryId: categoryId }, '', newUrl);
+        let newUrl = window.location.pathname + '?category=' + categoryId;
+        if (selectedSubCategory) newUrl += '&sub=' + selectedSubCategory;
+        window.history.pushState({ categoryId: categoryId, subId: selectedSubCategory }, '', newUrl);
     }
 
     // 카테고리 경로 표시
@@ -194,18 +202,7 @@ function renderSubCategories(mainCategoryId) {
     container.innerHTML = '';
     container.style.display = 'flex';
 
-    // '전체' 버튼 추가
-    const allBtn = document.createElement('button');
-    // selectedSubCategory가 null이거나 undefined일 때 활성화
-    const isAllActive = (selectedSubCategory === null || selectedSubCategory === undefined);
-    allBtn.className = 'category-btn' + (isAllActive ? ' active' : '');
-    allBtn.textContent = '전체';
-    allBtn.onclick = (e) => {
-        e.preventDefault();
-        selectSubCategory(null);
-    };
-    container.appendChild(allBtn);
-
+    // '전체' 버튼 없이 중분류만 표시
     subCats.forEach(subCat => {
         const button = document.createElement('button');
         const isActive = (selectedSubCategory && selectedSubCategory.toString() === subCat.id.toString());

@@ -10,6 +10,9 @@ const ADMIN_PASSWORD = "daekyo123"; // 초기 비밀번호
 let adminProductCategoryFilter = 'all';
 let adminProductSearchKeyword = '';
 
+// 중분류 관리용 대분류 필터 상태
+let adminSubCatFilter = 'all';
+
 document.addEventListener('DOMContentLoaded', function () {
     initLogin();
     initTabs();
@@ -782,33 +785,11 @@ function renderAdminCategoryList() {
                 `;
                 mainList.appendChild(tr);
             });
-            // 중분류 렌더링
-            subList.innerHTML = '';
-            Object.keys(subCategories).forEach(mainId => {
-                const mainCat = getMainCategory(mainId);
-                const mainName = mainCat ? mainCat.name : mainId;
+            // 중분류 필터 탭 렌더링
+            renderAdminSubCatFilterTabs();
 
-                subCategories[mainId].forEach((sub, index) => {
-                    const isFirst = index === 0;
-                    const isLast = index === subCategories[mainId].length - 1;
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td style="white-space:nowrap;">
-                            <button class="btn-sm" onclick="moveSubCategory('${mainId}', ${index}, -1)" ${isFirst ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="위로">▲</button>
-                            <button class="btn-sm" onclick="moveSubCategory('${mainId}', ${index}, 1)" ${isLast ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="아래로">▼</button>
-                        </td>
-                        <td><small>${mainName}</small></td>
-                        <td>${sub.id}</td>
-                        <td><strong>${sub.name}</strong></td>
-                        <td>${sub.description || '-'}</td>
-                        <td>
-                            <button class="btn-edit btn-sm" onclick="editSubCategory('${mainId}', ${index})">수정</button>
-                            <button class="btn-delete btn-sm" onclick="deleteSubCategory('${mainId}', ${index})">삭제</button>
-                        </td>
-                    `;
-                    subList.appendChild(tr);
-                });
-            });
+            // 중분류 렌더링
+            renderFilteredSubCategories(subList);
 
             // 제품 등록용 대분류 선택창 및 필터 탭 업데이트
             updateProductMainCatSelect();
@@ -1012,6 +993,90 @@ async function deleteSubCategory(mainId, index) {
         } catch (error) {
             alert("삭제 실패: " + error);
         }
+    }
+}
+
+// ==========================================
+// 중분류 대분류별 필터 기능
+// ==========================================
+function renderAdminSubCatFilterTabs() {
+    const container = document.getElementById('adminSubCatFilterTabs');
+    if (!container) return;
+
+    let html = `<button class="admin-sub-tab ${adminSubCatFilter === 'all' ? 'active' : ''}" 
+                        onclick="setAdminSubCatFilter('all')">전체보기</button>`;
+
+    mainCategories.forEach(cat => {
+        html += `<button class="admin-sub-tab ${adminSubCatFilter === cat.id ? 'active' : ''}" 
+                         onclick="setAdminSubCatFilter('${cat.id}')">${cat.icon || ''} ${cat.name}</button>`;
+    });
+
+    container.innerHTML = html;
+}
+
+window.setAdminSubCatFilter = function (mainId) {
+    adminSubCatFilter = mainId;
+    renderAdminSubCatFilterTabs();
+
+    const subList = document.getElementById('adminSubCategoryList');
+    if (subList) renderFilteredSubCategories(subList);
+};
+
+function renderFilteredSubCategories(subList) {
+    subList.innerHTML = '';
+
+    // 표시할 대분류 키 목록
+    const mainIds = adminSubCatFilter === 'all'
+        ? Object.keys(subCategories)
+        : [adminSubCatFilter];
+
+    let hasAny = false;
+
+    mainIds.forEach((mainId, groupIdx) => {
+        const subs = subCategories[mainId];
+        if (!subs || subs.length === 0) return;
+
+        const mainCat = getMainCategory(mainId);
+        const mainName = mainCat ? mainCat.name : mainId;
+        const mainColor = mainCat ? mainCat.color : '#888';
+
+        // 전체보기 모드일 때 대분류 그룹 구분용 헤더 행 삽입
+        if (adminSubCatFilter === 'all') {
+            const headerTr = document.createElement('tr');
+            headerTr.innerHTML = `
+                <td colspan="6" style="background: ${mainColor}15; border-left: 4px solid ${mainColor}; padding: 0.7rem 1rem; font-weight: 700; color: ${mainColor};">
+                    ${mainCat ? mainCat.icon || '' : ''} ${mainName}
+                    <span style="font-weight:400; color:#999; margin-left:8px; font-size:0.85rem;">(${subs.length}개)</span>
+                </td>
+            `;
+            subList.appendChild(headerTr);
+        }
+
+        subs.forEach((sub, index) => {
+            hasAny = true;
+            const isFirst = index === 0;
+            const isLast = index === subs.length - 1;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="white-space:nowrap;">
+                    <button class="btn-sm" onclick="moveSubCategory('${mainId}', ${index}, -1)" ${isFirst ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="위로">▲</button>
+                    <button class="btn-sm" onclick="moveSubCategory('${mainId}', ${index}, 1)" ${isLast ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="아래로">▼</button>
+                </td>
+                <td><small>${mainName}</small></td>
+                <td>${sub.id}</td>
+                <td><strong>${sub.name}</strong></td>
+                <td>${sub.description || '-'}</td>
+                <td>
+                    <button class="btn-edit btn-sm" onclick="editSubCategory('${mainId}', ${index})">수정</button>
+                    <button class="btn-delete btn-sm" onclick="deleteSubCategory('${mainId}', ${index})">삭제</button>
+                </td>
+            `;
+            subList.appendChild(tr);
+        });
+    });
+
+    if (!hasAny) {
+        subList.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#999;">등록된 중분류가 없습니다.</td></tr>';
     }
 }
 

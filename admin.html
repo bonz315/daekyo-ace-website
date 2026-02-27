@@ -403,10 +403,13 @@
 
                 <div class="admin-card" style="margin-top: 2rem;">
                     <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h2>중분류 관리</h2>
                         <button class="btn" onclick="openSubCategoryModal()">+ 중분류 추가</button>
                     </div>
+                    <!-- 대분류 필터 탭 -->
+                    <div id="adminSubCatFilterTabs"
+                        style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;"></div>
                     <div class="admin-table-container">
                         <table>
                             <thead>

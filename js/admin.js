@@ -1767,97 +1767,32 @@ window.deleteGroupingRule = async function (id) {
 // 기존 하드코딩 그룹핑 규칙 → DB 초기 등록 (시드)
 // ==========================================
 window.seedDefaultGroupingRules = async function () {
-    if (!confirm('기존에 코드에 정의된 그룹핑 규칙을 DB에 등록합니다.\n이미 같은 ID의 규칙이 있으면 덮어씁니다. 계속하시겠습니까?')) return;
+    if (!confirm('기존에 코드에 정의된 그룹핑 규칙을 DB에 등록합니다.\n이미 같은 ID의 규칙이 있으면 덮어씁니다.\n계속하시겠습니까?')) return;
 
     // ── 하드코딩된 기본 규칙 정의 ──
+    const now = new Date().toISOString();
     const defaultRules = [
         // ─ 서포트&조절판 (masonry > support-plate) ─
-        {
-            id: 'GRP_support-plate_0',
-            mainCat: 'masonry',
-            subCat: 'support-plate',
-            label: '써포트',
-            keyword: '써포트',   // '써포트' 또는 '서포트' 포함
-            names: [],
-            order: 0
-        },
-        {
-            id: 'GRP_support-plate_1',
-            mainCat: 'masonry',
-            subCat: 'support-plate',
-            label: '조절판',
-            keyword: '조절판',
-            names: [],
-            order: 1
-        },
+        { id: 'GRP_support-plate_0', mainCat: 'masonry', subCat: 'support-plate', label: '써포트', keyword: '써포트', names: [], order: 0, updatedAt: now },
+        { id: 'GRP_support-plate_1', mainCat: 'masonry', subCat: 'support-plate', label: '조절판', keyword: '조절판', names: [], order: 1, updatedAt: now },
         // ─ 8CB (slab > 8cb) ─
-        {
-            id: 'GRP_8cb_0',
-            mainCat: 'slab',
-            subCat: '8cb',
-            label: '분리형',
-            keyword: '',
-            names: ['8CB 54', '8CB 54 22방출 일체형', '8CB 54 28방출 일체형', '8CB 75', '8CB 44'],
-            order: 0
-        },
-        {
-            id: 'GRP_8cb_1',
-            mainCat: 'slab',
-            subCat: '8cb',
-            label: '데크',
-            keyword: '데크',
-            names: [],
-            order: 1
-        },
-        {
-            id: 'GRP_8cb_2',
-            mainCat: 'slab',
-            subCat: '8cb',
-            label: '최상층',
-            keyword: '최상층',
-            names: [],
-            order: 2
-        },
+        { id: 'GRP_8cb_0', mainCat: 'slab', subCat: '8cb', label: '분리형', keyword: '', names: ['8CB 54', '8CB 54 22방출 일체형', '8CB 54 28방출 일체형', '8CB 75', '8CB 44'], order: 0, updatedAt: now },
+        { id: 'GRP_8cb_1', mainCat: 'slab', subCat: '8cb', label: '데크', keyword: '데크', names: [], order: 1, updatedAt: now },
+        { id: 'GRP_8cb_2', mainCat: 'slab', subCat: '8cb', label: '최상층', keyword: '최상층', names: [], order: 2, updatedAt: now },
         // ─ 4CB (slab > 4cb) ─
-        {
-            id: 'GRP_4cb_0',
-            mainCat: 'slab',
-            subCat: '4cb',
-            label: '분리형',
-            keyword: '',
-            names: ['4CB 54', '4CB 54 22방출 일체형', '4CB 54 28방출 일체형', '4CB 75', '4CB 44'],
-            order: 0
-        },
-        {
-            id: 'GRP_4cb_1',
-            mainCat: 'slab',
-            subCat: '4cb',
-            label: '데크',
-            keyword: '데크',
-            names: [],
-            order: 1
-        },
-        {
-            id: 'GRP_4cb_2',
-            mainCat: 'slab',
-            subCat: '4cb',
-            label: '최상층',
-            keyword: '최상층',
-            names: [],
-            order: 2
-        }
+        { id: 'GRP_4cb_0', mainCat: 'slab', subCat: '4cb', label: '분리형', keyword: '', names: ['4CB 54', '4CB 54 22방출 일체형', '4CB 54 28방출 일체형', '4CB 75', '4CB 44'], order: 0, updatedAt: now },
+        { id: 'GRP_4cb_1', mainCat: 'slab', subCat: '4cb', label: '데크', keyword: '데크', names: [], order: 1, updatedAt: now },
+        { id: 'GRP_4cb_2', mainCat: 'slab', subCat: '4cb', label: '최상층', keyword: '최상층', names: [], order: 2, updatedAt: now }
     ];
 
     try {
-        const batch = db.batch();
-        const now = new Date().toISOString();
-        defaultRules.forEach(rule => {
-            rule.updatedAt = now;
-            const ref = db.collection('groupingRules').doc(rule.id);
-            batch.set(ref, rule);
-        });
-        await batch.commit();
-        alert(`✅ ${defaultRules.length}개의 기본 그룹핑 규칙이 DB에 등록되었습니다.`);
+        // db.batch() 대신 Promise.all로 개별 저장 (호환성 강화)
+        await Promise.all(
+            defaultRules.map(rule =>
+                db.collection('groupingRules').doc(rule.id).set(rule)
+            )
+        );
+        alert('✅ ' + defaultRules.length + '개의 기본 그룹핑 규칙이 DB에 등록되었습니다.');
         loadGroupingRules();
     } catch (e) {
         alert('등록 실패: ' + e);

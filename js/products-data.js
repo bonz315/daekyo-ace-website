@@ -217,13 +217,12 @@ let products = [
 
 /**
  * DB에 등록된 제품들을 가져와서 기존 정적 리스트와 합칩니다.
+ * - 첫 요청이 비어있으면(cold-start 타이밍 문제) 1.5초 후 1회 재시도
  */
 async function loadDBProducts() {
-    try {
-        const querySnapshot = await db.collection("products").get();
+    const mergeSnapshot = (querySnapshot) => {
         querySnapshot.forEach((doc) => {
             const dbProd = doc.data();
-            // 기존 정적 리스트에 있는 ID인 경우 교체, 없으면 추가
             const existingIndex = products.findIndex(p => p.id.toString() === dbProd.id.toString());
             if (existingIndex !== -1) {
                 products[existingIndex] = dbProd;
@@ -231,11 +230,28 @@ async function loadDBProducts() {
                 products.push(dbProd);
             }
         });
-        console.log("DB Products matched and loaded. Total:", products.length);
+    };
+
+    try {
+        const querySnapshot = await db.collection("products").get();
+
+        if (querySnapshot.empty) {
+            // 첫 요청이 비어있음 → 퍼시스턴스 캐시 준비 전일 가능성
+            // 1.5초 후 1회 재시도
+            console.warn("[loadDBProducts] 첫 요청 빈 결과 → 1.5초 후 재시도...");
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            const retrySnapshot = await db.collection("products").get();
+            mergeSnapshot(retrySnapshot);
+            console.log("[loadDBProducts] 재시도 완료. Total:", products.length);
+        } else {
+            mergeSnapshot(querySnapshot);
+            console.log("DB Products matched and loaded. Total:", products.length);
+        }
     } catch (error) {
         console.error("Error loading products from DB:", error);
     }
 }
+
 
 // 제품 검색 함수
 function getProductsByCategory(mainCat, subCat = null, detailCat = null) {

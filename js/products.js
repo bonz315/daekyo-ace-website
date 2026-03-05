@@ -478,7 +478,7 @@ function renderProducts() {
         const color = '#FF8C00'; // 그룹 헤더 색상: 브랜드 주황색 고정
 
         // 분리형에 해당하는 정확한 제품명 목록
-        const separateTypeNames = ['8CB 54', '8CB 54 22방출 일체형', '8CB 54 28방출 일체형', '8CB 75'];
+        const separateTypeNames = ['8CB 54', '8CB 54 22방출 일체형', '8CB 54 28방출 일체형', '8CB 75', '8CB 44mm'];
 
         // 그룹 분류 (순서 고정)
         const groups = [

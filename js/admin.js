@@ -1381,7 +1381,8 @@ window.onclick = function (event) {
         checkInquiryModal: closeCheckModal,
         resourceModal: closeResourceModal,
         mainCategoryModal: closeMainCategoryModal,
-        subCategoryModal: closeSubCategoryModal
+        subCategoryModal: closeSubCategoryModal,
+        groupingModal: closeGroupingModal
     };
 
     for (const [id, closeFunc] of Object.entries(modals)) {
@@ -1391,3 +1392,268 @@ window.onclick = function (event) {
         }
     }
 }
+
+// ==========================================
+// 7. 그룹핑 규칙 관리 Logic
+// ==========================================
+
+let groupingRules = [];       // [ { id, subCat, mainCat, label, keyword, names:[], order } ]
+let adminGroupingFilter = 'all';   // 현재 중분류 필터
+
+// 탭 전환 시 그룹핑 탭 로드 연동 (initTabs 오버라이드 없이 이벤트 추가)
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            if (tab.dataset.tab === 'grouping') {
+                loadGroupingRules();
+            }
+        });
+    });
+
+    // 그룹핑 폼 제출
+    const form = document.getElementById('groupingForm');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            saveGroupingRule();
+        });
+    }
+});
+
+// DB에서 그룹핑 규칙 불러오기
+async function loadGroupingRules() {
+    try {
+        const snap = await db.collection('groupingRules').orderBy('order').get();
+        groupingRules = [];
+        snap.forEach(doc => groupingRules.push(doc.data()));
+    } catch (e) {
+        // orderBy 인덱스 없을 경우 fallback
+        try {
+            const snap2 = await db.collection('groupingRules').get();
+            groupingRules = [];
+            snap2.forEach(doc => groupingRules.push(doc.data()));
+        } catch (e2) {
+            console.error('groupingRules load error:', e2);
+        }
+    }
+    renderGroupingFilterTabs();
+    renderGroupingRuleList();
+}
+
+// 중분류 필터 탭 렌더링
+function renderGroupingFilterTabs() {
+    const container = document.getElementById('adminGroupingFilterTabs');
+    if (!container) return;
+
+    // 존재하는 중분류 ID 수집
+    const subIds = [...new Set(groupingRules.map(r => r.subCat))];
+
+    let html = `<button class="admin-sub-tab ${adminGroupingFilter === 'all' ? 'active' : ''}"
+                    onclick="setGroupingFilter('all')">전체보기</button>`;
+
+    subIds.forEach(subId => {
+        // 중분류 이름 찾기
+        let subName = subId;
+        Object.values(subCategories).forEach(arr => {
+            const found = arr.find(s => s.id === subId);
+            if (found) subName = found.name;
+        });
+        html += `<button class="admin-sub-tab ${adminGroupingFilter === subId ? 'active' : ''}"
+                     onclick="setGroupingFilter('${subId}')">${subName}</button>`;
+    });
+
+    container.innerHTML = html;
+}
+
+window.setGroupingFilter = function (subId) {
+    adminGroupingFilter = subId;
+    renderGroupingFilterTabs();
+    renderGroupingRuleList();
+};
+
+// 규칙 목록 렌더링
+function renderGroupingRuleList() {
+    const container = document.getElementById('groupingRuleList');
+    if (!container) return;
+
+    const filtered = adminGroupingFilter === 'all'
+        ? groupingRules
+        : groupingRules.filter(r => r.subCat === adminGroupingFilter);
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#bbb; padding:3rem;">등록된 그룹핑 규칙이 없습니다.<br>오른쪽 상단 "+ 새 규칙 추가" 버튼을 눌러 추가하세요.</p>';
+        return;
+    }
+
+    // 중분류별로 그룹
+    const grouped = {};
+    filtered.forEach(r => {
+        if (!grouped[r.subCat]) grouped[r.subCat] = [];
+        grouped[r.subCat].push(r);
+    });
+
+    let html = '';
+    Object.entries(grouped).forEach(([subId, rules]) => {
+        // 중분류 이름
+        let subName = subId;
+        let mainColor = '#FF8C00';
+        Object.entries(subCategories).forEach(([mainId, arr]) => {
+            const found = arr.find(s => s.id === subId);
+            if (found) {
+                subName = found.name;
+                const mc = getMainCategory(mainId);
+                if (mc) mainColor = mc.color;
+            }
+        });
+
+        html += `
+        <div style="margin-bottom:2rem;">
+            <div style="padding:0.6rem 1rem; background:${mainColor}15; border-left:4px solid ${mainColor};
+                        border-radius:0 8px 8px 0; font-weight:700; color:${mainColor}; margin-bottom:0.8rem;">
+                ${subName} <span style="font-weight:400; color:#999; font-size:0.85rem;">(${rules.length}개 그룹)</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem;">
+        `;
+
+        rules.sort((a, b) => (a.order || 0) - (b.order || 0)).forEach(rule => {
+            const namePreview = (rule.names || []).slice(0, 3).join(', ') +
+                ((rule.names || []).length > 3 ? ` 외 ${rule.names.length - 3}개` : '');
+
+            html += `
+            <div style="border:1px solid #eee; border-radius:10px; padding:1.2rem; background:#fff;
+                        box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+                    <span style="font-weight:700; font-size:1.05rem; color:#333;">${rule.label}</span>
+                    <span style="font-size:0.75rem; color:#bbb;">순서: ${rule.order || 0}</span>
+                </div>
+                ${rule.keyword
+                    ? `<div style="margin-bottom:0.5rem;"><span style="background:#e3f2fd; color:#1976d2; font-size:0.8rem; padding:2px 8px; border-radius:4px;">키워드: "${rule.keyword}"</span></div>`
+                    : `<div style="font-size:0.82rem; color:#666; margin-bottom:0.5rem; line-height:1.6;">${namePreview || '(목록 없음)'}</div>`
+                }
+                <div style="display:flex; gap:0.5rem; margin-top:0.8rem;">
+                    <button class="btn-edit btn-sm" onclick="editGroupingRule('${rule.id}')">수정</button>
+                    <button class="btn-delete btn-sm" onclick="deleteGroupingRule('${rule.id}')">삭제</button>
+                </div>
+            </div>`;
+        });
+
+        html += `</div></div>`;
+    });
+
+    container.innerHTML = html;
+}
+
+// 모달 열기
+window.openGroupingModal = function () {
+    document.getElementById('groupingModalTitle').textContent = '그룹핑 규칙 추가';
+    document.getElementById('groupingForm').reset();
+    document.getElementById('editGroupingId').value = '';
+    document.getElementById('groupingOrder').value = groupingRules.length;
+
+    // 대분류 select 채우기
+    const mainSel = document.getElementById('groupingMainCat');
+    mainSel.innerHTML = '<option value="">선택해주세요</option>';
+    mainCategories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        mainSel.appendChild(opt);
+    });
+    document.getElementById('groupingSubCat').innerHTML = '<option value="">대분류를 먼저 선택하세요</option>';
+
+    document.getElementById('groupingModal').style.display = 'block';
+};
+
+window.closeGroupingModal = function () {
+    document.getElementById('groupingModal').style.display = 'none';
+};
+
+// 대분류 변경 시 중분류 업데이트
+window.updateGroupingSubSelect = function () {
+    const mainId = document.getElementById('groupingMainCat').value;
+    const subSel = document.getElementById('groupingSubCat');
+    subSel.innerHTML = '<option value="">선택해주세요</option>';
+
+    const subs = subCategories[mainId] || [];
+    subs.forEach(sub => {
+        const opt = document.createElement('option');
+        opt.value = sub.id;
+        opt.textContent = sub.name;
+        subSel.appendChild(opt);
+    });
+};
+
+// 수정 모달 열기
+window.editGroupingRule = function (id) {
+    const rule = groupingRules.find(r => r.id === id);
+    if (!rule) return;
+
+    document.getElementById('groupingModalTitle').textContent = '그룹핑 규칙 수정';
+    document.getElementById('editGroupingId').value = rule.id;
+    document.getElementById('groupingLabel').value = rule.label || '';
+    document.getElementById('groupingKeyword').value = rule.keyword || '';
+    document.getElementById('groupingNames').value = (rule.names || []).join('\n');
+    document.getElementById('groupingOrder').value = rule.order || 0;
+
+    // 대분류 select 채우고 선택
+    const mainSel = document.getElementById('groupingMainCat');
+    mainSel.innerHTML = '<option value="">선택해주세요</option>';
+    mainCategories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        mainSel.appendChild(opt);
+    });
+    mainSel.value = rule.mainCat || '';
+
+    // 중분류 select 채우고 선택
+    window.updateGroupingSubSelect();
+    setTimeout(() => {
+        document.getElementById('groupingSubCat').value = rule.subCat || '';
+    }, 50);
+
+    document.getElementById('groupingModal').style.display = 'block';
+};
+
+// 저장
+async function saveGroupingRule() {
+    const id = document.getElementById('editGroupingId').value || 'GRP' + Date.now();
+    const namesRaw = document.getElementById('groupingNames').value;
+    const names = namesRaw.split('\n').map(n => n.trim()).filter(n => n !== '');
+
+    const data = {
+        id,
+        mainCat: document.getElementById('groupingMainCat').value,
+        subCat: document.getElementById('groupingSubCat').value,
+        label: document.getElementById('groupingLabel').value.trim(),
+        keyword: document.getElementById('groupingKeyword').value.trim(),
+        names,
+        order: parseInt(document.getElementById('groupingOrder').value) || 0,
+        updatedAt: new Date().toISOString()
+    };
+
+    if (!data.subCat) { alert('중분류를 선택해주세요.'); return; }
+    if (!data.label) { alert('그룹 이름을 입력해주세요.'); return; }
+
+    try {
+        await db.collection('groupingRules').doc(id).set(data);
+        alert('저장되었습니다.');
+        closeGroupingModal();
+        loadGroupingRules();
+    } catch (e) {
+        alert('저장 실패: ' + e);
+    }
+}
+
+// 삭제
+window.deleteGroupingRule = async function (id) {
+    if (!confirm('이 그룹핑 규칙을 삭제하시겠습니까?')) return;
+    try {
+        await db.collection('groupingRules').doc(id).delete();
+        alert('삭제되었습니다.');
+        loadGroupingRules();
+    } catch (e) {
+        alert('삭제 실패: ' + e);
+    }
+};
+

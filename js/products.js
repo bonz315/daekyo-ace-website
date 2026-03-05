@@ -357,6 +357,78 @@ function renderProducts() {
     noProductsMsg.style.display = 'none';
     container.innerHTML = '';
 
+    // ─── DB 그룹핑 규칙 우선 적용 (관리자에서 설정한 규칙이 있으면 여기서 처리 후 return) ───
+    if (selectedSubCategory && selectedSubCategory !== 'integrated') {
+        const dbRules = (typeof getGroupingRules === 'function')
+            ? getGroupingRules(selectedSubCategory)
+            : [];
+
+        if (dbRules.length > 0) {
+            container.style.display = 'block';
+            container.style.gridTemplateColumns = '';
+            container.classList.remove('product-grid-private');
+
+            const color = '#FF8C00';
+            const assigned = new Set();
+
+            // 규칙에 따라 그룹 분류
+            const groupBuckets = dbRules.map(rule => ({ rule, items: [] }));
+            const otherBucket = { rule: { label: '기타' }, items: [] };
+
+            filteredProducts.forEach(p => {
+                const name = (p.name || '').trim();
+                let matched = false;
+                for (const bucket of groupBuckets) {
+                    const r = bucket.rule;
+                    if (r.keyword && name.includes(r.keyword)) {
+                        bucket.items.push(p);
+                        assigned.add(p.id);
+                        matched = true;
+                        break;
+                    }
+                    if (!r.keyword && Array.isArray(r.names) && r.names.includes(name)) {
+                        bucket.items.push(p);
+                        assigned.add(p.id);
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) otherBucket.items.push(p);
+            });
+
+            // 그룹 렌더링 (제품이 있는 그룹만)
+            const allBuckets = [...groupBuckets, otherBucket];
+            allBuckets.forEach(bucket => {
+                if (bucket.items.length === 0) return;
+
+                const header = document.createElement('div');
+                header.style.cssText = `
+                    margin: 1.5rem 0 0.8rem 0;
+                    padding: 0.5rem 1rem;
+                    background: ${color}15;
+                    border-left: 4px solid ${color};
+                    border-radius: 0 8px 8px 0;
+                    font-weight: 700;
+                    font-size: 1rem;
+                    color: ${color};
+                    letter-spacing: 0.03em;
+                `;
+                header.textContent = bucket.rule.label;
+                container.appendChild(header);
+
+                const groupGrid = document.createElement('div');
+                groupGrid.className = 'product-subgrid';
+                bucket.items.forEach(product => {
+                    const card = createProductCard(product);
+                    groupGrid.appendChild(card);
+                });
+                container.appendChild(groupGrid);
+            });
+
+            return; // DB 규칙으로 처리 완료
+        }
+    }
+
     // ─── 통합박스(integrated): 제품명 접두어별 그룹핑 ───
     if (selectedSubCategory === 'integrated') {
         container.style.display = 'block';
@@ -543,7 +615,7 @@ function renderProducts() {
         const color = '#FF8C00'; // 그룹 헤더 색상: 브랜드 주황색 고정
 
         // 분리형에 해당하는 정확한 제품명 목록
-        const separateTypeNames = ['4CB 54', '4CB 54 22방출 일체형', '4CB 54 28 방출 일체형', '4CB 44'];
+        const separateTypeNames = ['4CB 54', '4CB 54 22방출 일체형', '4CB 54 28방출 일체형', '4CB 75', '4CB 44'];
 
         // 그룹 분류 (순서 고정)
         const groups = [

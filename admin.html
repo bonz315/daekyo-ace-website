@@ -326,6 +326,7 @@
                 <div class="admin-tabs">
                     <button class="admin-tab active" data-tab="product">제품 관리</button>
                     <button class="admin-tab" data-tab="category">카테고리 관리</button>
+                    <button class="admin-tab" data-tab="grouping">그룹핑 규칙</button>
                     <button class="admin-tab" data-tab="resource">자료실 관리</button>
                     <button class="admin-tab" data-tab="inquiry">문의 관리</button>
                 </div>
@@ -429,6 +430,29 @@
                 </div>
             </div>
 
+            <!-- 그룹핑 규칙 관리 탭 -->
+            <div id="groupingTab" class="tab-content">
+                <div class="admin-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h2>그룹핑 규칙 관리</h2>
+                        <button class="btn" onclick="openGroupingModal()">+ 새 규칙 추가</button>
+                    </div>
+                    <p style="color:#888; font-size:0.9rem; margin-bottom:2rem;">중분류별로 제품을 표시할 그룹(예: 분리형, 데크, 최상층 등)과 각
+                        그룹에 속하는 제품명을 관리합니다.<br>
+                        <strong style="color:var(--primary-orange);">⚠ 제품명은 DB에 등록된 이름과 정확히 일치해야 합니다.</strong>
+                    </p>
+
+                    <!-- 중분류 필터 탭 -->
+                    <div id="adminGroupingFilterTabs"
+                        style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.5rem;"></div>
+
+                    <div id="groupingRuleList">
+                        <p style="text-align:center; color:#bbb; padding:2rem;">로딩 중...</p>
+                    </div>
+                </div>
+            </div>
+
             <div id="resourceTab" class="tab-content">
                 <div class="admin-card">
                     <div
@@ -488,6 +512,58 @@
     <script src="js/products-data.js"></script>
     <script src="js/resources-data.js"></script>
     <script src="js/admin.js"></script>
+
+    <!-- 그룹핑 규칙 추가/수정 모달 (admin.js 로드 후 배치) -->
+    <div id="groupingModal" class="modal">
+        <div class="modal-content" style="max-width:600px;">
+            <div class="modal-header">
+                <h3 id="groupingModalTitle">그룹핑 규칙 추가</h3>
+                <span class="close" onclick="closeGroupingModal()">&times;</span>
+            </div>
+            <form id="groupingForm">
+                <input type="hidden" id="editGroupingId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>대분류 *</label>
+                        <select id="groupingMainCat" required onchange="updateGroupingSubSelect()"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>중분류 (적용 대상) *</label>
+                        <select id="groupingSubCat" required></select>
+                    </div>
+                    <div class="form-group" style="grid-column:span 2;">
+                        <label>그룹 이름 *
+                            <small style="color:#999; font-weight:400;"> (예: 분리형)</small>
+                        </label>
+                        <input type="text" id="groupingLabel" required placeholder="예: 분리형">
+                    </div>
+                    <div class="form-group" style="grid-column:span 2;">
+                        <label>키워드 방식
+                            <small style="color:#999; font-weight:400;"> (제품명에 해당 단어가 포함되면 이 그룹으로 분류)</small>
+                        </label>
+                        <input type="text" id="groupingKeyword" placeholder="예: 데크  (비워두면 '정확한 이름 목록' 방식 사용)">
+                    </div>
+                    <div class="form-group" style="grid-column:span 2;">
+                        <label>정확한 제품명 목록
+                            <small style="color:#999; font-weight:400;"> (한 줄에 하나씩 — 키워드가 없을 때 사용)</small>
+                        </label>
+                        <textarea id="groupingNames" rows="6"
+                            placeholder="4CB 54&#10;4CB 54 22방출 일체형&#10;4CB 54 28방출 일체형&#10;4CB 75&#10;4CB 44"></textarea>
+                    </div>
+                    <div class="form-group" style="grid-column:span 2;">
+                        <label>표시 순서
+                            <small style="color:#999; font-weight:400;"> (낮을수록 먼저 표시, 같은 중분류 내에서 정렬)</small>
+                        </label>
+                        <input type="number" id="groupingOrder" value="0" min="0">
+                    </div>
+                </div>
+                <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:flex-end;">
+                    <button type="button" class="btn-outline" onclick="closeGroupingModal()">취소</button>
+                    <button type="submit" class="btn">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>

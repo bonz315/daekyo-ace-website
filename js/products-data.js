@@ -75,6 +75,9 @@ let detailCategories = {
     // 향후 소분류가 필요한 경우 여기에 추가
 };
 
+// 그룹핑 규칙 (초기값: 비어있음 — DB에서 로드됨)
+let groupingRulesDB = [];
+
 /**
  * DB에서 카테고리 정보를 가져옵니다.
  */
@@ -95,11 +98,31 @@ async function loadCategories() {
             detailCategories = detailDoc.data().data || detailCategories;
         }
 
+        // 그룹핑 규칙 로드
+        try {
+            const grpSnap = await db.collection("groupingRules").get();
+            groupingRulesDB = [];
+            grpSnap.forEach(doc => groupingRulesDB.push(doc.data()));
+            // order 기준 정렬
+            groupingRulesDB.sort((a, b) => (a.order || 0) - (b.order || 0));
+        } catch (grpErr) {
+            console.warn("groupingRules load skipped:", grpErr);
+        }
+
         console.log("Categories loaded from DB");
     } catch (error) {
         console.error("Error loading categories:", error);
     }
 }
+
+/**
+ * 특정 중분류(subCatId)의 그룹핑 규칙 목록을 반환합니다.
+ * 규칙이 없으면 빈 배열 반환.
+ */
+function getGroupingRules(subCatId) {
+    return groupingRulesDB.filter(r => r.subCat === subCatId);
+}
+
 
 // 제품 데이터
 let products = [

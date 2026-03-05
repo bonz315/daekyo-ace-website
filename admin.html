@@ -436,7 +436,14 @@
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <h2>그룹핑 규칙 관리</h2>
-                        <button class="btn" onclick="openGroupingModal()">+ 새 규칙 추가</button>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button class="btn-outline" onclick="seedDefaultGroupingRules()"
+                                style="font-size:0.85rem; color:#888; border-color:#ddd;"
+                                title="기존 하드코딩 규칙을 DB에 초기 등록 (아직 아무것도 없을 때 한 번만 사용)">
+                                📥 기존 규칙 초기 등록
+                            </button>
+                            <button class="btn" onclick="openGroupingModal()">+ 새 규칙 추가</button>
+                        </div>
                     </div>
                     <p style="color:#888; font-size:0.9rem; margin-bottom:2rem;">중분류별로 제품을 표시할 그룹(예: 분리형, 데크, 최상층 등)과 각
                         그룹에 속하는 제품명을 관리합니다.<br>

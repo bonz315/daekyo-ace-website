@@ -534,6 +534,71 @@ function renderProducts() {
         return;
     }
 
+    // ─── 4CB(4cb): 분리형 / 데크 / 최상층 / 기타 그룹핑 ───
+    if (selectedSubCategory === '4cb') {
+        container.style.display = 'block';
+        container.style.gridTemplateColumns = '';
+        container.classList.remove('product-grid-private');
+
+        const color = '#FF8C00'; // 그룹 헤더 색상: 브랜드 주황색 고정
+
+        // 분리형에 해당하는 정확한 제품명 목록
+        const separateTypeNames = ['4CB 54', '4CB 54 22방출 일체형', '4CB 54 28 방출 일체형', '4CB 44'];
+
+        // 그룹 분류 (순서 고정)
+        const groups = [
+            { label: '분리형', products: [] },
+            { label: '데크', products: [] },
+            { label: '최상층', products: [] },
+            { label: '기타', products: [] }
+        ];
+
+        filteredProducts.forEach(p => {
+            const name = (p.name || '').trim();
+            if (separateTypeNames.includes(name)) {
+                groups[0].products.push(p);
+            } else if (name.includes('데크')) {
+                groups[1].products.push(p);
+            } else if (name.includes('최상층')) {
+                groups[2].products.push(p);
+            } else {
+                groups[3].products.push(p);
+            }
+        });
+
+        // 제품이 있는 그룹만 렌더링
+        groups.forEach(group => {
+            if (group.products.length === 0) return;
+
+            // 그룹 헤더
+            const header = document.createElement('div');
+            header.style.cssText = `
+                margin: 1.5rem 0 0.8rem 0;
+                padding: 0.5rem 1rem;
+                background: ${color}15;
+                border-left: 4px solid ${color};
+                border-radius: 0 8px 8px 0;
+                font-weight: 700;
+                font-size: 1rem;
+                color: ${color};
+                letter-spacing: 0.03em;
+            `;
+            header.textContent = group.label;
+            container.appendChild(header);
+
+            // 그룹 내 제품 그리드
+            const groupGrid = document.createElement('div');
+            groupGrid.className = 'product-subgrid';
+            group.products.forEach(product => {
+                const card = createProductCard(product);
+                groupGrid.appendChild(card);
+            });
+            container.appendChild(groupGrid);
+        });
+
+        return;
+    }
+
     // ─── 기타 중분류: 기존 방식 ───
     container.style.display = 'grid';
 

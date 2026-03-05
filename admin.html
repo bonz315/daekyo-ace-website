@@ -536,7 +536,7 @@
                     </div>
                     <div class="form-group">
                         <label>중분류 (적용 대상) *</label>
-                        <select id="groupingSubCat" required></select>
+                        <select id="groupingSubCat" required onchange="loadGroupingProductCheckboxes()"></select>
                     </div>
                     <div class="form-group" style="grid-column:span 2;">
                         <label>그룹 이름 *
@@ -546,16 +546,32 @@
                     </div>
                     <div class="form-group" style="grid-column:span 2;">
                         <label>키워드 방식
-                            <small style="color:#999; font-weight:400;"> (제품명에 해당 단어가 포함되면 이 그룹으로 분류)</small>
+                            <small style="color:#999; font-weight:400;">
+                                (제품명에 이 단어가 포함되면 자동 분류 — 입력 시 아래 체크박스 선택 불필요)
+                            </small>
                         </label>
-                        <input type="text" id="groupingKeyword" placeholder="예: 데크  (비워두면 '정확한 이름 목록' 방식 사용)">
+                        <input type="text" id="groupingKeyword" placeholder="예: 데크  (비워두면 아래 체크박스로 직접 지정)"
+                            oninput="onGroupingKeywordInput()">
                     </div>
                     <div class="form-group" style="grid-column:span 2;">
-                        <label>정확한 제품명 목록
-                            <small style="color:#999; font-weight:400;"> (한 줄에 하나씩 — 키워드가 없을 때 사용)</small>
+                        <label>제품 직접 선택
+                            <small style="color:#999; font-weight:400;">
+                                (키워드 방식 사용 시 비활성화됩니다)
+                            </small>
                         </label>
-                        <textarea id="groupingNames" rows="6"
-                            placeholder="4CB 54&#10;4CB 54 22방출 일체형&#10;4CB 54 28방출 일체형&#10;4CB 75&#10;4CB 44"></textarea>
+                        <!-- 체크박스 컨테이너 -->
+                        <div id="groupingCheckboxArea" style="
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            padding: 0.8rem 1rem;
+                            max-height: 260px;
+                            overflow-y: auto;
+                            background: #fafafa;
+                        ">
+                            <p style="color:#bbb; font-size:0.9rem; text-align:center; margin:0.5rem 0;">
+                                위에서 중분류를 선택하면 제품 목록이 표시됩니다
+                            </p>
+                        </div>
                     </div>
                     <div class="form-group" style="grid-column:span 2;">
                         <label>표시 순서

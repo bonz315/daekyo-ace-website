@@ -1561,6 +1561,10 @@ window.openGroupingModal = function () {
     });
     document.getElementById('groupingSubCat').innerHTML = '<option value="">대분류를 먼저 선택하세요</option>';
 
+    // 체크박스 영역 초기화
+    document.getElementById('groupingCheckboxArea').innerHTML =
+        '<p style="color:#bbb; font-size:0.9rem; text-align:center; margin:0.5rem 0;">위에서 중분류를 선택하면 제품 목록이 표시됩니다</p>';
+
     document.getElementById('groupingModal').style.display = 'block';
 };
 
@@ -1581,6 +1585,95 @@ window.updateGroupingSubSelect = function () {
         opt.textContent = sub.name;
         subSel.appendChild(opt);
     });
+
+    // 중분류가 바뀌면 체크박스 초기화
+    document.getElementById('groupingCheckboxArea').innerHTML =
+        '<p style="color:#bbb; font-size:0.9rem; text-align:center; margin:0.5rem 0;">중분류를 선택하면 제품 목록이 표시됩니다</p>';
+};
+
+// 중분류 변경 시 체크박스 목록 로드
+window.loadGroupingProductCheckboxes = async function (preCheckedNames = []) {
+    const subCatId = document.getElementById('groupingSubCat').value;
+    const area = document.getElementById('groupingCheckboxArea');
+    if (!subCatId) return;
+
+    area.innerHTML = '<p style="color:#bbb; font-size:0.85rem; text-align:center; padding:0.5rem;">제품 목록 로딩 중...</p>';
+
+    try {
+        // DB + 로컬 제품 중 해당 중분류 필터
+        const snap = await db.collection('products').get();
+        const dbProds = [];
+        snap.forEach(doc => {
+            const d = doc.data();
+            if (d.subCategory && d.subCategory.toString() === subCatId) dbProds.push(d);
+        });
+
+        // 로컬 정적 제품도 포함 (DB에 없는 것만)
+        const localProds = (typeof products !== 'undefined' ? products : []).filter(p =>
+            p.subCategory && p.subCategory.toString() === subCatId &&
+            !dbProds.find(d => d.id.toString() === p.id.toString())
+        );
+        const allProds = [...dbProds, ...localProds];
+
+        if (allProds.length === 0) {
+            area.innerHTML = '<p style="color:#bbb; font-size:0.9rem; text-align:center; margin:0.5rem 0;">이 중분류에 등록된 제품이 없습니다</p>';
+            return;
+        }
+
+        // 키워드 여부에 따라 비활성화 처리
+        const hasKeyword = document.getElementById('groupingKeyword').value.trim() !== '';
+
+        // 체크박스 렌더링
+        let html = '';
+        if (hasKeyword) {
+            html += '<p style="color:#e67e22; font-size:0.82rem; margin-bottom:0.6rem;">⚠ 키워드 방식 사용 중 — 체크박스 선택은 무시됩니다.</p>';
+        }
+        html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.3rem 1rem;">';
+        allProds.forEach(p => {
+            const checked = preCheckedNames.includes(p.name) ? 'checked' : '';
+            const disabled = hasKeyword ? 'disabled' : '';
+            html += `
+            <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.88rem;
+                          cursor:${hasKeyword ? 'not-allowed' : 'pointer'}; color:${hasKeyword ? '#bbb' : '#333'};
+                          padding:0.25rem 0;">
+                <input type="checkbox" class="grp-prod-cb" value="${p.name}"
+                    ${checked} ${disabled}
+                    style="width:15px; height:15px; cursor:${hasKeyword ? 'not-allowed' : 'pointer'}">
+                ${p.name}
+            </label>`;
+        });
+        html += '</div>';
+        area.innerHTML = html;
+    } catch (e) {
+        area.innerHTML = `<p style="color:red; font-size:0.85rem;">제품 목록 로드 실패: ${e}</p>`;
+    }
+};
+
+// 키워드 입력 시 체크박스 활성/비활성 토글
+window.onGroupingKeywordInput = function () {
+    const hasKeyword = document.getElementById('groupingKeyword').value.trim() !== '';
+    const checkboxes = document.querySelectorAll('.grp-prod-cb');
+    const area = document.getElementById('groupingCheckboxArea');
+
+    // 경고 문구 처리
+    let warn = area.querySelector('.keyword-warn');
+    if (hasKeyword) {
+        if (!warn) {
+            warn = document.createElement('p');
+            warn.className = 'keyword-warn';
+            warn.style.cssText = 'color:#e67e22; font-size:0.82rem; margin-bottom:0.6rem;';
+            warn.textContent = '⚠ 키워드 방식 사용 중 — 체크박스 선택은 무시됩니다.';
+            area.prepend(warn);
+        }
+    } else {
+        if (warn) warn.remove();
+    }
+
+    checkboxes.forEach(cb => {
+        cb.disabled = hasKeyword;
+        cb.closest('label').style.color = hasKeyword ? '#bbb' : '#333';
+        cb.closest('label').style.cursor = hasKeyword ? 'not-allowed' : 'pointer';
+    });
 };
 
 // 수정 모달 열기
@@ -1592,7 +1685,6 @@ window.editGroupingRule = function (id) {
     document.getElementById('editGroupingId').value = rule.id;
     document.getElementById('groupingLabel').value = rule.label || '';
     document.getElementById('groupingKeyword').value = rule.keyword || '';
-    document.getElementById('groupingNames').value = (rule.names || []).join('\n');
     document.getElementById('groupingOrder').value = rule.order || 0;
 
     // 대분류 select 채우고 선택
@@ -1609,8 +1701,11 @@ window.editGroupingRule = function (id) {
     // 중분류 select 채우고 선택
     window.updateGroupingSubSelect();
     setTimeout(() => {
-        document.getElementById('groupingSubCat').value = rule.subCat || '';
-    }, 50);
+        const subSel = document.getElementById('groupingSubCat');
+        subSel.value = rule.subCat || '';
+        // 체크박스 로드 + 기존 체크 항목 복원
+        window.loadGroupingProductCheckboxes(rule.names || []);
+    }, 80);
 
     document.getElementById('groupingModal').style.display = 'block';
 };
@@ -1618,15 +1713,22 @@ window.editGroupingRule = function (id) {
 // 저장
 async function saveGroupingRule() {
     const id = document.getElementById('editGroupingId').value || 'GRP' + Date.now();
-    const namesRaw = document.getElementById('groupingNames').value;
-    const names = namesRaw.split('\n').map(n => n.trim()).filter(n => n !== '');
+
+    // 체크박스에서 선택된 제품명 수집 (키워드 없을 때만)
+    const keyword = document.getElementById('groupingKeyword').value.trim();
+    let names = [];
+    if (!keyword) {
+        document.querySelectorAll('.grp-prod-cb:checked').forEach(cb => {
+            names.push(cb.value);
+        });
+    }
 
     const data = {
         id,
         mainCat: document.getElementById('groupingMainCat').value,
         subCat: document.getElementById('groupingSubCat').value,
         label: document.getElementById('groupingLabel').value.trim(),
-        keyword: document.getElementById('groupingKeyword').value.trim(),
+        keyword,
         names,
         order: parseInt(document.getElementById('groupingOrder').value) || 0,
         updatedAt: new Date().toISOString()
@@ -1634,6 +1736,10 @@ async function saveGroupingRule() {
 
     if (!data.subCat) { alert('중분류를 선택해주세요.'); return; }
     if (!data.label) { alert('그룹 이름을 입력해주세요.'); return; }
+    if (!data.keyword && data.names.length === 0) {
+        alert('키워드를 입력하거나, 아래 목록에서 제품을 1개 이상 선택해주세요.');
+        return;
+    }
 
     try {
         await db.collection('groupingRules').doc(id).set(data);

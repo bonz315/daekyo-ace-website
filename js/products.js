@@ -378,8 +378,7 @@ function renderProducts() {
         });
 
         // 그룹별 렌더링
-        const mainCat = getMainCategory(selectedMainCategory);
-        const color = mainCat ? mainCat.color : '#FF8C00';
+        const color = '#FF8C00'; // 그룹 헤더 색상: 브랜드 주황색 고정
 
         groupMap.forEach((products, prefix) => {
             // 그룹 헤더
@@ -417,8 +416,7 @@ function renderProducts() {
         container.style.gridTemplateColumns = '';
         container.classList.remove('product-grid-private');
 
-        const mainCat = getMainCategory(selectedMainCategory);
-        const color = mainCat ? mainCat.color : '#4A90E2';
+        const color = '#FF8C00'; // 그룹 헤더 색상: 브랜드 주황색 고정
 
         // 키워드 기반 그룹 분류 (순서 고정)
         const groups = [
@@ -435,6 +433,71 @@ function renderProducts() {
                 groups[1].products.push(p);
             } else {
                 groups[2].products.push(p);
+            }
+        });
+
+        // 제품이 있는 그룹만 렌더링
+        groups.forEach(group => {
+            if (group.products.length === 0) return;
+
+            // 그룹 헤더
+            const header = document.createElement('div');
+            header.style.cssText = `
+                margin: 1.5rem 0 0.8rem 0;
+                padding: 0.5rem 1rem;
+                background: ${color}15;
+                border-left: 4px solid ${color};
+                border-radius: 0 8px 8px 0;
+                font-weight: 700;
+                font-size: 1rem;
+                color: ${color};
+                letter-spacing: 0.03em;
+            `;
+            header.textContent = group.label;
+            container.appendChild(header);
+
+            // 그룹 내 제품 그리드
+            const groupGrid = document.createElement('div');
+            groupGrid.className = 'product-subgrid';
+            group.products.forEach(product => {
+                const card = createProductCard(product);
+                groupGrid.appendChild(card);
+            });
+            container.appendChild(groupGrid);
+        });
+
+        return;
+    }
+
+    // ─── 8CB(8cb): 분리형 / 데크 / 최상층 / 기타 그룹핑 ───
+    if (selectedSubCategory === '8cb') {
+        container.style.display = 'block';
+        container.style.gridTemplateColumns = '';
+        container.classList.remove('product-grid-private');
+
+        const color = '#FF8C00'; // 그룹 헤더 색상: 브랜드 주황색 고정
+
+        // 분리형에 해당하는 정확한 제품명 목록
+        const separateTypeNames = ['8CB 54', '8CB 54 22방출 일체형', '8CB 54 28방출 일체형', '8CB 75'];
+
+        // 그룹 분류 (순서 고정)
+        const groups = [
+            { label: '분리형', products: [] },
+            { label: '데크', products: [] },
+            { label: '최상층', products: [] },
+            { label: '기타', products: [] }
+        ];
+
+        filteredProducts.forEach(p => {
+            const name = (p.name || '').trim();
+            if (separateTypeNames.includes(name)) {
+                groups[0].products.push(p);
+            } else if (name.includes('데크')) {
+                groups[1].products.push(p);
+            } else if (name.includes('최상층')) {
+                groups[2].products.push(p);
+            } else {
+                groups[3].products.push(p);
             }
         });
 

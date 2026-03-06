@@ -167,7 +167,7 @@ td {
     border-radius: 4px;
 }
 
-/* 모달 */
+/* 모달 — 항상 현재 뷰포트 중앙에 표시 */
 .modal {
     display: none;
     position: fixed;
@@ -178,16 +178,30 @@ td {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
+    /* 스크롤 위치와 무관하게 햨상 중앙 배치 */
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+/* JS에서 style.display='block' 시 실제로는 flex로 표시 */
+.modal[style*="display: block"],
+.modal[style*="display:block"] {
+    display: flex !important;
 }
 
 .modal-content {
     background-color: white;
-    margin: 5% auto;
     padding: 2rem;
-    width: 90%;
+    width: 100%;
     max-width: 700px;
     border-radius: 16px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    /* 뷰포트 높이 내에서 내부 스크롤 */
+    max-height: 88vh;
+    overflow-y: auto;
 }
 
 .modal-header {

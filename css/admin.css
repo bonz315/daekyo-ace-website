@@ -178,10 +178,10 @@ td {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
-    /* 스크롤 위치와 무관하게 햨상 중앙 배치 */
-    align-items: center;
+    /* 현재 뷰포트 상단에 바로 표시 (세로 중앙 X) */
+    align-items: flex-start;
     justify-content: center;
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
     box-sizing: border-box;
     overflow-y: auto;
 }
@@ -199,8 +199,8 @@ td {
     max-width: 700px;
     border-radius: 16px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    /* 뷰포트 높이 내에서 내부 스크롤 */
-    max-height: 88vh;
+    /* 뷰포트 상단 기준. 내용이 길면 모달 내부에서만 스크롤 */
+    max-height: 90vh;
     overflow-y: auto;
 }
 

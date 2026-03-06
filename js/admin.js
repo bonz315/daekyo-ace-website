@@ -731,7 +731,7 @@ window.openResourceModal = function () {
     document.getElementById('resourceForm').reset();
     document.getElementById('editResId').value = "";
     document.getElementById('resThumbPreview').style.display = 'none'; // 프리뷰 초기화
-    document.getElementById('resourceModal').style.display = 'block';
+    document.getElementById('resourceModal').style.display = 'flex';
 };
 
 window.closeResourceModal = function () {
@@ -760,7 +760,7 @@ function editResource(id) {
             thumbPreview.style.display = 'none';
         }
 
-        document.getElementById('resourceModal').style.display = 'block';
+        document.getElementById('resourceModal').style.display = 'flex';
     });
 }
 window.editResource = editResource;
@@ -824,7 +824,7 @@ window.openAnswerModal = function (id) {
             <p style="margin-top:10px; border-top:1px solid #ddd; padding-top:10px;"><strong>내용:</strong><br>${inq.message}</p>
         `;
         document.getElementById('adminAnswerText').value = inq.answer || '';
-        document.getElementById('answerModal').style.display = 'block';
+        document.getElementById('answerModal').style.display = 'flex';
     });
 };
 
@@ -872,7 +872,7 @@ function openProductModal() {
     container.innerHTML = "";
     addImageInput();
 
-    document.getElementById('productModal').style.display = 'block';
+    document.getElementById('productModal').style.display = 'flex';
 }
 
 function closeProductModal() {
@@ -921,7 +921,7 @@ function editProduct(id) {
             document.getElementById('specCert').value = "";
         }
 
-        document.getElementById('productModal').style.display = 'block';
+        document.getElementById('productModal').style.display = 'flex';
     });
 }
 
@@ -1066,7 +1066,7 @@ function openMainCategoryModal() {
         preview.querySelector('img').src = "";
     }
 
-    document.getElementById('mainCategoryModal').style.display = 'block';
+    document.getElementById('mainCategoryModal').style.display = 'flex';
 }
 
 function closeMainCategoryModal() {
@@ -1094,7 +1094,7 @@ function editMainCategory(index) {
         preview.style.display = 'none';
     }
 
-    document.getElementById('mainCategoryModal').style.display = 'block';
+    document.getElementById('mainCategoryModal').style.display = 'flex';
 }
 
 async function saveMainCategory() {
@@ -1157,7 +1157,7 @@ function openSubCategoryModal() {
     document.getElementById('subCategoryForm').reset();
     document.getElementById('editSubCatMainId').value = "";
     document.getElementById('editSubCatIndex').value = "";
-    document.getElementById('subCategoryModal').style.display = 'block';
+    document.getElementById('subCategoryModal').style.display = 'flex';
 }
 
 function closeSubCategoryModal() {
@@ -1589,7 +1589,7 @@ window.openGroupingModal = function () {
     document.getElementById('groupingCheckboxArea').innerHTML =
         '<p style="color:#bbb; font-size:0.9rem; text-align:center; margin:0.5rem 0;">위에서 중분류를 선택하면 제품 목록이 표시됩니다</p>';
 
-    document.getElementById('groupingModal').style.display = 'block';
+    document.getElementById('groupingModal').style.display = 'flex';
 };
 
 window.closeGroupingModal = function () {
@@ -1731,7 +1731,7 @@ window.editGroupingRule = function (id) {
         window.loadGroupingProductCheckboxes(rule.names || []);
     }, 80);
 
-    document.getElementById('groupingModal').style.display = 'block';
+    document.getElementById('groupingModal').style.display = 'flex';
 };
 
 // 저장

@@ -512,13 +512,33 @@ function renderAdminProductList() {
             const tr = document.createElement('tr');
             const isStatic = !p.isDB;
 
-            tr.innerHTML = `
-                <td style="white-space:nowrap;">
-                    ${isStatic ? '<span style="color:#ccc; font-size:0.75rem;">고정</span>' : `
-                    <button class="btn-sm" onclick="moveProduct('${p.id}', '${prevProduct ? prevProduct.id : ''}', -1)" ${isFirst ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="위로">▲</button>
-                    <button class="btn-sm" onclick="moveProduct('${p.id}', '${nextProduct ? nextProduct.id : ''}', 1)" ${isLast ? 'disabled style="opacity:0.3;cursor:default;"' : ''} title="아래로">▼</button>
-                    `}
-                </td>
+            // 순서 버튼 셀 (groupArr 클로저로 전달하기 위해 createElement 사용)
+            const orderTd = document.createElement('td');
+            orderTd.style.whiteSpace = 'nowrap';
+            if (isStatic) {
+                orderTd.innerHTML = '<span style="color:#ccc; font-size:0.75rem;">고정</span>';
+            } else {
+                const upBtn = document.createElement('button');
+                upBtn.className = 'btn-sm';
+                upBtn.title = '위로';
+                upBtn.textContent = '▲';
+                if (isFirst) { upBtn.disabled = true; upBtn.style.opacity = '0.3'; upBtn.style.cursor = 'default'; }
+                upBtn.addEventListener('click', () => moveProduct(p.id, prevProduct ? prevProduct.id : '', -1, groupArr));
+
+                const downBtn = document.createElement('button');
+                downBtn.className = 'btn-sm';
+                downBtn.title = '아래로';
+                downBtn.textContent = '▼';
+                if (isLast) { downBtn.disabled = true; downBtn.style.opacity = '0.3'; downBtn.style.cursor = 'default'; }
+                downBtn.addEventListener('click', () => moveProduct(p.id, nextProduct ? nextProduct.id : '', 1, groupArr));
+
+                orderTd.appendChild(upBtn);
+                orderTd.appendChild(downBtn);
+            }
+            tr.appendChild(orderTd);
+
+            // ⚠ tr.innerHTML += 대신 insertAdjacentHTML 사용 → orderTd의 이벤트 리스너 보존
+            tr.insertAdjacentHTML('beforeend', `
                 <td>${p.id}</td>
                 <td><img src="${p.image}" class="admin-img-preview" style="width:50px; height:50px; object-fit:contain;"></td>
                 <td>
@@ -531,37 +551,41 @@ function renderAdminProductList() {
                     <button class="btn-edit btn-sm" onclick="editProduct('${p.id}')">수정</button>
                     ${isStatic ? '' : `<button class="btn-delete btn-sm" onclick="deleteProduct('${p.id}')">삭제</button>`}
                 </td>
-            `;
+            `);
             tbody.appendChild(tr);
         });
     });
 }
 
-// 제품 순서 변경 (같은 중분류 내 두 제품의 sortOrder 교환)
-window.moveProduct = async function (currentId, adjacentId, direction) {
+// 제품 순서 변경 (같은 중분류 내 인덱스 기반으로 sortOrder 재계산)
+// currentId: 이동할 제품 ID, adjacentId: 교환 대상 제품 ID, direction: -1(위) or 1(아래)
+// groupArr: 같은 중분류 내 정렬된 제품 배열 (static 포함), 순서 변경 후 DB 제품만 일괄 업데이트
+window.moveProduct = async function (currentId, adjacentId, direction, groupArr) {
     if (!adjacentId || adjacentId === 'null' || adjacentId === '') return;
+    if (!groupArr || groupArr.length === 0) return;
 
     try {
-        const [curDoc, adjDoc] = await Promise.all([
-            db.collection("products").doc(currentId.toString()).get(),
-            db.collection("products").doc(adjacentId.toString()).get()
-        ]);
+        // 1. 그룹 배열에서 두 항목의 인덱스를 찾아 swap
+        const curIdx = groupArr.findIndex(p => p.id.toString() === currentId.toString());
+        const adjIdx = groupArr.findIndex(p => p.id.toString() === adjacentId.toString());
+        if (curIdx === -1 || adjIdx === -1) return;
 
-        if (!curDoc.exists || !adjDoc.exists) return;
+        // 배열 내에서 위치 교환
+        const temp = groupArr[curIdx];
+        groupArr[curIdx] = groupArr[adjIdx];
+        groupArr[adjIdx] = temp;
 
-        const curData = curDoc.data();
-        const adjData = adjDoc.data();
+        // 2. 교환된 순서를 기준으로 DB 제품에만 sortOrder를 일괄 저장 (static 제품 제외)
+        const updates = [];
+        groupArr.forEach((p, idx) => {
+            if (p.isDB) { // DB 제품만 업데이트
+                updates.push(
+                    db.collection("products").doc(p.id.toString()).update({ sortOrder: idx })
+                );
+            }
+        });
 
-        // sortOrder가 없는 경우 현재 ID를 기본값으로 사용
-        const curOrder = curData.sortOrder !== undefined ? curData.sortOrder : Number(currentId);
-        const adjOrder = adjData.sortOrder !== undefined ? adjData.sortOrder : Number(adjacentId);
-
-        // 두 제품의 sortOrder를 교환
-        await Promise.all([
-            db.collection("products").doc(currentId.toString()).update({ sortOrder: adjOrder }),
-            db.collection("products").doc(adjacentId.toString()).update({ sortOrder: curOrder })
-        ]);
-
+        await Promise.all(updates);
         renderAdminProductList();
     } catch (error) {
         alert("순서 변경 실패: " + error);

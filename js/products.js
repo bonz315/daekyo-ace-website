@@ -140,6 +140,9 @@ function selectMainCategory(categoryId, updateHistory = true) {
     const subCats = getSubCategories(categoryId);
     if (subCats && subCats.length > 0 && categoryId !== 'wallpad') {
         selectedSubCategory = subCats[0].id;
+    } else if (categoryId === 'wallpad') {
+        // 월패드는 중분류 nav를 표시하지 않지만, 그룹핑 규칙 매칭을 위해 subCat id를 설정
+        selectedSubCategory = subCats && subCats.length > 0 ? subCats[0].id : 'wallpad';
     } else {
         selectedSubCategory = null;
     }

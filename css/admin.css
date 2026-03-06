@@ -179,10 +179,10 @@ td {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
-    /* 뷰포트 중앙 정렬 (flex가 적용될 때 활성화됨) */
-    align-items: center;
+    /* JS에서 display:'flex'로 열 때 → 현재 뷰포트 상단에 바로 표시 */
+    align-items: flex-start;
     justify-content: center;
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
     box-sizing: border-box;
     overflow-y: auto;
 }

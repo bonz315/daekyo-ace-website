@@ -5,11 +5,18 @@
     --admin-primary: #FF8C00;
 }
 
+/* 모달이 화면 전체를 덮을 수 있도록 html/body 높이를 전체로 설정 */
+html {
+    height: 100%;
+}
+
 body {
+    min-height: 100vh;
     background-color: var(--admin-bg);
     margin: 0;
     font-family: 'Noto Sans KR', sans-serif;
 }
+
 
 /* 로그인 섹션 */
 .admin-login-container {

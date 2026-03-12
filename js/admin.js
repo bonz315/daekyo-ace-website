@@ -824,8 +824,13 @@ window.openAnswerModal = function (id) {
         const inq = doc.data();
 
         document.getElementById('answerInqId').value = inq.id;
+        document.getElementById('answerInqEmail').value = inq.email || '';
+        document.getElementById('answerInqName').value = inq.name || '';
+        document.getElementById('answerInqSubject').value = inq.subject || '';
+
         document.getElementById('inquiryDetailView').innerHTML = `
             <p><strong>작성자:</strong> ${inq.name} (${inq.phone})</p>
+            <p><strong>이메일:</strong> ${inq.email || '입력 안함'}</p>
             <p><strong>제목:</strong> ${inq.subject}</p>
             <p style="margin-top:10px; border-top:1px solid #ddd; padding-top:10px;"><strong>내용:</strong><br>${inq.message}</p>
         `;
@@ -843,15 +848,59 @@ document.getElementById('answerForm').addEventListener('submit', function (e) {
     const id = document.getElementById('answerInqId').value;
     const answer = document.getElementById('adminAnswerText').value;
 
+    const customerEmail = document.getElementById('answerInqEmail').value;
+    const customerName = document.getElementById('answerInqName').value;
+    const inquirySubject = document.getElementById('answerInqSubject').value;
+
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '답변 등록 중...';
+    }
+
     db.collection("inquiries").doc(id).update({
         answer: answer,
         status: 'answered'
     }).then(() => {
-        alert("답변이 등록되었습니다.");
-        closeAnswerModal();
+        // 고객의 이메일이 존재하면 EmailJS로 알림 메일 발송
+        if (customerEmail && typeof emailjs !== 'undefined') {
+            const templateParams = {
+                to_email: customerEmail,
+                to_name: customerName,
+                subject: inquirySubject,
+                reply_content: answer
+            };
+            
+            // 주의: "template_reply"는 EmailJS에서 만들어야 하는 템플릿 ID입니다.
+            emailjs.send("service_chviv7u", "template_reply", templateParams)
+                .then(function() {
+                    console.log('Reply Email Sent!');
+                    alert("답변이 등록되고 고객에게 이메일 알림이 발송되었습니다.\\n(실제 수신을 위해 EmailJS에 'template_reply' 템플릿을 생성해 주세요.)");
+                }, function(error) {
+                    console.error('Email Failed...', error);
+                    alert("답변은 등록되었으나, 이메일 알림 전송에 실패했습니다.\\n(EmailJS 템플릿 설정 확인 필요)");
+                }).finally(() => {
+                    closeAnswerModal();
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '답변 등록하기';
+                    }
+                });
+        } else {
+            alert("답변이 등록되었습니다. (이메일 주소가 없거나 EmailJS 로드 실패)");
+            closeAnswerModal();
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '답변 등록하기';
+            }
+        }
     }).catch((error) => {
         console.error("Error updating document: ", error);
         alert("답변 저장 중 오류가 발생했습니다.");
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '답변 등록하기';
+        }
     });
 });
 

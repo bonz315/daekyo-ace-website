@@ -16,6 +16,14 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="js/firebase-init.js"></script>
 
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function () {
+            emailjs.init("BzBSKhoLRHtT_MJjO");
+        })();
+    </script>
+
     <!-- PDF.js - For auto-thumbnail generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
@@ -39,6 +47,9 @@
             </div>
             <form id="answerForm">
                 <input type="hidden" id="answerInqId">
+                <input type="hidden" id="answerInqEmail">
+                <input type="hidden" id="answerInqName">
+                <input type="hidden" id="answerInqSubject">
                 <div class="form-group">
                     <label>답변 내용 *</label>
                     <textarea id="adminAnswerText" rows="6" required placeholder="고객님께 전달할 답변을 입력하세요."></textarea>

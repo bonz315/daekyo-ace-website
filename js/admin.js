@@ -875,10 +875,10 @@ document.getElementById('answerForm').addEventListener('submit', function (e) {
             emailjs.send("service_chviv7u", "template_reply", templateParams)
                 .then(function() {
                     console.log('Reply Email Sent!');
-                    alert("답변이 등록되고 고객에게 이메일 알림이 발송되었습니다.\\n(실제 수신을 위해 EmailJS에 'template_reply' 템플릿을 생성해 주세요.)");
+                    alert("답변이 등록되고 고객에게 메일 발송 요청이 전달되었습니다.\n(성공/실패 여부는 EmailJS 대시보드를 확인해주세요.)");
                 }, function(error) {
                     console.error('Email Failed...', error);
-                    alert("답변은 등록되었으나, 이메일 알림 전송에 실패했습니다.\\n(EmailJS 템플릿 설정 확인 필요)");
+                    alert("답변은 등록되었으나, 이메일 알림 전송에 실패했습니다.\n(EmailJS 템플릿 설정 확인 필요)");
                 }).finally(() => {
                     closeAnswerModal();
                     if (submitBtn) {

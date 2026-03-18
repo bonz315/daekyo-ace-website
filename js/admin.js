@@ -516,31 +516,27 @@ function renderAdminProductList() {
             const nextProduct = isLast ? null : groupArr[posInGroup + 1];
 
             const tr = document.createElement('tr');
-            const isStatic = !p.isDB;
 
             // 순서 버튼 셀 (groupArr 클로저로 전달하기 위해 createElement 사용)
             const orderTd = document.createElement('td');
             orderTd.style.whiteSpace = 'nowrap';
-            if (isStatic) {
-                orderTd.innerHTML = '<span style="color:#ccc; font-size:0.75rem;">고정</span>';
-            } else {
-                const upBtn = document.createElement('button');
-                upBtn.className = 'btn-sm';
-                upBtn.title = '위로';
-                upBtn.textContent = '▲';
-                if (isFirst) { upBtn.disabled = true; upBtn.style.opacity = '0.3'; upBtn.style.cursor = 'default'; }
-                upBtn.addEventListener('click', () => moveProduct(p.id, prevProduct ? prevProduct.id : '', -1, groupArr));
 
-                const downBtn = document.createElement('button');
-                downBtn.className = 'btn-sm';
-                downBtn.title = '아래로';
-                downBtn.textContent = '▼';
-                if (isLast) { downBtn.disabled = true; downBtn.style.opacity = '0.3'; downBtn.style.cursor = 'default'; }
-                downBtn.addEventListener('click', () => moveProduct(p.id, nextProduct ? nextProduct.id : '', 1, groupArr));
+            const upBtn = document.createElement('button');
+            upBtn.className = 'btn-sm';
+            upBtn.title = '위로';
+            upBtn.textContent = '▲';
+            if (isFirst) { upBtn.disabled = true; upBtn.style.opacity = '0.3'; upBtn.style.cursor = 'default'; }
+            upBtn.addEventListener('click', () => moveProduct(p.id, prevProduct ? prevProduct.id : '', -1, groupArr));
 
-                orderTd.appendChild(upBtn);
-                orderTd.appendChild(downBtn);
-            }
+            const downBtn = document.createElement('button');
+            downBtn.className = 'btn-sm';
+            downBtn.title = '아래로';
+            downBtn.textContent = '▼';
+            if (isLast) { downBtn.disabled = true; downBtn.style.opacity = '0.3'; downBtn.style.cursor = 'default'; }
+            downBtn.addEventListener('click', () => moveProduct(p.id, nextProduct ? nextProduct.id : '', 1, groupArr));
+
+            orderTd.appendChild(upBtn);
+            orderTd.appendChild(downBtn);
             tr.appendChild(orderTd);
 
             // ⚠ tr.innerHTML += 대신 insertAdjacentHTML 사용 → orderTd의 이벤트 리스너 보존
@@ -548,14 +544,14 @@ function renderAdminProductList() {
                 <td>${p.id}</td>
                 <td><img src="${p.image}" class="admin-img-preview" style="width:50px; height:50px; object-fit:contain;"></td>
                 <td>
-                    <strong>${p.name}</strong> ${isStatic ? '<small style="color:#999;">(고정)</small>' : ''}
+                    <strong>${p.name}</strong>
                     ${p.isRecommended ? '<span style="background:var(--primary-orange); color:white; font-size:10px; padding:2px 5px; border-radius:4px; margin-left:5px;">주요제품</span>' : ''}
                 </td>
                 <td>${p.mainCategory} / ${p.subCategory || '-'}</td>
                 <td>${p.updatedAt ? p.updatedAt.split('T')[0] : '기본 데이터'}</td>
                 <td>
                     <button class="btn-edit btn-sm" onclick="editProduct('${p.id}')">수정</button>
-                    ${isStatic ? '' : `<button class="btn-delete btn-sm" onclick="deleteProduct('${p.id}')">삭제</button>`}
+                    <button class="btn-delete btn-sm" onclick="deleteProduct('${p.id}')">삭제</button>
                 </td>
             `);
             tbody.appendChild(tr);
@@ -581,14 +577,12 @@ window.moveProduct = async function (currentId, adjacentId, direction, groupArr)
         groupArr[curIdx] = groupArr[adjIdx];
         groupArr[adjIdx] = temp;
 
-        // 2. 교환된 순서를 기준으로 DB 제품에만 sortOrder를 일괄 저장 (static 제품 제외)
+        // 2. 교환된 순서를 기준으로 sortOrder를 일괄 저장
         const updates = [];
         groupArr.forEach((p, idx) => {
-            if (p.isDB) { // DB 제품만 업데이트
-                updates.push(
-                    db.collection("products").doc(p.id.toString()).update({ sortOrder: idx })
-                );
-            }
+            updates.push(
+                db.collection("products").doc(p.id.toString()).set({ sortOrder: idx }, { merge: true })
+            );
         });
 
         await Promise.all(updates);
@@ -937,8 +931,10 @@ window.closeProductModal = closeProductModal;
 
 function editProduct(id) {
     db.collection("products").doc(id.toString()).get().then((doc) => {
-        if (!doc.exists) return;
-        const p = doc.data();
+        // DB에 없으면 하드코딩 배열(products-data.js)에서 찾기
+        const p = doc.exists ? doc.data() : products.find(pr => pr.id.toString() === id.toString());
+        if (!p) { alert('제품 정보를 찾을 수 없습니다.'); return; }
+
         window.openProductModal(); // 초기화
         document.getElementById('modalTitle').textContent = "제품 수정";
         document.getElementById('editId').value = p.id;

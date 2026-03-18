@@ -562,9 +562,33 @@ function renderAdminProductList() {
     });
 }
 
+// ============================================================
+// [안전장치] Firestore에 완전한 제품 문서가 존재하는지 확인
+// 고정(static) 제품이 Firestore에 아직 없으면 전체 데이터를 저장(promote)
+// 이렇게 하면 sortOrder만 있는 불완전 문서가 생기는 것을 원천 차단함
+// ============================================================
+async function ensureProductInFirestore(productObj, sortOrderIdx) {
+    const docRef = db.collection("products").doc(productObj.id.toString());
+    const docSnap = await docRef.get();
+
+    if (docSnap.exists && docSnap.data().id != null) {
+        // 이미 완전한 문서로 존재 → sortOrder만 업데이트
+        return docRef.update({ sortOrder: sortOrderIdx });
+    } else {
+        // Firestore에 없거나 불완전한 문서 → 전체 데이터를 완전하게 저장(promote)
+        const fullData = {
+            ...productObj,
+            isDB: true,
+            sortOrder: sortOrderIdx,
+            updatedAt: new Date().toISOString()
+        };
+        return docRef.set(fullData);
+    }
+}
+
 // 제품 순서 변경 (같은 중분류 내 인덱스 기반으로 sortOrder 재계산)
 // currentId: 이동할 제품 ID, adjacentId: 교환 대상 제품 ID, direction: -1(위) or 1(아래)
-// groupArr: 같은 중분류 내 정렬된 제품 배열 (static 포함), 순서 변경 후 DB 제품만 일괄 업데이트
+// groupArr: 같은 중분류 내 정렬된 제품 배열
 window.moveProduct = async function (currentId, adjacentId, direction, groupArr) {
     if (!adjacentId || adjacentId === 'null' || adjacentId === '') return;
     if (!groupArr || groupArr.length === 0) return;
@@ -580,17 +604,11 @@ window.moveProduct = async function (currentId, adjacentId, direction, groupArr)
         groupArr[curIdx] = groupArr[adjIdx];
         groupArr[adjIdx] = temp;
 
-        // 2. 교환된 순서를 기준으로 sortOrder를 일괄 저장
-        // isDB가 true인 제품(Firestore에 완전한 문서로 존재)만 업데이트
-        // 고정 제품(isDB 없음)은 건너뜀 — Firestore에 빈 문서 생성 방지
-        const updates = [];
-        groupArr.forEach((p, idx) => {
-            if (p.isDB) {
-                updates.push(
-                    db.collection("products").doc(p.id.toString()).update({ sortOrder: idx })
-                );
-            }
-        });
+        // 2. [안전장치] ensureProductInFirestore 사용:
+        //    - DB 제품: sortOrder만 업데이트
+        //    - 고정 제품: 전체 데이터를 Firestore에 완전히 저장 후 sortOrder 기록
+        //    → sortOrder 필드만 있는 불완전 문서가 생기는 것을 원천 방지
+        const updates = groupArr.map((p, idx) => ensureProductInFirestore(p, idx));
 
         await Promise.all(updates);
         renderAdminProductList();
@@ -599,12 +617,26 @@ window.moveProduct = async function (currentId, adjacentId, direction, groupArr)
     }
 };
 
-window.deleteProduct = function (id) {
-    if (confirm("이 제품을 데이터베이스에서 삭제하시겠습니까? (고정 제품은 삭제할 수 없습니다.)")) {
-        db.collection("products").doc(id.toString()).delete().then(() => {
+window.deleteProduct = async function (id) {
+    // [안전장치] Firestore에 실제로 존재하는 문서인지 먼저 확인
+    const docRef = db.collection("products").doc(id.toString());
+    const docSnap = await docRef.get();
+
+    if (!docSnap.exists || docSnap.data().id == null) {
+        // Firestore에 없는 제품 = products-data.js에 하드코딩된 기본 제품
+        alert(
+            "이 제품은 코드에 내장된 기본 제품입니다.\n" +
+            "삭제하려면 먼저 [수정] 버튼으로 한 번 저장해 DB에 등록한 후 다시 삭제해 주세요.\n" +
+            "(또는 js/products-data.js 파일에서 직접 제거하세요.)"
+        );
+        return;
+    }
+
+    if (confirm("이 제품을 데이터베이스에서 삭제하시겠습니까?")) {
+        docRef.delete().then(() => {
             alert("삭제되었습니다.");
             renderAdminProductList();
-        });
+        }).catch(err => alert("삭제 실패: " + err));
     }
 };
 

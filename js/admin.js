@@ -395,10 +395,13 @@ function renderAdminProductList() {
     db.collection("products").get().then((querySnapshot) => {
         tbody.innerHTML = '';
 
-        // 1. DB 제품 먼저 추가
+        // 1. DB 제품 먼저 추가 (id 필드 없는 불완전 문서 필터링)
         const dbProducts = [];
         querySnapshot.forEach((doc) => {
-            dbProducts.push(doc.data());
+            const data = doc.data();
+            if (data && data.id != null) {  // id 없는 불완전 문서 제외
+                dbProducts.push(data);
+            }
         });
 
         // 2. 고정 제품 데이터와 합치기 (ID 중복 시 DB 우선)
@@ -578,11 +581,15 @@ window.moveProduct = async function (currentId, adjacentId, direction, groupArr)
         groupArr[adjIdx] = temp;
 
         // 2. 교환된 순서를 기준으로 sortOrder를 일괄 저장
+        // isDB가 true인 제품(Firestore에 완전한 문서로 존재)만 업데이트
+        // 고정 제품(isDB 없음)은 건너뜀 — Firestore에 빈 문서 생성 방지
         const updates = [];
         groupArr.forEach((p, idx) => {
-            updates.push(
-                db.collection("products").doc(p.id.toString()).set({ sortOrder: idx }, { merge: true })
-            );
+            if (p.isDB) {
+                updates.push(
+                    db.collection("products").doc(p.id.toString()).update({ sortOrder: idx })
+                );
+            }
         });
 
         await Promise.all(updates);

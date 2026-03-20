@@ -125,95 +125,10 @@ function getGroupingRules(subCatId) {
 
 
 // 제품 데이터
-let products = [
-    {
-        id: 1,
-        name: '매입 스위치 (CSW1SS)',
-        mainCategory: 'wall',
-        subCategory: 'private',
-        detailCategory: null,
-        description: '',
-        specs: {
-            name: '민영 매입 스위치 (CSW1SS)',
-            size: '62 X 102 X 85 (가로 X 세로 X 깊이)',
-            material: '합성수지제',
-            color: '블랙',
-            certification: 'KS C 8436'
-        },
-        isRecommended: true,
-        image: 'images/products/wall-switch-box.jpg'
-    },
-    {
-        id: 6,
-        name: '매입 사각 (4OB)',
-        mainCategory: 'wall',
-        subCategory: 'private',
-        detailCategory: null,
-        description: '',
-        specs: {
-            name: '민영 매입 사각 (4OB)',
-            size: '102 X 102 X 85 (가로 X 세로 X 깊이)',
-            material: '합성수지제',
-            color: '블랙',
-            certification: 'KS C 8436'
-        },
-        badge: null,
-        isRecommended: true,
-        image: 'images/products/4ob.jpg'
-    },
-    {
-        id: 7,
-        name: '매입 연용 (4OB 2G)',
-        mainCategory: 'wall',
-        subCategory: 'private',
-        detailCategory: null,
-        description: '',
-        specs: {
-            name: '민영 매입 연용 (4OB 2G)',
-            size: '102 X 102 X 85 (가로 X 세로 X 깊이)',
-            material: '합성수지제',
-            color: '블랙',
-            certification: 'KS C 8436'
-        },
-        badge: null,
-        isRecommended: true,
-        image: 'images/products/4ob-2g.png'
-    },
-    {
-        id: 8,
-        name: '매입 사각가로(4OB)',
-        mainCategory: 'wall',
-        subCategory: 'private',
-        detailCategory: null,
-        description: '',
-        specs: {
-            name: '민영 매입 사각가로(4OB)',
-            size: '102 X 102 X 85 (가로 X 세로 X 깊이)',
-            material: '합성수지제',
-            color: '블랙',
-            certification: 'KS C 8436'
-        },
-        badge: null,
-        image: 'images/products/4ob-landscape.png'
-    },
-    {
-        id: 100,
-        name: '통합 월패드 박스',
-        mainCategory: 'wallpad',
-        subCategory: null,
-        detailCategory: null,
-        description: '현장 맞춤 제작 통합 월패드 박스',
-        specs: {
-            name: '통합 월패드 박스',
-            size: '현장 맞춤 제작',
-            material: '합성수지제 / 스틸',
-            color: '화이트 / 그레이',
-            certification: 'KC 인증 예정'
-        },
-        badge: '주문제작',
-        image: 'images/category-wallpad.png'
-    }
-];
+// ※ 모든 제품은 Firestore DB에서 loadDBProducts()를 통해 로드됩니다.
+//    하드코딩된 기본 제품 데이터는 제거되었습니다.
+//    (기존 고정 제품들은 Firestore products 컬렉션에 isDB:true로 등록되어 있음)
+let products = [];
 
 /**
  * DB에 등록된 제품들을 가져와서 기존 정적 리스트와 합칩니다.

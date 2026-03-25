@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 제품 데이터 - 누구나 읽기 가능, 쓰기 가능 (관리자 페이지에서 사용)
+    match /products/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // 카테고리 데이터 - 누구나 읽기 가능
+    match /categories/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // 자료실 데이터 - 누구나 읽기 가능
+    match /resources/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // 문의 데이터 - 누구나 읽기/쓰기 가능 (문의 접수 및 관리자 답변)
+    match /inquiries/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // 그룹핑 규칙 - 누구나 읽기 가능
+    match /groupingRules/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+  }
+}

@@ -74,112 +74,137 @@ function transformToDirectDownload(url) {
     return url;
 }
 
-// 이미지/파일 선택 핸들러 (PDF 썸네일 자동 생성 기능 포함)
+// ─────────────────────────────────────────────────────────────
+// Cloudinary 파일 업로드 설정
+// ─────────────────────────────────────────────────────────────
+const CLOUDINARY_CLOUD = 'dlyf1tykr';
+const CLOUDINARY_API_KEY = '687819466161614';
+const CLOUDINARY_API_SECRET = 'NNmn6k8jW3Kdl4dhibevUngJ9vI';
+const CLOUDINARY_FOLDER = 'daekyo-resources';
+
+async function sha256Hex(message) {
+    const buf = new TextEncoder().encode(message);
+    const hash = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function uploadToCloudinary(file) {
+    const timestamp = Math.round(Date.now() / 1000).toString();
+    const paramsToSign = `folder=${CLOUDINARY_FOLDER}&timestamp=${timestamp}`;
+    const signature = await sha256Hex(paramsToSign + CLOUDINARY_API_SECRET);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('api_key', CLOUDINARY_API_KEY);
+    formData.append('timestamp', timestamp);
+    formData.append('signature', signature);
+    formData.append('folder', CLOUDINARY_FOLDER);
+    formData.append('signature_algorithm', 'sha256');
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`, {
+        method: 'POST',
+        body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || '업로드 실패');
+    return data.secure_url;
+}
+
+// 이미지/파일 선택 핸들러 (비이미지 파일은 Cloudinary 업로드)
 window.handleImageSelect = function (input, targetInputId, previewId) {
     const file = input.files[0];
     if (!file) return;
 
-    if (file.type.startsWith('image/') && file.size > 1024 * 1024) {
-        alert("이미지 용량이 너무 큽니다. (1MB 이하만 가능)");
-        input.value = "";
-        return;
-    }
-
-    // targetInputId/previewId가 엘리먼트일 수도 있고 ID 스트링일 수도 있게 처리
     const targetInput = typeof targetInputId === 'string'
         ? document.getElementById(targetInputId)
         : targetInputId;
-
     if (!targetInput) return;
 
-    targetInput.value = "파일 처리 중...";
+    // ── PDF / 문서 파일 → Cloudinary 업로드 ──
+    if (!file.type.startsWith('image/')) {
+        targetInput.value = '업로드 중... (잠시 기다려 주세요)';
+        targetInput.disabled = true;
+
+        // PDF 썸네일 자동 생성
+        if (file.type === 'application/pdf') {
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            const infoInput = document.getElementById('resInfo');
+            if (infoInput) {
+                infoInput.value = `PDF, ${fileSizeMB}MB | ${new Date().toLocaleDateString()}`;
+            }
+            const thumbReader = new FileReader();
+            thumbReader.onload = async function (e) {
+                try {
+                    const thumbnailBase64 = await generatePdfThumbnail(e.target.result);
+                    const thumbInput = document.getElementById('resThumb');
+                    if (thumbInput) {
+                        thumbInput.value = thumbnailBase64;
+                        const thumbPreview = document.getElementById('resThumbPreview');
+                        if (thumbPreview) {
+                            thumbPreview.style.display = 'block';
+                            thumbPreview.querySelector('img').src = thumbnailBase64;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('PDF 썸네일 생성 실패:', err);
+                }
+            };
+            thumbReader.readAsDataURL(file);
+        }
+
+        // Cloudinary 업로드
+        uploadToCloudinary(file)
+            .then(downloadUrl => {
+                targetInput.value = downloadUrl;
+                targetInput.disabled = false;
+                targetInput.style.backgroundColor = '#e8f5e9';
+                setTimeout(() => targetInput.style.backgroundColor = '', 1500);
+            })
+            .catch(err => {
+                console.error('Cloudinary 업로드 실패:', err);
+                targetInput.value = '';
+                targetInput.disabled = false;
+                alert('파일 업로드 실패: ' + err.message);
+            });
+        return;
+    }
+
+    // ── 이미지 파일 → 기존 base64 압축 방식 유지 ──
+    if (file.size > 1024 * 1024) {
+        alert('이미지 용량이 너무 큽니다. (1MB 이하만 가능)');
+        input.value = '';
+        return;
+    }
+
+    targetInput.value = '처리 중...';
     targetInput.disabled = true;
 
     const reader = new FileReader();
-    reader.onload = async function (e) {
-        const rawData = e.target.result;
+    reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+            const canvas = document.createElement('canvas');
+            let width = img.width, height = img.height;
+            const max_size = 800;
+            if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } }
+            else { if (height > max_size) { width *= max_size / height; height = max_size; } }
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+            targetInput.value = compressedBase64;
+            targetInput.disabled = false;
 
-        if (file.type === 'application/pdf') {
-            try {
-                targetInput.value = "PDF 분석 중...";
-                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
-                const infoInput = document.getElementById('resInfo');
-                if (infoInput) {
-                    infoInput.value = `PDF, ${fileSizeMB}MB | ${new Date().toLocaleDateString()}`;
-                }
-
-                const thumbnailBase64 = await generatePdfThumbnail(rawData);
-
-                const thumbInput = document.getElementById('resThumb');
-                if (thumbInput) {
-                    thumbInput.value = thumbnailBase64;
-                    const thumbPreview = document.getElementById('resThumbPreview');
-                    const previewToUse = thumbPreview || (typeof previewId !== 'string' ? previewId : null);
-                    if (previewToUse) {
-                        previewToUse.style.display = 'block';
-                        previewToUse.querySelector('img').src = thumbnailBase64;
-                    }
-                }
-
-                if (file.size < 1024 * 1024) {
-                    targetInput.value = rawData;
-                } else {
-                    targetInput.value = "";
-                    alert("파일이 1MB를 초과하여 직접 저장할 수 없습니다.");
-                }
-            } catch (err) {
-                console.error("PDF Thumbnail Error:", err);
+            const previewContainer = typeof previewId === 'string'
+                ? document.getElementById(previewId) : previewId;
+            if (previewContainer) {
+                previewContainer.style.display = 'block';
+                previewContainer.querySelector('img').src = compressedBase64;
             }
-            targetInput.disabled = false;
-        }
-        else if (file.type.startsWith('image/')) {
-            const img = new Image();
-            img.onload = function () {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                const max_size = 800;
-
-                if (width > height) {
-                    if (width > max_size) {
-                        height *= max_size / width;
-                        width = max_size;
-                    }
-                } else {
-                    if (height > max_size) {
-                        width *= max_size / height;
-                        height = max_size;
-                    }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-
-                // 투명 배경 → 흰색 배경으로 자동 변환
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, width, height);
-
-                ctx.drawImage(img, 0, 0, width, height);
-
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                targetInput.value = compressedBase64;
-                targetInput.disabled = false;
-
-                const previewContainer = typeof previewId === 'string'
-                    ? document.getElementById(previewId)
-                    : previewId;
-
-                if (previewContainer) {
-                    previewContainer.style.display = 'block';
-                    previewContainer.querySelector('img').src = compressedBase64;
-                }
-            };
-            img.src = rawData;
-        } else {
-            targetInput.value = rawData;
-            targetInput.disabled = false;
-        }
+        };
+        img.src = e.target.result;
     };
     reader.readAsDataURL(file);
 };
@@ -447,7 +472,11 @@ function renderAdminProductList() {
             const soA = a.sortOrder !== undefined ? a.sortOrder : 99999;
             const soB = b.sortOrder !== undefined ? b.sortOrder : 99999;
             if (soA !== soB) return soA - soB;
-            return b.id - a.id;
+            
+            // ID가 문자열일 경우 숫자 부분만 추출 또는 길이를 기준으로 내림차순 비교
+            const idA = typeof a.id === 'string' ? Number(a.id.replace(/\D/g, '')) || 0 : a.id;
+            const idB = typeof b.id === 'string' ? Number(b.id.replace(/\D/g, '')) || 0 : b.id;
+            return idB - idA;
         });
 
         // 같은 중분류 그룹 내에서 인접 제품 인덱스를 파악 (▲/▼ 버튼용)
@@ -608,7 +637,10 @@ window.moveProduct = async function (currentId, adjacentId, direction, groupArr)
         //    - DB 제품: sortOrder만 업데이트
         //    - 고정 제품: 전체 데이터를 Firestore에 완전히 저장 후 sortOrder 기록
         //    → sortOrder 필드만 있는 불완전 문서가 생기는 것을 원천 방지
-        const updates = groupArr.map((p, idx) => ensureProductInFirestore(p, idx));
+        const updates = groupArr.map((p, idx) => {
+            p.sortOrder = idx; // 메모리 상 객체의 순서 즉시 반영
+            return ensureProductInFirestore(p, idx);
+        });
 
         await Promise.all(updates);
         renderAdminProductList();

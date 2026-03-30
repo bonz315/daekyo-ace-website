@@ -1,0 +1,11 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      // 누구나 파일 다운로드(읽기) 가능
+      allow read: if true;
+      // 파일 업로드는 관리자 페이지에서만 사용 (쓰기 허용)
+      allow write: if true;
+    }
+  }
+}

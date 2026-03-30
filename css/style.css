@@ -160,6 +160,60 @@ nav a.active {
     color: var(--primary-orange);
 }
 
+/* 검색창 스타일 */
+.header-search-item {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+}
+
+.header-search-form {
+    display: flex;
+    align-items: center;
+    background-color: var(--light-gray);
+    border-radius: 20px;
+    padding: 0.2rem 0.5rem 0.2rem 1rem;
+    border: 1px solid transparent;
+    transition: var(--transition);
+}
+
+.header-search-form:focus-within {
+    border-color: var(--primary-orange);
+    background-color: var(--white);
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.1);
+}
+
+.header-search-form input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.9rem;
+    width: 120px;
+    transition: var(--transition);
+    color: var(--text-dark);
+}
+
+.header-search-form input:focus {
+    width: 160px;
+}
+
+.header-search-form button {
+    background: none;
+    border: none;
+    color: var(--dark-gray);
+    cursor: pointer;
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.header-search-form button:hover {
+    color: var(--primary-orange);
+    transform: scale(1.1);
+}
+
 /* 관리자 접속 버튼 (플로팅 스타일) */
 .admin-access-btn {
     position: fixed;
@@ -215,6 +269,36 @@ nav a.active {
     color: var(--text-dark);
     z-index: 1002;
     /* 메뉴보다 위에 표시 */
+}
+
+/* 모바일 네비게이션 스타일 추가 */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+    }
+    
+    .header-search-item {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .header-search-form {
+        width: 90%;
+        max-width: 300px;
+        padding: 0.5rem 1rem;
+    }
+    
+    .header-search-form input {
+        width: 100%;
+    }
+    
+    .header-search-form input:focus {
+        width: 100%;
+    }
 }
 
 /* ==========================================

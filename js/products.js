@@ -26,8 +26,11 @@ function initializeProductPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const categoryId = urlParams.get('category');
     const subId = urlParams.get('sub');
+    const searchQuery = urlParams.get('search');
 
-    if (categoryId) {
+    if (searchQuery) {
+        performSearch(searchQuery);
+    } else if (categoryId) {
         if (subId) {
             selectMainAndSubCategory(categoryId, subId, false);
         } else {
@@ -701,6 +704,75 @@ function renderAllProducts() {
         const card = createProductCard(product);
         container.appendChild(card);
     });
+}
+
+// 검색 기능 실행
+function performSearch(query) {
+    // 상태 초기화
+    selectedMainCategory = null;
+    selectedSubCategory = null;
+    selectedDetailCategory = null;
+
+    // UI 요소 숨기기
+    const mainCards = document.getElementById('mainCategoryCards');
+    const subNav = document.getElementById('subCategoryNav');
+    const detailNav = document.getElementById('detailCategoryNav');
+    const noticeContainer = document.getElementById('categoryNotice');
+    
+    if (mainCards) mainCards.style.display = 'none';
+    if (subNav) subNav.style.display = 'none';
+    if (detailNav) detailNav.style.display = 'none';
+    if (noticeContainer) noticeContainer.style.display = 'none';
+
+    // 경로 표시 업데이트
+    const pathElement = document.getElementById('categoryPath');
+    const pathContainer = document.getElementById('selectedCategoryPath');
+    if (pathElement && pathContainer) {
+        pathContainer.style.display = 'block';
+        pathElement.textContent = `검색 결과: '${query}'`;
+    }
+
+    // 공백을 제거하고 소문자로 변환하여 검색어 전처리
+    const lowerQuery = query.toLowerCase().replace(/\s+/g, '');
+
+    // 제품 필터링
+    const filteredProducts = products.filter(p => {
+        const nameMatch = p.name && p.name.toLowerCase().replace(/\s+/g, '').includes(lowerQuery);
+        const sizeMatch = p.specs && p.specs.size && p.specs.size.toLowerCase().replace(/\s+/g, '').includes(lowerQuery);
+        const cardSizeMatch = p.cardSize && p.cardSize.toLowerCase().replace(/\s+/g, '').includes(lowerQuery);
+        
+        return nameMatch || sizeMatch || cardSizeMatch;
+    });
+
+    const container = document.getElementById('productGrid');
+    const noProductsMsg = document.getElementById('noProducts');
+
+    if (filteredProducts.length === 0) {
+        if (container) container.style.display = 'none';
+        if (noProductsMsg) {
+            noProductsMsg.style.display = 'block';
+            noProductsMsg.innerHTML = `<p style="text-align:center; padding:3rem; color:#666; font-size:1.1rem;">
+                <b>'${query}'</b>에 대한 검색 결과가 없습니다.<br>
+                <span style="font-size:0.95rem; color:#999; display:block; margin-top:0.5rem;">다른 검색어로 다시 시도해보세요.</span>
+            </p>`;
+        }
+        return;
+    }
+
+    // 결과 렌더링
+    if (noProductsMsg) noProductsMsg.style.display = 'none';
+    if (container) {
+        container.style.display = 'grid';
+        container.innerHTML = '';
+        container.classList.remove('product-grid-private');
+        // 검색 결과는 기본 그리드로 표시
+        container.style.gridTemplateColumns = '';
+
+        filteredProducts.forEach(product => {
+            const card = createProductCard(product);
+            container.appendChild(card);
+        });
+    }
 }
 
 // 제품 카드 생성

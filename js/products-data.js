@@ -162,6 +162,18 @@ async function loadDBProducts() {
             mergeSnapshot(querySnapshot);
             console.log("DB Products matched and loaded. Total:", products.length);
         }
+
+        // 전체 products 배열을 sortOrder 및 ID 내림차순(최신순)에 맞게 정렬
+        products.sort((a, b) => {
+            const soA = a.sortOrder !== undefined ? a.sortOrder : 99999;
+            const soB = b.sortOrder !== undefined ? b.sortOrder : 99999;
+            if (soA !== soB) return soA - soB;
+            
+            const idA = typeof a.id === 'string' ? Number(a.id.replace(/\D/g, '')) || 0 : a.id;
+            const idB = typeof b.id === 'string' ? Number(b.id.replace(/\D/g, '')) || 0 : b.id;
+            return idB - idA;
+        });
+
     } catch (error) {
         console.error("Error loading products from DB:", error);
     }

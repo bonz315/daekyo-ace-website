@@ -2,34 +2,51 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // 제품 데이터 - 누구나 읽기 가능, 쓰기 가능 (관리자 페이지에서 사용)
+    // 제품 데이터: 읽기는 공개, 쓰기는 로그인한 관리자만
     match /products/{document=**} {
       allow read: if true;
-      allow write: if true;
+      allow write: if request.auth != null;
     }
 
-    // 카테고리 데이터 - 누구나 읽기 가능
+    // 카테고리: 읽기는 공개, 쓰기는 로그인한 관리자만
     match /categories/{document=**} {
       allow read: if true;
-      allow write: if true;
+      allow write: if request.auth != null;
     }
 
-    // 자료실 데이터 - 누구나 읽기 가능
+    // 자료실: 읽기는 공개, 쓰기는 로그인한 관리자만
     match /resources/{document=**} {
       allow read: if true;
-      allow write: if true;
+      allow write: if request.auth != null;
     }
 
-    // 문의 데이터 - 누구나 읽기/쓰기 가능 (문의 접수 및 관리자 답변)
-    match /inquiries/{document=**} {
+    // 문의: 생성은 누구나(고객 문의), 수정/삭제는 관리자만
+    match /inquiries/{document} {
       allow read: if true;
-      allow write: if true;
+
+      // 새 문의 생성: 필수 필드 + 형식 검증
+      allow create: if request.resource.data.keys().hasAll([
+                        'id', 'name', 'email', 'phone',
+                        'subject', 'message', 'status', 'date'
+                      ])
+                   && request.resource.data.name is string
+                   && request.resource.data.name.size() > 0
+                   && request.resource.data.name.size() <= 100
+                   && request.resource.data.email is string
+                   && request.resource.data.email.matches('.*@.*\\..*')
+                   && request.resource.data.message is string
+                   && request.resource.data.message.size() >= 5
+                   && request.resource.data.message.size() <= 5000
+                   && request.resource.data.status == 'pending';
+
+      // 수정/삭제: 로그인한 관리자만 (답변 등록, 문의 삭제)
+      allow update, delete: if request.auth != null;
     }
 
-    // 그룹핑 규칙 - 누구나 읽기 가능
+    // 그룹핑 규칙: 읽기는 공개, 쓰기는 로그인한 관리자만
     match /groupingRules/{document=**} {
       allow read: if true;
-      allow write: if true;
+      allow write: if request.auth != null;
     }
 
   }

@@ -308,6 +308,7 @@ function initContactForm() {
                 subject: document.getElementById('subject').value,
                 message: document.getElementById('message').value,
                 date: new Date().toLocaleString(),
+                timestamp: Date.now(),
                 status: 'pending',
                 answer: null
             };

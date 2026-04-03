@@ -4,7 +4,8 @@
 
 // Firebase 설정은 firebase-init.js에서 처리됩니다.
 
-const ADMIN_PASSWORD = "daekyo123"; // 초기 비밀번호
+// Firebase Authentication 사용 - 비밀번호는 Firebase Console에서 관리됩니다
+const ADMIN_EMAIL = 'dk4337@hanmail.net';
 
 // 제품 관리 목록용 필터 상태
 let adminProductCategoryFilter = 'all';
@@ -125,6 +126,13 @@ window.handleImageSelect = function (input, targetInputId, previewId) {
         targetInput.value = '업로드 중... (잠시 기다려 주세요)';
         targetInput.disabled = true;
 
+        // 저장 버튼 비활성화 (업로드 완료 전 저장 방지)
+        const resSaveBtn = document.querySelector('#resourceForm button[type="submit"]');
+        if (resSaveBtn) {
+            resSaveBtn.disabled = true;
+            resSaveBtn.textContent = '업로드 중...';
+        }
+
         // PDF 썸네일 자동 생성
         if (file.type === 'application/pdf') {
             const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
@@ -159,6 +167,48 @@ window.handleImageSelect = function (input, targetInputId, previewId) {
                 targetInput.disabled = false;
                 targetInput.style.backgroundColor = '#e8f5e9';
                 setTimeout(() => targetInput.style.backgroundColor = '', 1500);
+                // 저장 버튼 재활성화
+                if (resSaveBtn) {
+                    resSaveBtn.disabled = false;
+                    resSaveBtn.textContent = '저장하기';
+                }
+            })
+            .catch(err => {
+                console.error('Cloudinary 업로드 실패:', err);
+                targetInput.value = '';
+                targetInput.disabled = false;
+                // 저장 버튼 재활성화
+                if (resSaveBtn) {
+                    resSaveBtn.disabled = false;
+                    resSaveBtn.textContent = '저장하기';
+                }
+                alert('파일 업로드 실패: ' + err.message);
+            });
+        return;
+    }
+
+    // ── 이미지 파일 처리 ──
+    // 1MB 이상의 이미지는 화질 저하 없이 Cloudinary로 바로 업로드 처리
+    if (file.size > 1024 * 1024) {
+        targetInput.value = '고화질 업로드 중... (잠시 대기)';
+        targetInput.disabled = true;
+        
+        uploadToCloudinary(file)
+            .then(downloadUrl => {
+                targetInput.value = downloadUrl;
+                targetInput.disabled = false;
+                targetInput.style.backgroundColor = '#e8f5e9';
+                setTimeout(() => targetInput.style.backgroundColor = '', 1500);
+
+                const previewContainer = typeof previewId === 'string'
+                    ? document.getElementById(previewId)
+                    : previewId;
+
+                if (previewContainer) {
+                    previewContainer.style.display = 'block';
+                    const imgTag = previewContainer.querySelector('img');
+                    if (imgTag) imgTag.src = downloadUrl;
+                }
             })
             .catch(err => {
                 console.error('Cloudinary 업로드 실패:', err);
@@ -169,12 +219,7 @@ window.handleImageSelect = function (input, targetInputId, previewId) {
         return;
     }
 
-    // ── 이미지 파일 → 기존 base64 압축 방식 유지 ──
-    if (file.size > 1024 * 1024) {
-        alert('이미지 용량이 너무 큽니다. (1MB 이하만 가능)');
-        input.value = '';
-        return;
-    }
+    // 1MB 이하의 이미지만 기존 base64 방식(Canvas)을 사용하여 자체 저장
 
     targetInput.value = '처리 중...';
     targetInput.disabled = true;
@@ -227,48 +272,59 @@ async function generatePdfThumbnail(pdfBase64) {
     return canvas.toDataURL('image/jpeg', 0.8);
 }
 
-// 1. 로그인 처리
+// 1. 로그인 처리 (Firebase Authentication)
 function initLogin() {
     const loginForm = document.getElementById('loginForm');
     const adminLogin = document.getElementById('adminLogin');
     const adminDashboard = document.getElementById('adminDashboard');
 
-    // 이미 로그인되어 있는지 확인
-    if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
-        if (adminLogin) adminLogin.style.display = 'none';
-        if (adminDashboard) adminDashboard.style.display = 'block';
-        renderAdminProductList();
-        renderAdminCategoryList();
-        renderAdminProductCategoryTabs(); // 카테고리 필터 탭 생성
-        renderAdminResourceListSync();
-        renderAdminInquiryListSync(); // 실시간 문의 목록
-    }
+    // Firebase Auth 상태 감시: 로그인 여부에 따라 화면 자동 전환
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            if (adminLogin) adminLogin.style.display = 'none';
+            if (adminDashboard) adminDashboard.style.display = 'block';
+            renderAdminProductList();
+            renderAdminCategoryList();
+            renderAdminProductCategoryTabs();
+            renderAdminResourceListSync();
+            renderAdminInquiryListSync();
+        } else {
+            if (adminLogin) adminLogin.style.display = 'flex';
+            if (adminDashboard) adminDashboard.style.display = 'none';
+        }
+    });
 
     if (loginForm) {
         loginForm.addEventListener('submit', function (e) {
             e.preventDefault();
             const pwd = document.getElementById('adminPassword').value;
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '로그인 중...'; }
 
-            if (pwd === ADMIN_PASSWORD) {
-                sessionStorage.setItem('isAdminLoggedIn', 'true');
-                if (adminLogin) adminLogin.style.display = 'none';
-                if (adminDashboard) adminDashboard.style.display = 'block';
-                renderAdminProductList();
-                renderAdminCategoryList();
-                renderAdminProductCategoryTabs();
-                renderAdminResourceListSync();
-                renderAdminInquiryListSync();
-            } else {
-                alert("비밀번호가 일치하지 않습니다.");
-            }
+            firebase.auth().signInWithEmailAndPassword(ADMIN_EMAIL, pwd)
+                .then(() => {
+                    // onAuthStateChanged가 자동으로 대시보드를 표시함
+                })
+                .catch((error) => {
+                    console.error('Login error:', error.code);
+                    if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                        alert('비밀번호가 일치하지 않습니다.');
+                    } else if (error.code === 'auth/too-many-requests') {
+                        alert('로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.');
+                    } else {
+                        alert('로그인 오류: ' + error.message);
+                    }
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '로그인'; }
+                });
         });
     }
 }
 
 // 로그아웃
 function logout() {
-    sessionStorage.removeItem('isAdminLoggedIn');
-    window.location.reload();
+    firebase.auth().signOut().then(() => {
+        window.location.reload();
+    });
 }
 window.logout = logout;
 
@@ -508,6 +564,7 @@ function renderAdminProductList() {
                 const groupCount = combinedProducts.filter(pp => pp.mainCategory === p.mainCategory).length;
 
                 const headerTr = document.createElement('tr');
+                headerTr.className = 'category-header';
                 headerTr.innerHTML = `
                     <td colspan="7" style="background: ${mainColor}15; border-left: 4px solid ${mainColor}; padding: 0.7rem 1rem; font-weight: 700; color: ${mainColor};">
                         ${mainCat ? mainCat.icon || '' : ''} ${mainName}
@@ -529,6 +586,7 @@ function renderAdminProductList() {
                 const subCount = combinedProducts.filter(pp => pp.mainCategory === p.mainCategory && pp.subCategory === p.subCategory).length;
 
                 const subHeaderTr = document.createElement('tr');
+                subHeaderTr.className = 'category-header';
                 subHeaderTr.innerHTML = `
                     <td colspan="7" style="background: #f9f9f9; border-left: 3px solid ${mainColor}88; padding: 0.5rem 1rem 0.5rem 2rem; color: #555; font-size: 0.9rem;">
                         ┗ ${subName}
@@ -538,37 +596,28 @@ function renderAdminProductList() {
                 tbody.appendChild(subHeaderTr);
             }
 
-            // 같은 그룹 내 위치 파악 (순서 버튼용)
+            // 같은 그룹 내 파악 (드래그 앤 드롭 제한용)
             const groupKey = (p.mainCategory || '') + '/' + (p.subCategory || '');
-            const groupArr = groupMap[groupKey] || [];
-            const posInGroup = groupArr.findIndex(gp => gp.id.toString() === p.id.toString());
-            const isFirst = posInGroup === 0;
-            const isLast = posInGroup === groupArr.length - 1;
-            const prevProduct = isFirst ? null : groupArr[posInGroup - 1];
-            const nextProduct = isLast ? null : groupArr[posInGroup + 1];
 
             const tr = document.createElement('tr');
+            tr.className = 'admin-product-row';
+            tr.dataset.id = p.id;
+            tr.dataset.group = groupKey;
+            tr.style.backgroundColor = '#fff'; // 드래그 시 배경색 유지
 
-            // 순서 버튼 셀 (groupArr 클로저로 전달하기 위해 createElement 사용)
+            // 드래그 앤 드롭 핸들 적용
             const orderTd = document.createElement('td');
-            orderTd.style.whiteSpace = 'nowrap';
+            orderTd.style.textAlign = 'center';
 
-            const upBtn = document.createElement('button');
-            upBtn.className = 'btn-sm';
-            upBtn.title = '위로';
-            upBtn.textContent = '▲';
-            if (isFirst) { upBtn.disabled = true; upBtn.style.opacity = '0.3'; upBtn.style.cursor = 'default'; }
-            upBtn.addEventListener('click', () => moveProduct(p.id, prevProduct ? prevProduct.id : '', -1, groupArr));
+            const dragHandle = document.createElement('span');
+            dragHandle.className = 'drag-handle';
+            dragHandle.innerHTML = '&#9776;'; // ☰ 표시
+            dragHandle.style.cursor = 'grab';
+            dragHandle.style.fontSize = '1.2rem';
+            dragHandle.style.color = '#888';
+            dragHandle.title = '드래그하여 순서 변경';
 
-            const downBtn = document.createElement('button');
-            downBtn.className = 'btn-sm';
-            downBtn.title = '아래로';
-            downBtn.textContent = '▼';
-            if (isLast) { downBtn.disabled = true; downBtn.style.opacity = '0.3'; downBtn.style.cursor = 'default'; }
-            downBtn.addEventListener('click', () => moveProduct(p.id, nextProduct ? nextProduct.id : '', 1, groupArr));
-
-            orderTd.appendChild(upBtn);
-            orderTd.appendChild(downBtn);
+            orderTd.appendChild(dragHandle);
             tr.appendChild(orderTd);
 
             // ⚠ tr.innerHTML += 대신 insertAdjacentHTML 사용 → orderTd의 이벤트 리스너 보존
@@ -588,6 +637,52 @@ function renderAdminProductList() {
             `);
             tbody.appendChild(tr);
         });
+
+        // 드래그 앤 드롭 (SortableJS) 적용
+        if (typeof Sortable !== 'undefined' && tbody) {
+            if (window.adminSortable) {
+                window.adminSortable.destroy();
+            }
+            window.adminSortable = new Sortable(tbody, {
+                animation: 150,
+                handle: '.drag-handle',
+                filter: '.category-header',
+                ghostClass: 'sortable-ghost',
+                onMove: function (evt) {
+                    const draggedGroup = evt.dragged.dataset.group;
+                    const relatedGroup = evt.related.dataset.group;
+                    // 다른 카테고리(중분류) 영역이나 헤더로의 이동 방지
+                    if (!relatedGroup || draggedGroup !== relatedGroup) {
+                        return false;
+                    }
+                },
+                onEnd: async function (evt) {
+                    // 원래 위치에 놓았으면 무시
+                    if (evt.oldIndex === evt.newIndex) return;
+
+                    const draggedGroup = evt.item.dataset.group;
+                    // 현재 DOM에 렌더링 된 새 순서대로 해당 그룹 요소들 배열화
+                    const rows = Array.from(tbody.querySelectorAll(`tr.admin-product-row[data-group="${draggedGroup.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"]`));
+
+                    const updates = rows.map((row, idx) => {
+                        const productId = row.dataset.id;
+                        const p = combinedProducts.find(prod => prod.id.toString() === productId.toString());
+                        if (p) {
+                            p.sortOrder = idx; // 메모리 즉시 갱신
+                            return ensureProductInFirestore(p, idx);
+                        }
+                    }).filter(Boolean);
+
+                    try {
+                        await Promise.all(updates);
+                        // UI는 SortableJS에 의해 이미 바뀌었으므로 리렌더를 생략하여 깜빡임 최소화
+                    } catch (error) {
+                        alert("순서 저장 방지/실패 에러처리: " + error);
+                        renderAdminProductList(); // 에러 시만 기존 상태로 복구
+                    }
+                }
+            });
+        }
     });
 }
 
@@ -778,14 +873,22 @@ window.setAdminResourceFilter = function (type) {
 
 function saveResource() {
     const id = document.getElementById('editResId').value || 'RES' + Date.now();
+    const fileUrl = document.getElementById('resUrl').value;
+
+    // 업로드 미완료 상태 방어
+    if (!fileUrl || fileUrl.includes('업로드 중') || fileUrl.includes('처리 중')) {
+        alert('파일 업로드가 아직 완료되지 않았습니다.\n업로드가 완료된 후 저장해 주세요.');
+        return;
+    }
+
     const resourceData = {
         id: id,
         title: document.getElementById('resTitle').value,
         type: document.getElementById('resType').value,
         description: document.getElementById('resDesc').value,
         fileInfo: document.getElementById('resInfo').value,
-        fileUrl: document.getElementById('resUrl').value,
-        thumbnail: document.getElementById('resThumb').value, // 썸네일 추가
+        fileUrl: fileUrl,
+        thumbnail: document.getElementById('resThumb').value,
         updatedAt: new Date().toISOString()
     };
 
@@ -849,16 +952,24 @@ function renderAdminInquiryListSync() {
 
     // 실시간 리스너 설정: 데이터가 변하면 자동으로 호출됨
     db.collection("inquiries")
-        .orderBy("date", "desc")
         .onSnapshot((querySnapshot) => {
             tbody.innerHTML = '';
 
             if (querySnapshot.empty) {
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem; color:#999;">문의 내역이 없습니다.</td></tr>';
+                return;
             }
 
-            querySnapshot.forEach((doc) => {
-                const inq = doc.data();
+            // 클라이언트에서 최신순 정렬 (timestamp 우선, 없으면 date 문자열 비교)
+            const allInquiries = [];
+            querySnapshot.forEach((doc) => allInquiries.push(doc.data()));
+            allInquiries.sort((a, b) => {
+                const tA = a.timestamp || 0;
+                const tB = b.timestamp || 0;
+                return tB - tA;
+            });
+
+            allInquiries.forEach((inq) => {
                 const tr = document.createElement('tr');
                 const statusBadge = inq.status === 'answered'
                     ? '<span class="status-badge" style="background:#2ed573; color:white; padding:2px 8px; border-radius:12px; font-size:0.8rem;">답변완료</span>'

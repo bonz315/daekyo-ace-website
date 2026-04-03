@@ -148,15 +148,32 @@
                 link.click();
                 document.body.removeChild(link);
             } else if (url.includes('cloudinary.com')) {
-                // Cloudinary URL → fl_attachment 추가해서 강제 다운로드
+                // Cloudinary URL → fetch + blob 방식으로 다운로드
+                // (팝업 차단기 우회 + 파일명 정상 지정을 위해 blob URL 사용)
                 const dlUrl = url.replace('/upload/', '/upload/fl_attachment/');
-                const link = document.createElement('a');
-                link.href = dlUrl;
-                link.download = filename;
-                link.target = '_blank';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                // URL에서 파일 확장자 추출
+                const urlNoQuery = url.split('?')[0];
+                const urlExt = urlNoQuery.split('.').pop().toLowerCase();
+                const validExts = ['pdf','doc','docx','xls','xlsx','hwp','ppt','pptx','zip','png','jpg','jpeg'];
+                const finalName = (validExts.includes(urlExt) && !filename.includes('.'))
+                    ? `${filename}.${urlExt}`
+                    : filename;
+                fetch(dlUrl, { mode: 'cors' })
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const blobUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = blobUrl;
+                        link.download = finalName;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+                    })
+                    .catch(() => {
+                        // 실패 시 새 탭으로 열기 (fallback)
+                        window.open(dlUrl, '_blank');
+                    });
             } else {
                 // 구글드라이브 등 외부 링크 → 새 탭
                 window.open(url, '_blank');

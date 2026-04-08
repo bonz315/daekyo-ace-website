@@ -129,8 +129,36 @@
     <script>
         let currentFilter = 'all';
 
-        // data: URL 파일을 지정된 파일명으로 다운로드하는 함수
-        window.downloadResource = function(elementId) {
+        // ─── Cloudinary Signed URL 생성 ───
+        // 계정 보안 설정(Strict Transformations)으로 인해 서명 필수
+        const CLD_SECRET = 'NNmn6k8jW3Kdl4dhibevUngJ9vI';
+
+        async function signCloudinaryUrl(originalUrl) {
+            // URL에서 /upload/ 이후 경로 추출 (서명 대상)
+            const match = originalUrl.match(/\/upload\/(.+)$/);
+            if (!match) return originalUrl;
+
+            const toSign = match[1]; // e.g. "v1234/folder/file.pdf"
+
+            // SHA-1 해시 생성
+            const buf = new TextEncoder().encode(toSign + CLD_SECRET);
+            const hashBuffer = await crypto.subtle.digest('SHA-1', buf);
+
+            // Binary → Base64 → URL-safe → 8자 추출
+            const hashArray = new Uint8Array(hashBuffer);
+            let binary = '';
+            for (let i = 0; i < hashArray.length; i++) {
+                binary += String.fromCharCode(hashArray[i]);
+            }
+            const base64 = btoa(binary);
+            const sig = base64.replace(/\+/g, '-').replace(/\//g, '_').substring(0, 8);
+
+            // /upload/ 바로 뒤에 s--서명-- 삽입
+            return originalUrl.replace('/upload/', '/upload/s--' + sig + '--/');
+        }
+
+        // ─── 다운로드 함수 ───
+        window.downloadResource = async function(elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
             const url = el.dataset.url;
@@ -148,32 +176,37 @@
                 link.click();
                 document.body.removeChild(link);
             } else if (url.includes('cloudinary.com')) {
-                // Cloudinary URL → fetch + blob 방식으로 다운로드
-                // (팝업 차단기 우회 + 파일명 정상 지정을 위해 blob URL 사용)
-                const dlUrl = url.replace('/upload/', '/upload/fl_attachment/');
-                // URL에서 파일 확장자 추출
+                // Cloudinary 서명 URL 생성 후 fetch → blob 다운로드
                 const urlNoQuery = url.split('?')[0];
                 const urlExt = urlNoQuery.split('.').pop().toLowerCase();
                 const validExts = ['pdf','doc','docx','xls','xlsx','hwp','ppt','pptx','zip','png','jpg','jpeg'];
                 const finalName = (validExts.includes(urlExt) && !filename.includes('.'))
                     ? `${filename}.${urlExt}`
                     : filename;
-                fetch(dlUrl, { mode: 'cors' })
-                    .then(res => res.blob())
-                    .then(blob => {
-                        const blobUrl = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = blobUrl;
-                        link.download = finalName;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
-                    })
-                    .catch(() => {
-                        // 실패 시 새 탭으로 열기 (fallback)
-                        window.open(dlUrl, '_blank');
-                    });
+
+                try {
+                    const signedUrl = await signCloudinaryUrl(url);
+                    const res = await fetch(signedUrl, { mode: 'cors' });
+                    if (!res.ok) throw new Error('fetch failed: ' + res.status);
+                    const blob = await res.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = finalName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+                } catch (err) {
+                    console.error('Download failed:', err);
+                    // fallback: 서명된 URL로 새 탭
+                    try {
+                        const fallbackUrl = await signCloudinaryUrl(url);
+                        window.open(fallbackUrl, '_blank');
+                    } catch {
+                        window.open(url, '_blank');
+                    }
+                }
             } else {
                 // 구글드라이브 등 외부 링크 → 새 탭
                 window.open(url, '_blank');

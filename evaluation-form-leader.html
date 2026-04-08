@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>조장급 인사평가서</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #f0f2f5;
+            color: #1a1a1a;
+            padding: 20px;
+        }
+
+        /* ===== 인쇄 설정 ===== */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                font-size: 11pt;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .eval-container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 15mm 15mm 10mm 15mm !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            @page {
+                size: A4;
+                margin: 5mm;
+            }
+            .eval-table th, .eval-table td {
+                padding: 6px 8px !important;
+            }
+            .score-circle {
+                width: 22px !important;
+                height: 22px !important;
+                font-size: 10px !important;
+            }
+        }
+
+        /* ===== 컨트롤 바 (화면용) ===== */
+        .control-bar {
+            max-width: 900px;
+            margin: 0 auto 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-bar button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-print {
+            background: #2563eb;
+            color: white;
+        }
+        .btn-print:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-reset {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-reset:hover {
+            background: #dc2626;
+        }
+
+        .btn-save {
+            background: #10b981;
+            color: white;
+        }
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        .auto-calc-notice {
+            font-size: 13px;
+            color: #6b7280;
+            margin-left: auto;
+        }
+
+        /* ===== 평가서 컨테이너 ===== */
+        .eval-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px 45px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            border-radius: 8px;
+        }
+
+        /* ===== 헤더 ===== */
+        .eval-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .eval-header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            margin-bottom: 6px;
+            color: #111;
+        }
+
+        .eval-header .subtitle {
+            font-size: 14px;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .eval-header .doc-no {
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* ===== 기본정보 테이블 ===== */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            border: 2px solid #333;
+        }
+
+        .info-table th {
+            background: #f1f5f9;
+            padding: 10px 14px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            border: 1px solid #cbd5e1;
+            white-space: nowrap;
+            width: 100px;
+        }
+
+        .info-table td {
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            font-size: 13px;
+        }
+
+        .info-table input[type="text"],
+        .info-table input[type="date"],
+        .info-table select {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 13px;
+            background: transparent;
+        }
+
+        /* ===== 평가항목 테이블 ===== */
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin: 24px 0 10px;
+            padding-left: 10px;
+            border-left: 4px solid #2563eb;
+            color: #1e3a5f;
+        }
+
+        .eval-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border: 2px solid #333;
+        }
+
+        .eval-table thead th {
+            background: #1e3a5f;
+            color: white;
+            padding: 10px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            border: 1px solid #1e3a5f;
+        }
+
+        .eval-table tbody th {
+            background: #f1f5f9;
+            padding: 8px 12px;
+            font-weight: 600;
+            font-size: 12px;
+            text-align: center;
+            border: 1px solid #cbd5e1;
+            vertical-align: middle;
+            width: 80px;
+        }
+
+        .eval-table tbody td {
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 12px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .eval-table .item-name {
+            text-align: left;
+            font-weight: 500;
+            min-width: 120px;
+        }
+
+        .eval-table .item-desc {
+            text-align: left;
+            font-size: 11px;
+            color: #555;
+            min-width: 180px;
+        }
+
+        .eval-table .weight-col {
+            font-weight: 700;
+            color: #2563eb;
+            width: 50px;
+        }
+
+        /* ===== 점수 선택 원형 ===== */
+        .score-group {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .score-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+            color: #94a3b8;
+        }
+
+        .score-circle:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .score-circle.selected {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        .score-cell {
+            font-weight: 700;
+            font-size: 14px;
+            color: #2563eb;
+            width: 55px;
+        }
+
+        /* ===== 합계 행 ===== */
+        .total-row td {
+            background: #fef3c7 !important;
+            font-weight: 700 !important;
+            font-size: 15px !important;
+            color: #92400e;
+            padding: 12px !important;
+        }
+
+        /* ===== 등급 표시 ===== */
+        .grade-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            padding: 16px;
+            background: #f8fafc;
+            border: 2px solid #333;
+            border-radius: 0;
+        }
+
+        .grade-label {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .grade-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .grade-item {
+            width: 48px;
+            height: 48px;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+        }
+
+        .grade-item .grade-letter {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .grade-item .grade-range {
+            font-size: 8px;
+            color: #999;
+        }
+
+        .grade-item:hover {
+            border-color: #2563eb;
+        }
+
+        .grade-item.selected {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        .grade-item.selected .grade-range {
+            color: #bfdbfe;
+        }
+
+        /* ===== 종합의견 ===== */
+        .opinion-section {
+            margin: 24px 0;
+        }
+
+        .opinion-box {
+            border: 2px solid #333;
+            width: 100%;
+        }
+
+        .opinion-box .opinion-header {
+            background: #f1f5f9;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 13px;
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        .opinion-box textarea {
+            width: 100%;
+            min-height: 100px;
+            border: none;
+            outline: none;
+            padding: 12px 14px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 13px;
+            resize: vertical;
+            line-height: 1.8;
+        }
+
+        /* ===== 서명란 ===== */
+        .sign-section {
+            margin-top: 30px;
+        }
+
+        .sign-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #333;
+        }
+
+        .sign-table th {
+            background: #f1f5f9;
+            padding: 10px 14px;
+            font-weight: 600;
+            font-size: 13px;
+            border: 1px solid #cbd5e1;
+            text-align: center;
+            width: 100px;
+        }
+
+        .sign-table td {
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            font-size: 13px;
+            text-align: center;
+            height: 60px;
+        }
+
+        .sign-table input {
+            width: 100%;
+            border: none;
+            outline: none;
+            text-align: center;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 13px;
+            background: transparent;
+        }
+
+        /* ===== 평가 기준 안내 ===== */
+        .guide-box {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f8fafc;
+            border: 1px dashed #94a3b8;
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.7;
+        }
+
+        .guide-box h4 {
+            font-size: 12px;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .guide-box table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .guide-box table th,
+        .guide-box table td {
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .guide-box table th {
+            background: #e2e8f0;
+            font-weight: 600;
+        }
+
+        /* ===== 반응형 ===== */
+        @media (max-width: 768px) {
+            .eval-container {
+                padding: 20px 16px;
+            }
+            .eval-header h1 {
+                font-size: 20px;
+                letter-spacing: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 컨트롤 바 (화면에서만 표시) -->
+    <div class="control-bar no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ 인쇄하기</button>
+        <button class="btn-reset" onclick="resetForm()">🔄 초기화</button>
+        <button class="btn-save" onclick="saveAsPDF()">💾 PDF 저장</button>
+        <span class="auto-calc-notice">💡 점수를 클릭하면 자동으로 합산됩니다</span>
+    </div>
+
+    <!-- 평가서 본문 -->
+    <div class="eval-container" id="evalForm">
+
+        <!-- 헤더 -->
+        <div class="eval-header">
+            <span class="doc-no">문서번호: HR-LD-<span id="docYear">2026</span>-____</span>
+            <h1>조장급 인사평가서</h1>
+            <p class="subtitle">Group Leader Performance Evaluation Form</p>
+        </div>
+
+        <!-- 1. 기본정보 -->
+        <div class="section-title">Ⅰ. 피평가자 기본정보</div>
+        <table class="info-table">
+            <tr>
+                <th>성 명</th>
+                <td><input type="text" placeholder="이름 (Name)"></td>
+                <th>직 급</th>
+                <td><input type="text" placeholder="직급 (예: 조장, 반장)"></td>
+            </tr>
+            <tr>
+                <th>부 서</th>
+                <td><input type="text" placeholder="부서명"></td>
+                <th>담당공정/조</th>
+                <td><input type="text" placeholder="담당 공정명 및 조 이름"></td>
+            </tr>
+            <tr>
+                <th>입사일</th>
+                <td><input type="date"></td>
+                <th>조장 임명일</th>
+                <td><input type="date"></td>
+            </tr>
+            <tr>
+                <th>평가기간</th>
+                <td colspan="3">
+                    <input type="date" style="width:45%; display:inline-block;"> ~ 
+                    <input type="date" style="width:45%; display:inline-block;">
+                </td>
+            </tr>
+        </table>
+
+        <!-- 2. 평가항목 -->
+        <div class="section-title">Ⅱ. 평가항목</div>
+        
+        <table class="eval-table" id="evalTable">
+            <thead>
+                <tr>
+                    <th style="width:70px;">영역</th>
+                    <th style="width:110px;">평가항목</th>
+                    <th>세부 평가기준</th>
+                    <th style="width:45px;">배점</th>
+                    <th style="width:185px;">점수 선택 (1~5)</th>
+                    <th style="width:55px;">득점</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 1. 리더십 -->
+                <tr>
+                    <th rowspan="2">리더십</th>
+                    <td class="item-name">팀원 관리 및 동기부여</td>
+                    <td class="item-desc">조원들의 근태, 업무를 잘 관리하고 사기를 진작시키는가 (외국인 근로자 관리 포함)</td>
+                    <td class="weight-col">10</td>
+                    <td>
+                        <div class="score-group" data-weight="10">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+                <tr>
+                    <td class="item-name">갈등 조정 및 교육</td>
+                    <td class="item-desc">팀 내 갈등 발생 시 원만하게 해결하며 신규 인원(OJT) 교욱을 효과적으로 수행하는가</td>
+                    <td class="weight-col">10</td>
+                    <td>
+                        <div class="score-group" data-weight="10">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+
+                <!-- 2. 생산성 관리 -->
+                <tr>
+                    <th rowspan="2">생산성<br>관리</th>
+                    <td class="item-name">목표 달성률</td>
+                    <td class="item-desc">담당 조의 일일/주간/월간 생산 목표량을 달성하는가</td>
+                    <td class="weight-col">10</td>
+                    <td>
+                        <div class="score-group" data-weight="10">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+                <tr>
+                    <td class="item-name">라인/작업 효율</td>
+                    <td class="item-desc">작업 대기시간(병목현상)을 최소화하고 인력 배치를 효율적으로 하는가</td>
+                    <td class="weight-col">10</td>
+                    <td>
+                        <div class="score-group" data-weight="10">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+                
+                <!-- 3. 품질 관리 -->
+                <tr>
+                    <th rowspan="2">품질<br>관리</th>
+                    <td class="item-name">불량률 관리</td>
+                    <td class="item-desc">공정 내 불량 발생을 억제하고 최소 불량률을 유지하는가</td>
+                    <td class="weight-col">8</td>
+                    <td>
+                        <div class="score-group" data-weight="8">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+                <tr>
+                    <td class="item-name">품질 점검 및 통제</td>
+                    <td class="item-desc">작업 표준서를 준수하도록 조원들을 지도하고 수시로 확인하는가</td>
+                    <td class="weight-col">7</td>
+                    <td>
+                        <div class="score-group" data-weight="7">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+
+                <!-- 4. 안전 관리 -->
+                <tr>
+                    <th rowspan="2">안전<br>관리</th>
+                    <td class="item-name">안전사고 예방</td>
+                    <td class="item-desc">담당 구역 내 안전 위해 요소를 파악하고 사전 조치를 취하는가</td>
+                    <td class="weight-col">8</td>
+                    <td>
+                        <div class="score-group" data-weight="8">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+                <tr>
+                    <td class="item-name">안전교육 및 점검</td>
+                    <td class="item-desc">조원 대상 안전보건 교육 및 보호구 착용 상태를 매일 점검하는가</td>
+                    <td class="weight-col">7</td>
+                    <td>
+                        <div class="score-group" data-weight="7">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+
+                <!-- 5. 소통/보고 -->
+                <tr>
+                    <th rowspan="2">소통<br>보고</th>
+                    <td class="item-name">상급자 보고체계 준수</td>
+                    <td class="item-desc">지시사항을 명확히 이해하며, 이상 발생 시 신속하고 정확하게 보고하는가</td>
+                    <td class="weight-col">5</td>
+                    <td>
+                        <div class="score-group" data-weight="5">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+                <tr>
+                    <td class="item-name">하급자 지시/전달</td>
+                    <td class="item-desc">회사 방침 및 작업 지시를 조원들에게 누락 없이 명확하게 전파하는가</td>
+                    <td class="weight-col">5</td>
+                    <td>
+                        <div class="score-group" data-weight="5">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+
+                <!-- 6. 문제 해결 -->
+                <tr>
+                    <th rowspan="2">문제<br>해결</th>
+                    <td class="item-name">돌발 상황 대처</td>
+                    <td class="item-desc">설비 고장, 자재 결품 등 현장 이슈 발생 시 침착하게 대응 조치하는가</td>
+                    <td class="weight-col">5</td>
+                    <td>
+                        <div class="score-group" data-weight="5">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+                <tr>
+                    <td class="item-name">현장 개선 제안</td>
+                    <td class="item-desc">공정 개선, 비용 절감 등을 위해 능동적으로 아이디어를 제안·실행하는가</td>
+                    <td class="weight-col">5</td>
+                    <td>
+                        <div class="score-group" data-weight="5">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+
+                <!-- 7. 근태/성실성 -->
+                <tr>
+                    <th rowspan="2">근태<br>성실</th>
+                    <td class="item-name">출근율 및 규정 준수</td>
+                    <td class="item-desc">조장으로서 솔선수범하여 근태 관리를 철저히 하고 사내 규정을 준수하는가</td>
+                    <td class="weight-col">5</td>
+                    <td>
+                        <div class="score-group" data-weight="5">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+                <tr>
+                    <td class="item-name">주인의식 및 책임감</td>
+                    <td class="item-desc">소속 부서 및 담당 업무에 대한 강한 애착과 책임감을 지니고 있는가</td>
+                    <td class="weight-col">5</td>
+                    <td>
+                        <div class="score-group" data-weight="5">
+                            <span class="score-circle" data-score="1">1</span>
+                            <span class="score-circle" data-score="2">2</span>
+                            <span class="score-circle" data-score="3">3</span>
+                            <span class="score-circle" data-score="4">4</span>
+                            <span class="score-circle" data-score="5">5</span>
+                        </div>
+                    </td>
+                    <td class="score-cell">-</td>
+                </tr>
+
+                <!-- 합계 -->
+                <tr class="total-row">
+                    <td colspan="3" style="text-align:center; font-size:14px;">합 계 (Total Score)</td>
+                    <td style="text-align:center;">100</td>
+                    <td style="text-align:center; font-size:12px;">배점 × 점수(1~5) ÷ 5</td>
+                    <td id="totalScore" style="text-align:center; font-size:18px; color:#dc2626;">0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 3. 평가등급 -->
+        <div class="grade-section">
+            <span class="grade-label">📊 최종 평가등급:</span>
+            <div class="grade-box">
+                <div class="grade-item" data-grade="S" onclick="selectGrade(this)">
+                    <span class="grade-letter">S</span>
+                    <span class="grade-range">95~100</span>
+                </div>
+                <div class="grade-item" data-grade="A" onclick="selectGrade(this)">
+                    <span class="grade-letter">A</span>
+                    <span class="grade-range">85~94</span>
+                </div>
+                <div class="grade-item" data-grade="B" onclick="selectGrade(this)">
+                    <span class="grade-letter">B</span>
+                    <span class="grade-range">70~84</span>
+                </div>
+                <div class="grade-item" data-grade="C" onclick="selectGrade(this)">
+                    <span class="grade-letter">C</span>
+                    <span class="grade-range">60~69</span>
+                </div>
+                <div class="grade-item" data-grade="D" onclick="selectGrade(this)">
+                    <span class="grade-letter">D</span>
+                    <span class="grade-range">60미만</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 종합의견 -->
+        <div class="opinion-section">
+            <div class="opinion-box">
+                <div class="opinion-header">Ⅲ. 종합의견 및 피드백 (강점, 개선점, 향후 육성 방향 등)</div>
+                <textarea placeholder="해당 조장의 관리자로서의 강점, 조직 운영상 개선이 필요한 부분, 향후 육성 방향 등을 자유롭게 기술해 주세요."></textarea>
+            </div>
+        </div>
+
+        <!-- 5. 서명란 -->
+        <div class="sign-section">
+            <div class="section-title">Ⅳ. 확인 및 서명</div>
+            <table class="sign-table">
+                <tr>
+                    <th></th>
+                    <th>평가자 (관리자)</th>
+                    <th>확인자 (부서장)</th>
+                    <th>승인자 (임원/대표)</th>
+                </tr>
+                <tr>
+                    <th>성명</th>
+                    <td><input type="text" placeholder="성명"></td>
+                    <td><input type="text" placeholder="성명"></td>
+                    <td><input type="text" placeholder="성명"></td>
+                </tr>
+                <tr>
+                    <th>서명</th>
+                    <td style="height:70px;">(인)</td>
+                    <td style="height:70px;">(인)</td>
+                    <td style="height:70px;">(인)</td>
+                </tr>
+                <tr>
+                    <th>일자</th>
+                    <td><input type="date"></td>
+                    <td><input type="date"></td>
+                    <td><input type="date"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 평가기준 안내 -->
+        <div class="guide-box">
+            <h4>📌 점수 부여 기준 안내</h4>
+            <table>
+                <tr>
+                    <th>점수</th>
+                    <th>1점 (매우 미흡)</th>
+                    <th>2점 (미흡)</th>
+                    <th>3점 (보통)</th>
+                    <th>4점 (우수)</th>
+                    <th>5점 (매우 우수)</th>
+                </tr>
+                <tr>
+                    <td><strong>기준</strong></td>
+                    <td>기대 이하, 즉각적인 개선 및 조장 직위 재검토 필요</td>
+                    <td>기준 미달, 관리자로서 집중 지도가 요구됨</td>
+                    <td>조장으로서 요구되는 기본적인 역할을 수행함</td>
+                    <td>기대 이상의 성과 및 우수한 관리 역량을 발휘함</td>
+                    <td>탁월한 리더십과 성과 창출로 타 조장의 모범이 됨</td>
+                </tr>
+            </table>
+            <p style="margin-top:8px;">※ 득점 = 배점 × 선택점수 ÷ 5 &nbsp;|&nbsp; 만점: 100점 &nbsp;|&nbsp; 본 평가서는 3년간 보관합니다.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // 문서번호 연도 자동 설정
+        document.getElementById('docYear').textContent = new Date().getFullYear();
+
+        // 점수 원형 클릭 이벤트
+        document.querySelectorAll('.score-circle').forEach(circle => {
+            circle.addEventListener('click', function() {
+                const group = this.parentElement;
+                // 같은 그룹 내 선택 해제
+                group.querySelectorAll('.score-circle').forEach(c => c.classList.remove('selected'));
+                // 현재 선택
+                this.classList.add('selected');
+
+                // 득점 계산: 배점 × 선택점수 ÷ 5
+                const weight = parseInt(group.dataset.weight);
+                const score = parseInt(this.dataset.score);
+                const result = (weight * score / 5).toFixed(1);
+                
+                // 같은 행의 득점 셀에 표시
+                const row = this.closest('tr');
+                const scoreCell = row.querySelector('.score-cell');
+                scoreCell.textContent = result;
+
+                // 합계 재계산
+                calculateTotal();
+            });
+        });
+
+        // 합계 계산
+        function calculateTotal() {
+            let total = 0;
+            document.querySelectorAll('.score-cell').forEach(cell => {
+                const val = parseFloat(cell.textContent);
+                if (!isNaN(val)) {
+                    total += val;
+                }
+            });
+            document.getElementById('totalScore').textContent = total.toFixed(1);
+
+            // 등급 자동 선택
+            autoSelectGrade(total);
+        }
+
+        // 등급 자동 선택
+        function autoSelectGrade(score) {
+            document.querySelectorAll('.grade-item').forEach(item => item.classList.remove('selected'));
+            
+            let grade = '';
+            if (score >= 95) grade = 'S';
+            else if (score >= 85) grade = 'A';
+            else if (score >= 70) grade = 'B';
+            else if (score >= 60) grade = 'C';
+            else if (score > 0) grade = 'D';
+
+            if (grade) {
+                document.querySelector(`.grade-item[data-grade="${grade}"]`).classList.add('selected');
+            }
+        }
+
+        // 등급 수동 선택
+        function selectGrade(el) {
+            document.querySelectorAll('.grade-item').forEach(item => item.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        // 초기화
+        function resetForm() {
+            if (!confirm('모든 입력 내용을 초기화하시겠습니까?')) return;
+
+            // 점수 초기화
+            document.querySelectorAll('.score-circle').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.score-cell').forEach(c => c.textContent = '-');
+            document.getElementById('totalScore').textContent = '0';
+            document.querySelectorAll('.grade-item').forEach(item => item.classList.remove('selected'));
+
+            // 입력 필드 초기화
+            document.querySelectorAll('input[type="text"], input[type="date"]').forEach(input => input.value = '');
+            document.querySelectorAll('select').forEach(sel => sel.selectedIndex = 0);
+            document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+        }
+
+        // PDF 저장 (브라우저 인쇄 기능 활용)
+        function saveAsPDF() {
+            alert('인쇄 화면에서 "PDF로 저장"을 선택해 주세요.');
+            window.print();
+        }
+    </script>
+
+</body>
+</html>

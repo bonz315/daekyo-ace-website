@@ -83,16 +83,22 @@ const CLOUDINARY_API_KEY = '687819466161614';
 const CLOUDINARY_API_SECRET = 'NNmn6k8jW3Kdl4dhibevUngJ9vI';
 const CLOUDINARY_FOLDER = 'daekyo-resources';
 
-async function sha256Hex(message) {
+async function sha1Hex(message) {
     const buf = new TextEncoder().encode(message);
-    const hash = await crypto.subtle.digest('SHA-256', buf);
+    const hash = await crypto.subtle.digest('SHA-1', buf);
     return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function uploadToCloudinary(file) {
+// resourceType: 'raw' = PDF/문서(공개 접근 보장), 'auto' = 이미지
+async function uploadToCloudinary(file, resourceType = 'auto') {
     const timestamp = Math.round(Date.now() / 1000).toString();
-    const paramsToSign = `folder=${CLOUDINARY_FOLDER}&timestamp=${timestamp}`;
-    const signature = await sha256Hex(paramsToSign + CLOUDINARY_API_SECRET);
+
+    // raw 업로드: Cloudinary strict transformations 정책 미적용 → 항상 공개
+    // auto 업로드: access_mode=public 명시 필요
+    const paramsToSign = resourceType === 'raw'
+        ? `folder=${CLOUDINARY_FOLDER}&timestamp=${timestamp}`
+        : `access_mode=public&folder=${CLOUDINARY_FOLDER}&timestamp=${timestamp}`;
+    const signature = await sha1Hex(paramsToSign + CLOUDINARY_API_SECRET);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -100,9 +106,11 @@ async function uploadToCloudinary(file) {
     formData.append('timestamp', timestamp);
     formData.append('signature', signature);
     formData.append('folder', CLOUDINARY_FOLDER);
-    formData.append('signature_algorithm', 'sha256');
+    if (resourceType !== 'raw') {
+        formData.append('access_mode', 'public');
+    }
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`, {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`, {
         method: 'POST',
         body: formData
     });
@@ -160,8 +168,8 @@ window.handleImageSelect = function (input, targetInputId, previewId) {
             thumbReader.readAsDataURL(file);
         }
 
-        // Cloudinary 업로드
-        uploadToCloudinary(file)
+        // Cloudinary raw 업로드 (PDF/문서 → raw타입은 ACL 제한 없이 공개 접근)
+        uploadToCloudinary(file, 'raw')
             .then(downloadUrl => {
                 targetInput.value = downloadUrl;
                 targetInput.disabled = false;

@@ -319,21 +319,26 @@ function initContactForm() {
                 submitBtn.textContent = '문의 전송 중...';
             }
 
-            // 1. EmailJS를 통해 실제 메일 발송
-            emailjs.send("service_chviv7u", "template_c7t3yqs", formData)
-                .then(function () {
-                    console.log('Email Sent SUCCESS!');
+            // 1. Firebase Firestore에 저장 (진짜 DB) 먼저 실행
+            const firestoreToUse = mainFirestore || (typeof db !== 'undefined' ? db : null);
+            if (!firestoreToUse) {
+                alert('데이터베이스 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '문의하기';
+                }
+                return;
+            }
 
-                    // 2. Firebase Firestore에 저장 (진짜 DB)
-                    const firestoreToUse = mainFirestore || (typeof db !== 'undefined' ? db : null);
-                    if (firestoreToUse) {
-                        return firestoreToUse.collection("inquiries").doc(formData.id).set(formData);
-                    } else {
-                        throw new Error("Firestore is not initialized.");
-                    }
+            firestoreToUse.collection("inquiries").doc(formData.id).set(formData)
+                .then(function () {
+                    console.log('DB Save SUCCESS!');
+                    // 2. DB 저장 성공 시 EmailJS를 통해 실제 알림 메일 발송
+                    return emailjs.send("service_chviv7u", "template_c7t3yqs", formData);
                 })
                 .then(function () {
-                    // DB 저장 성공 시
+                    console.log('Email Sent SUCCESS!');
+                    // 성공 시 UI 처리
                     contactForm.style.display = 'none';
                     successMessage.style.display = 'block';
 
@@ -349,7 +354,8 @@ function initContactForm() {
                 })
                 .catch(function (error) {
                     console.log('FAILED...', error);
-                    alert('전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                    let errMsg = error.message || (typeof error === 'object' ? JSON.stringify(error) : error);
+                    alert('전송 중 오류가 발생했습니다.\n상세 원인: ' + errMsg);
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.textContent = '문의하기';

@@ -1062,7 +1062,8 @@ document.getElementById('answerForm').addEventListener('submit', function (e) {
                     alert("답변이 등록되고 고객에게 메일 발송 요청이 전달되었습니다.\n(성공/실패 여부는 EmailJS 대시보드를 확인해주세요.)");
                 }, function(error) {
                     console.error('Email Failed...', error);
-                    alert("답변은 등록되었으나, 이메일 알림 전송에 실패했습니다.\n(EmailJS 템플릿 설정 확인 필요)");
+                    const errorDetail = error ? (error.text || error.message || JSON.stringify(error)) : '알 수 없는 오류';
+                    alert("답변은 등록되었으나, 이메일 알림 전송에 실패했습니다.\n\n[상세 오류]\n" + errorDetail + "\n\n(EmailJS 템플릿 설정 및 템플릿 ID [template_reply] 확인이 필요합니다.)");
                 }).finally(() => {
                     closeAnswerModal();
                     if (submitBtn) {

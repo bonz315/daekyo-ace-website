@@ -213,9 +213,13 @@
             }
         };
 
+        let currentResources = [];
+
         document.addEventListener('DOMContentLoaded', function () {
             // 실시간 리스너 연결
-            db.collection("resources").onSnapshot(() => {
+            db.collection("resources").onSnapshot((snapshot) => {
+                currentResources = [];
+                snapshot.forEach(doc => currentResources.push(doc.data()));
                 renderResources(currentFilter);
             });
 
@@ -231,7 +235,7 @@
             });
         });
 
-        async function renderResources(filterType = 'all') {
+        function renderResources(filterType = 'all') {
             const catalogList = document.getElementById('catalogList');
             const certList = document.getElementById('certList');
             const taxList = document.getElementById('taxList');
@@ -251,13 +255,8 @@
             let hasTax = false;
             let hasPatent = false;
 
-            // 1. Firebase에서 데이터 가져오기
-            const snapshot = await db.collection("resources").get();
-            const dbResources = [];
-            snapshot.forEach(doc => dbResources.push(doc.data()));
-
-            // 2. 고정 데이터와 DB 데이터 합치기
-            const allResources = [...resources, ...dbResources];
+            // 고정 데이터와 DB 데이터 합치기
+            const allResources = [...resources, ...currentResources];
 
             allResources.forEach(res => {
                 if (filterType !== 'all' && res.type !== filterType) return;

@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         initRecommendedSlider();
     }
 
+    // 홈 화면 최신 자료 로드
+    if (document.getElementById('latestResourcesList')) {
+        initLatestResources();
+    }
+
     // 제품 필터링
     initProductFilters();
 
@@ -622,3 +627,67 @@ function initRecommendedSlider() {
 }
 window.smoothScroll = smoothScroll;
 window.scrollToTop = scrollToTop;
+
+// ==========================================
+// 홈 화면 최신 자료 렌더링
+// ==========================================
+async function initLatestResources() {
+    const list = document.getElementById('latestResourcesList');
+    if (!list) return;
+
+    try {
+        const firestoreToUse = (typeof mainFirestore !== 'undefined' ? mainFirestore : (typeof db !== 'undefined' ? db : null));
+        if (!firestoreToUse) return;
+
+        const snapshot = await firestoreToUse.collection('resources').get();
+        const dbResources = [];
+        snapshot.forEach(doc => dbResources.push(doc.data()));
+
+        const staticResources = typeof resources !== 'undefined' ? resources : [];
+        let allResources = [...staticResources, ...dbResources];
+
+        // 최신순 정렬
+        allResources.sort((a, b) => {
+            const dateA = a.updatedAt ? new Date(a.updatedAt) : new Date(0);
+            const dateB = b.updatedAt ? new Date(b.updatedAt) : new Date(0);
+            return dateB - dateA;
+        });
+
+        // 2개만 추출
+        const latest = allResources.slice(0, 2);
+
+        if (latest.length === 0) {
+            list.innerHTML = '<p style="text-align:center; padding:2rem; color:#999;">최신 자료가 없습니다.</p>';
+            return;
+        }
+
+        let html = '';
+        latest.forEach(res => {
+            let icon = '📄';
+            if (res.type === 'cert') icon = '🏆';
+            else if (res.type === 'tax') icon = '🏦';
+            else if (res.type === 'patent') icon = '📜';
+
+            let iconHtml = `<div class="resource-icon">${icon}</div>`;
+            if (res.thumbnail) {
+                iconHtml = `<div class="resource-icon" style="background:none; border:none; padding:0; overflow:hidden;"><img src="${res.thumbnail}" style="width:100%; height:100%; object-fit:cover; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.1);"></div>`;
+            }
+
+            html += `
+                <div class="resource-item">
+                    <div class="resource-info">
+                        ${iconHtml}
+                        <div class="resource-details">
+                            <h3>${res.title}</h3>
+                            <p>${res.description}</p>
+                        </div>
+                    </div>
+                    <a href="resources.html" class="download-btn">자료실로 이동</a>
+                </div>
+            `;
+        });
+        list.innerHTML = html;
+    } catch (e) {
+        console.error('최신 자료를 불러오는 중 오류 발생:', e);
+    }
+}
